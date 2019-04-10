@@ -5,7 +5,7 @@ Simple floating form for my store's registers.
 
 Resets printers and printer queue
 
-Restart Adobe - Our POS cause it to freeze all the time
+Restart Adobe - Our POS causes it to freeze all the time
 
 Restart Flowhub - Our POS, is literally a POS
 
