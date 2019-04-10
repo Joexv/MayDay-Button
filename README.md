@@ -1,7 +1,7 @@
 # MayDay Button
 Simple floating form for my store's registers.
 
-Current features:
+# Current features:
 
 Resets printers and printer queue
 
