@@ -1,0 +1,11 @@
+Z:\MaydayButton\MayDayButton.exe.config
+Z:\MaydayButton\MayDayButton.exe
+Z:\MaydayButton\MayDayButton.pdb
+C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Release\MayDayButton.Form1.resources
+C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Release\MayDayButton.Form2.resources
+C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Release\MayDayButton.Properties.Resources.resources
+C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Release\MayDay Button.csproj.GenerateResource.cache
+C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Release\MayDay Button.csproj.CoreCompileInputs.cache
+C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Release\MayDayButton.exe
+C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Release\MayDayButton.pdb
+C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Release\MayDay Button.csprojAssemblyReference.cache

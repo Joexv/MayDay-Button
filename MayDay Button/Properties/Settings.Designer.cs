@@ -34,5 +34,17 @@ namespace MayDayButton.Properties {
                 this["X"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool ShouldUpdate {
+            get {
+                return ((bool)(this["ShouldUpdate"]));
+            }
+            set {
+                this["ShouldUpdate"] = value;
+            }
+        }
     }
 }

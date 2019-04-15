@@ -37,6 +37,7 @@
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.button3 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
+            this.backgroundWorker2 = new System.ComponentModel.BackgroundWorker();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -90,7 +91,7 @@
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(85, 26);
             this.label3.TabIndex = 4;
-            this.label3.Text = "Something else?\r\nContact Joe\r\n";
+            this.label3.Text = "Something else?\r\nContact Joe";
             // 
             // pictureBox1
             // 
@@ -125,6 +126,11 @@
             this.button4.Text = "Options";
             this.button4.UseVisualStyleBackColor = true;
             this.button4.Click += new System.EventHandler(this.button4_Click);
+            // 
+            // backgroundWorker2
+            // 
+            this.backgroundWorker2.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker2_DoWork);
+            this.backgroundWorker2.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker2_RunWorkerCompleted);
             // 
             // Form1
             // 
@@ -167,6 +173,7 @@
         private System.ComponentModel.BackgroundWorker backgroundWorker1;
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Button button4;
+        private System.ComponentModel.BackgroundWorker backgroundWorker2;
     }
 }
 
