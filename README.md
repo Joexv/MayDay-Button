@@ -9,6 +9,8 @@ Restart Adobe - Our POS causes it to freeze all the time
 
 Restart Flowhub - Our POS, is literally a POS
 
+Requires a password to close - Because one of my coworkers "Didn't like it"
+
 Mayday Parade
 
 Big read button to cause panic
