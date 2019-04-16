@@ -44,21 +44,27 @@
             // 
             // label1
             // 
+            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.label1.BackColor = System.Drawing.Color.Maroon;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Underline))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.ForeColor = System.Drawing.Color.White;
-            this.label1.Location = new System.Drawing.Point(0, 318);
+            this.label1.Location = new System.Drawing.Point(-1, 320);
             this.label1.Name = "label1";
             this.label1.Padding = new System.Windows.Forms.Padding(0, 10, 0, 0);
-            this.label1.Size = new System.Drawing.Size(202, 34);
+            this.label1.Size = new System.Drawing.Size(207, 28);
             this.label1.TabIndex = 0;
-            this.label1.Text = "MAYDAY! I BROKE SOMETHING!";
+            this.label1.Text = "MAYDAY!";
+            this.label1.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             this.label1.Click += new System.EventHandler(this.label1_Click);
             this.label1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.label1_MouseDown);
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(13, 119);
+            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.button1.Location = new System.Drawing.Point(12, 120);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(176, 30);
             this.button1.TabIndex = 1;
@@ -69,7 +75,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(52, 103);
+            this.label2.Location = new System.Drawing.Point(57, 103);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(90, 13);
             this.label2.TabIndex = 2;
@@ -77,7 +83,9 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(13, 155);
+            this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.button2.Location = new System.Drawing.Point(12, 156);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(176, 30);
             this.button2.TabIndex = 3;
@@ -87,10 +95,12 @@
             // 
             // pictureBox1
             // 
+            this.pictureBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.pictureBox1.Image = global::MayDayButton.Properties.Resources.confetti;
-            this.pictureBox1.Location = new System.Drawing.Point(0, -28);
+            this.pictureBox1.Location = new System.Drawing.Point(-5, -1);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(202, 128);
+            this.pictureBox1.Size = new System.Drawing.Size(211, 101);
             this.pictureBox1.TabIndex = 5;
             this.pictureBox1.TabStop = false;
             // 
@@ -101,7 +111,9 @@
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(13, 191);
+            this.button3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.button3.Location = new System.Drawing.Point(12, 192);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(176, 30);
             this.button3.TabIndex = 6;
@@ -111,9 +123,11 @@
             // 
             // button4
             // 
-            this.button4.Location = new System.Drawing.Point(136, 225);
+            this.button4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.button4.Location = new System.Drawing.Point(135, 226);
             this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(53, 41);
+            this.button4.Size = new System.Drawing.Size(53, 30);
             this.button4.TabIndex = 7;
             this.button4.Text = "Options";
             this.button4.UseVisualStyleBackColor = true;
@@ -126,9 +140,11 @@
             // 
             // button5
             // 
-            this.button5.Location = new System.Drawing.Point(13, 225);
+            this.button5.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.button5.Location = new System.Drawing.Point(12, 226);
             this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(117, 41);
+            this.button5.Size = new System.Drawing.Size(117, 30);
             this.button5.TabIndex = 8;
             this.button5.Text = "Open TeamViewer";
             this.button5.UseVisualStyleBackColor = true;
@@ -136,9 +152,11 @@
             // 
             // button6
             // 
-            this.button6.Location = new System.Drawing.Point(13, 272);
+            this.button6.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.button6.Location = new System.Drawing.Point(12, 262);
             this.button6.Name = "button6";
-            this.button6.Size = new System.Drawing.Size(176, 33);
+            this.button6.Size = new System.Drawing.Size(176, 44);
             this.button6.TabIndex = 9;
             this.button6.Text = "I need more help";
             this.button6.UseVisualStyleBackColor = true;
@@ -148,7 +166,10 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(200, 348);
+            this.AutoSize = true;
+            this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.ClientSize = new System.Drawing.Size(204, 348);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.button6);
             this.Controls.Add(this.button5);
             this.Controls.Add(this.button4);
@@ -156,7 +177,6 @@
             this.Controls.Add(this.button2);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.button1);
-            this.Controls.Add(this.label1);
             this.Controls.Add(this.pictureBox1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.MaximizeBox = false;
@@ -168,6 +188,7 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "MayDay!";
             this.TopMost = true;
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);

@@ -25,6 +25,8 @@ namespace MayDayButton
             InitializeComponent();
         }
 
+        
+
         private void Form1_Load(object sender, EventArgs e)
         {
             //MessageBox.Show(Application.ProductVersion);
@@ -44,11 +46,12 @@ namespace MayDayButton
                 backgroundWorker1.RunWorkerAsync();
                 backgroundWorker2.RunWorkerAsync();
             }
+            //label1.Size = new Size(this.Size.Width + 10, label1.Size.Height);
         }
 
         private void label1_Click(object sender, EventArgs e)
         {
-                this.Location = new Point(ps.Default.X, -50);
+                //this.Location = new Point(ps.Default.X, -50);
         }
 
         //Printer
@@ -72,6 +75,7 @@ namespace MayDayButton
                 ProcessInfo = new ProcessStartInfo("cmd.exe", "/C " + Arguments);
                 ProcessInfo.UseShellExecute = false;
                 ProcessInfo.CreateNoWindow = isHidden;
+                ProcessInfo.Verb = "runas";
                 Process = Process.Start(ProcessInfo);
                 Process.WaitForExit();
                 Process.Dispose();
@@ -240,8 +244,11 @@ namespace MayDayButton
 
         private void backgroundWorker2_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            if(Command != "" || Command != null)
-                AppendLog("Opened Team Viewer");
+            if (Command != "" || Command != null)
+            {
+                AppendLog("Command was sent via TCP");
+                AppendLog(Command);
+            }
             backgroundWorker2.RunWorkerAsync();
             switch (Command.ToUpper())
             {
@@ -291,14 +298,10 @@ namespace MayDayButton
             Directory.CreateDirectory(@"C:\MayDayButton\");
             if (!File.Exists(Log))
                 using (StreamWriter sw = File.CreateText(Log))
-                {
                     sw.WriteLine(formatted);
-                }
             else
                 using (StreamWriter sw = File.AppendText(Log))
-                {
                     sw.WriteLine(formatted);
-                }
         }
 
         private void button5_Click(object sender, EventArgs e)
@@ -312,18 +315,22 @@ namespace MayDayButton
 
         private void button6_Click(object sender, EventArgs e)
         {
+            if (!File.Exists(@"C:\MayDayButton\Email.config"))
+                File.Copy(@"\\192.168.1.210\Server\MaydayButton\Email.config", @"C:\MayDayButton\Email.config");
             sendMessage(GetEmail[2], "Help I broke something really bad!");
             string link = SlackLink();
             if (link != "NA")
             {
                 MessageBox.Show("You will be contacted via Slack shortly.");
-                Process.Start(link); 
+                Process.Start(link);
             }
+            else
+                MessageBox.Show("You will be contaced soon! Please wait at least 15 minutes before calling unless its an emergency!");
         }
 
         private string[] GetEmail
             => File.ReadAllLines(@"C:\MayDayButton\Email.config");
-        
+
         private string WhatComputer()
         {
             switch(GetLocalIPAddress())
@@ -372,28 +379,34 @@ namespace MayDayButton
 
         public void sendMessage(string To, string Message, string Subject = "", string Name = "Joe")
         {
-            var fromAddress = new MailAddress(GetEmail[0], "MayDay Button");
-            var toAddress = new MailAddress(To, Name);
-            string fromPassword = GetEmail[1];
-            string subject = Subject;
-            string body = String.Format("{0}\n{1}\n{2}", Message, WhatComputer(), WhatIveTried());
+            try
+            {
+                var fromAddress = new MailAddress(GetEmail[0], "MayDay Button");
+                var toAddress = new MailAddress(To, Name);
+                string fromPassword = GetEmail[1];
+                string subject = Subject;
+                string body = String.Format("{0}\n{1}\n{2}", Message, WhatComputer(), WhatIveTried());
 
-            var smtp = new SmtpClient
-            {
-                Host = "smtp.gmail.com",
-                Port = 587,
-                EnableSsl = true,
-                DeliveryMethod = SmtpDeliveryMethod.Network,
-                UseDefaultCredentials = false,
-                Credentials = new NetworkCredential(fromAddress.Address, fromPassword)
-            };
-            using (var message = new MailMessage(fromAddress, toAddress)
-            {
-                Subject = subject,
-                Body = body
-            })
-            {
-                smtp.Send(message);
+                var smtp = new SmtpClient
+                {
+                    Host = "smtp.gmail.com",
+                    Port = 587,
+                    EnableSsl = true,
+                    DeliveryMethod = SmtpDeliveryMethod.Network,
+                    UseDefaultCredentials = false,
+                    Credentials = new NetworkCredential(fromAddress.Address, fromPassword)
+                };
+                using (var message = new MailMessage(fromAddress, toAddress)
+                {
+                    Subject = subject,
+                    Body = body
+                })
+                {
+                    smtp.Send(message);
+                }
+            }
+            catch(Exception e) {
+                MessageBox.Show("There was an error sending an alert to your tech! Please try again!\n" + e.ToString());
             }
         }
 
@@ -411,10 +424,15 @@ namespace MayDayButton
             {
                 ReleaseCapture();
                 SendMessage(Handle, WM_NCLBUTTONDOWN, HT_CAPTION, 0);
-                Properties.Settings.Default.X = this.Location.X;
-                Properties.Settings.Default.Save();
+                ps.Default.X = this.Location.X;
+                ps.Default.Save();
                 this.Location = new Point(ps.Default.X, -50);
             }
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            AppendLog("I did done did get closeded :(");
         }
     }
 }

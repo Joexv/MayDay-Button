@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,6 +26,7 @@ namespace MayDayButton
 
         private void button2_Click(object sender, EventArgs e)
         {
+            AppendLog("Restarting");
             Application.Restart();
         }
 
@@ -35,9 +37,27 @@ namespace MayDayButton
 
         private void button3_Click(object sender, EventArgs e)
         {
+            AppendLog("Someone tried to close me via password!");
             string promptValue = ShowDialog("Warning!", "In order to close the MayDay Button you must confirm with a password.\nIf you do not know the password you should not be closing the MayDay Button!");
-            if(promptValue == "password")
-                  Application.Exit();
+            if (promptValue == "password")
+                Application.Exit();
+        }
+
+        const string Log = @"C:\MayDayButton\Log.txt";
+        private void AppendLog(string Text)
+        {
+            string formatted = String.Format("[{0}]::{1}", DateTime.Now.ToString("MM/dd h:mm tt"), Text);
+            Directory.CreateDirectory(@"C:\MayDayButton\");
+            if (!File.Exists(Log))
+                using (StreamWriter sw = File.CreateText(Log))
+                {
+                    sw.WriteLine(formatted);
+                }
+            else
+                using (StreamWriter sw = File.AppendText(Log))
+                {
+                    sw.WriteLine(formatted);
+                }
         }
 
         public static string ShowDialog(string caption, string text)
