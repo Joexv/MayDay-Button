@@ -53,6 +53,7 @@ namespace MayDayButton
             Label textLabel = new Label() { Left = 50, Top = 20, Text = text };
             textLabel.AutoSize = true;
             TextBox textBox = new TextBox() { Left = 50, Top = 60, Width = 400 };
+            textBox.UseSystemPasswordChar = true;
             Button confirmation = new Button() { Text = "Ok", Left = 350, Width = 100, Top = 80, DialogResult = DialogResult.OK };
             confirmation.Click += (sender, e) => { prompt.Close(); };
             prompt.Controls.Add(textBox);
@@ -61,6 +62,13 @@ namespace MayDayButton
             prompt.AcceptButton = confirmation;
 
             return prompt.ShowDialog() == DialogResult.OK ? textBox.Text : "";
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.ShouldUpdate = true;
+            Properties.Settings.Default.Save();
+            Application.Restart();
         }
     }
 }

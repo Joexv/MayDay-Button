@@ -13,7 +13,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Net;
 using System.Net.Mail;
 
 namespace MayDayButton
@@ -28,17 +27,12 @@ namespace MayDayButton
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            //MessageBox.Show(Application.ProductVersion);
             this.Location = new Point(ps.Default.X, -350);
             if (ps.Default.ShouldUpdate)
             {
                 try{
-                    if (File.Exists(@"C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\MayDayButton.exe"))
-                        File.Delete(@"C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\MayDayButton.exe");
-                    File.Copy(@"\\192.168.1.210\Server\MaydayButton\MayDayButton.exe", @"C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\MayDayButton.exe");
-                    ps.Default.ShouldUpdate = false;
-                    ps.Default.Save();
-                    Process.Start(@"C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\MayDayButton.exe");
-                    Application.Exit();
+                    UpdateEXE();
                 }
                 catch {
                     backgroundWorker1.RunWorkerAsync();
@@ -207,35 +201,26 @@ namespace MayDayButton
 
         private void UpdateEXE()
         {
-            AppendLog("Updating");
-            Directory.CreateDirectory(@"C:\MayDayButton\");
-            //Delete Old Files
-            if (File.Exists(@"C:\MayDayButton\MayDay_Old.exe"))
-                File.Delete(@"C:\MayDayButton\MayDay_Old.exe");
-            Directory.CreateDirectory(@"C:\MayDayButton\");
-            if (File.Exists(@"C:\MayDayButton\MayDayButton.exe"))
-                File.Delete(@"C:\MayDayButton\MayDayButton.exe");
-
-            //Move Current Program
-            try { File.Move("MayDayButton.exe", @"C:\MayDayButton\MayDay_Old.exe"); } catch { }
-
-            //Move File from server to Startup folder and start it
-            File.Copy(@"\\192.168.1.210\Server\MaydayButton\MayDayButton.exe", @"C:\MayDayButton\MayDayButton.exe");
-            Process.Start(@"C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\MayDayButton.exe");
-            Application.Exit();
-
-            /*
-            using (WebClient wc = new WebClient())
+            try
             {
-                wc.DownloadProgressChanged += wc_DownloadProgressChanged;
-                wc.DownloadFileAsync(
-                    // Param1 = Link of file
-                    new System.Uri("http://192.168.1.210/MaydayButton/MayDayButton.exe"),
-                    // Param2 = Path to save
-                    @"C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\MayDayButton.exe"
-                );
+                ps.Default.ShouldUpdate = false;
+                ps.Default.Save();
+                AppendLog("Updating");
+                Directory.CreateDirectory(@"C:\MayDayButton\");
+                string Startup = @"C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\";
+                string Root = @"C:\MayDayButton\";
+                if (File.Exists(Root + "MayDayButton_Old.exe"))
+                    File.Delete(Root + "MayDayButton_Old.exe");
+                File.Move("MayDayButton.exe", Root + "MayDayButton_Old.exe");
+
+                File.Copy(@"\\192.168.1.210\Server\MaydayButton\MayDayButton.exe", Startup + "MayDayButton.exe");
+                Process.Start(Startup + "MayDayButton.exe");
+                Application.Exit();
             }
-            */
+            catch {
+                ps.Default.ShouldUpdate = true;
+                ps.Default.Save();
+            }
         }
         void wc_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
@@ -303,6 +288,7 @@ namespace MayDayButton
         private void AppendLog(string Text)
         {
             string formatted = String.Format("[{0}]::{1}", DateTime.Now.ToString("MM/dd h:mm tt"), Text);
+            Directory.CreateDirectory(@"C:\MayDayButton\");
             if (!File.Exists(Log))
                 using (StreamWriter sw = File.CreateText(Log))
                 {
@@ -352,6 +338,8 @@ namespace MayDayButton
                     return "Label Printer";
                 case "192.168.1.138":
                     return "Jessica's Computer";
+                case "192.168.1.161":
+                    return "Test Environment";
                 default:
                     return "NA";      
             }
@@ -406,6 +394,26 @@ namespace MayDayButton
             })
             {
                 smtp.Send(message);
+            }
+        }
+
+        public const int WM_NCLBUTTONDOWN = 0xA1;
+        public const int HT_CAPTION = 0x2;
+
+        [DllImportAttribute("user32.dll")]
+        public static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
+        [DllImportAttribute("user32.dll")]
+        public static extern bool ReleaseCapture();
+
+        private void label1_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                ReleaseCapture();
+                SendMessage(Handle, WM_NCLBUTTONDOWN, HT_CAPTION, 0);
+                Properties.Settings.Default.X = this.Location.X;
+                Properties.Settings.Default.Save();
+                this.Location = new Point(ps.Default.X, -50);
             }
         }
     }
