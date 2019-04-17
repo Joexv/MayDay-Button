@@ -50,14 +50,10 @@ namespace MayDayButton
             Directory.CreateDirectory(@"C:\MayDayButton\");
             if (!File.Exists(Log))
                 using (StreamWriter sw = File.CreateText(Log))
-                {
                     sw.WriteLine(formatted);
-                }
             else
                 using (StreamWriter sw = File.AppendText(Log))
-                {
                     sw.WriteLine(formatted);
-                }
         }
 
         public static string ShowDialog(string caption, string text)

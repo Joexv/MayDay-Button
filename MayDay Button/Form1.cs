@@ -14,6 +14,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Net.Mail;
+using Microsoft.Win32;
+using System.Management;
 
 namespace MayDayButton
 {
@@ -25,10 +27,9 @@ namespace MayDayButton
             InitializeComponent();
         }
 
-        
-
         private void Form1_Load(object sender, EventArgs e)
         {
+            SetStartup();
             //MessageBox.Show(Application.ProductVersion);
             this.Location = new Point(ps.Default.X, -350);
             if (ps.Default.ShouldUpdate)
@@ -47,6 +48,36 @@ namespace MayDayButton
                 backgroundWorker2.RunWorkerAsync();
             }
             //label1.Size = new Size(this.Size.Width + 10, label1.Size.Height);
+            if (Process.GetProcessesByName("MayDayButton").Count() > 1)
+                Application.Exit();
+        }
+
+        private void SetStartup()
+        {
+            try
+            {
+                using (RegistryKey key = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run\\"))
+                {
+                    if (key != null)
+                    {
+                        Object o = key.GetValue("MayDayButton");
+                        if (o == null || o != Application.ExecutablePath)
+                        {
+                                RegistryKey rk = Registry.LocalMachine.OpenSubKey
+                                  ("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
+                                rk.SetValue("MayDayButton", Application.ExecutablePath);
+                        }
+                    }
+                }
+            }
+            catch {
+                ProcessStartInfo ProcessInfo;
+                Process Process;
+                ProcessInfo = new ProcessStartInfo(@"C:\MayDayButton\MayDayButton.exe");
+                ProcessInfo.Verb = "runas";
+                Process = Process.Start(ProcessInfo);
+                Application.Exit();
+            }  
         }
 
         private void label1_Click(object sender, EventArgs e)
@@ -201,6 +232,7 @@ namespace MayDayButton
             AppendLog("Closed Adobe");
             foreach (var process in Process.GetProcessesByName("Adobe"))
                 process.Kill();
+            
         }
 
         private void UpdateEXE()
@@ -211,14 +243,14 @@ namespace MayDayButton
                 ps.Default.Save();
                 AppendLog("Updating");
                 Directory.CreateDirectory(@"C:\MayDayButton\");
-                string Startup = @"C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\";
                 string Root = @"C:\MayDayButton\";
                 if (File.Exists(Root + "MayDayButton_Old.exe"))
                     File.Delete(Root + "MayDayButton_Old.exe");
                 File.Move("MayDayButton.exe", Root + "MayDayButton_Old.exe");
-
-                File.Copy(@"\\192.168.1.210\Server\MaydayButton\MayDayButton.exe", Startup + "MayDayButton.exe");
-                Process.Start(Startup + "MayDayButton.exe");
+                if (File.Exists(@"C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup\MayDayButton.exe"))
+                    File.Delete(@"C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup\MayDayButton.exe");
+                File.Copy(@"\\192.168.1.210\Server\MaydayButton\MayDayButton.exe", Root + "MayDayButton.exe");
+                Process.Start(Root + "MayDayButton.exe");
                 Application.Exit();
             }
             catch {
@@ -231,7 +263,7 @@ namespace MayDayButton
             Console.WriteLine(e.ProgressPercentage);
             if(e.ProgressPercentage == 100)
             {
-                Process.Start(@"C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\MayDayButton.exe");
+                Process.Start(@"C:\MayDayButton\MayDayButton.exe");
                 this.Close();
             }
         }
@@ -249,65 +281,78 @@ namespace MayDayButton
                 AppendLog("Command was sent via TCP");
                 AppendLog(Command);
             }
-            backgroundWorker2.RunWorkerAsync();
-            switch (Command.ToUpper())
-            {
-                case "ADOBE":
-                    CloseAdobe();
-                    break;
-                case "FLOWHUB":
-                    RestartFlowhub();
-                    break;
-                case "PRINTER":
-                    FixPrinters();
-                    break;
-                case "PRINTERS":
-                    FixPrinters();
-                    break;
-                case "INTERNET":
-                    FixInternet();
-                    break;
-                case "UPDATE":
-                    UpdateEXE();
-                    break;
-                case "CLOSE":
-                    Application.Exit();
-                    break;
-                case "RESTART":
-                    Application.Restart();
-                    break;
-                case "DLOG":
-                    if(File.Exists(Log))
-                        File.Delete(Log);
-                    break;
-                default:
-                    break;
-            }
-            if (Command.ToUpper().Contains("COMMAND $"))
+            else if (Command.ToUpper().Contains("COMMAND $"))
             {
                 string Temp = Command.Substring(9);
                 cmd(Temp);
             }
+            else if (Command.ToUpper().Contains("MSG $"))
+            {
+                string Temp = Command.Substring(5);
+                MessageBox.Show(Temp);
+            }
+            else {
+                switch (Command.ToUpper())
+                {
+                    case "ADOBE":
+                        CloseAdobe();
+                        break;
+                    case "FLOWHUB":
+                        RestartFlowhub();
+                        break;
+                    case "PRINTER":
+                        FixPrinters();
+                        break;
+                    case "PRINTERS":
+                        FixPrinters();
+                        break;
+                    case "INTERNET":
+                        FixInternet();
+                        break;
+                    case "UPDATE":
+                        UpdateEXE();
+                        break;
+                    case "CLOSE":
+                        Application.Exit();
+                        break;
+                    case "RESTART":
+                        Application.Restart();
+                        break;
+                    case "DLOG":
+                        if (File.Exists(Log))
+                            File.Delete(Log);
+                        break;
+                    default:
+                        break;
+                }
+            }
             Command = "";
+            backgroundWorker2.RunWorkerAsync();
         }
         #endregion
 
         private void AppendLog(string Text)
         {
-            string formatted = String.Format("[{0}]::{1}", DateTime.Now.ToString("MM/dd h:mm tt"), Text);
-            Directory.CreateDirectory(@"C:\MayDayButton\");
-            if (!File.Exists(Log))
-                using (StreamWriter sw = File.CreateText(Log))
-                    sw.WriteLine(formatted);
-            else
-                using (StreamWriter sw = File.AppendText(Log))
-                    sw.WriteLine(formatted);
+            try
+            {
+                string formatted = String.Format("[{0}]::{1}", DateTime.Now.ToString("MM/dd h:mm tt"), Text);
+                Directory.CreateDirectory(@"C:\MayDayButton\");
+                if (!File.Exists(Log))
+                    using (StreamWriter sw = File.CreateText(Log))
+                        sw.WriteLine(formatted);
+                else
+                    using (StreamWriter sw = File.AppendText(Log))
+                        sw.WriteLine(formatted);
+            }
+            catch { }
         }
 
         private void button5_Click(object sender, EventArgs e)
         {
             AppendLog("Opened Team Viewer");
-            if (Process.GetProcessesByName("Teamviewer").Count() < 1 && File.Exists(@"C:\Program Files (x86)\TeamViewer\TeamViewer.exe"))
+            if (File.Exists(@"C:\Program Files (x86)\TeamViewer\TeamViewer.exe"))
+                MessageBox.Show("TeamViewer isn't installed!");
+            else if (Process.GetProcessesByName("Teamviewer").Count() < 1)
                 Process.Start(@"C:\Program Files (x86)\TeamViewer\TeamViewer.exe");
             else
                 MessageBox.Show("TeamViewer is already open!");
