@@ -12,7 +12,6 @@ C:\Users\Joe\source\repos\MayDay Button\MayDay Button\obj\Debug\MayDayButton.pdb
 C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\bin\Debug\MayDayButton.exe.config
 C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\bin\Debug\MayDayButton.exe
 C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\bin\Debug\MayDayButton.pdb
-C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Debug\MayDay Button.csprojAssemblyReference.cache
 C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Debug\MayDayButton.Form1.resources
 C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Debug\MayDayButton.Form2.resources
 C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Debug\MayDayButton.Properties.Resources.resources

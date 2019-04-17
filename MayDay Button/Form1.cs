@@ -27,16 +27,17 @@ namespace MayDayButton
             InitializeComponent();
         }
 
+        public int Y = -351;
+        public int nY = -526;
+
         private void Form1_Load(object sender, EventArgs e)
         {
             SetStartup();
-            if(ps.Default.X == null)
-            {
-                ps.Default.X = 0;
-                ps.Default.Save();
-            }
+            if (ps.Default.HighDPI)
+                Y = nY;
 
-            this.Location = new Point(ps.Default.X, -350);
+            this.AutoScaleDimensions = new Size(96, 96);
+            this.Location = new Point(ps.Default.X, Y);
             if (ps.Default.ShouldUpdate)
             {
                 try{ UpdateEXE(); }
@@ -47,7 +48,6 @@ namespace MayDayButton
             backgroundWorker2.RunWorkerAsync();
             backgroundWorker3.RunWorkerAsync();
 
-            //label1.Size = new Size(this.Size.Width + 10, label1.Size.Height);
             if (Process.GetProcessesByName("MayDayButton").Count() > 1)
                 Application.Exit();
         }
@@ -71,13 +71,15 @@ namespace MayDayButton
                 }
             }
             catch {
-                ProcessStartInfo ProcessInfo;
-                Process Process;
-                ProcessInfo = new ProcessStartInfo(@"C:\MayDayButton\MayDayButton.exe");
-                ProcessInfo.Verb = "runas";
-                Process = Process.Start(ProcessInfo);
-                Application.Exit();
-            }  
+                #if (!DEBUG)
+                   ProcessStartInfo ProcessInfo;
+                   Process Process;
+                   ProcessInfo = new ProcessStartInfo(@"C:\MayDayButton\MayDayButton.exe");
+                   ProcessInfo.Verb = "runas";
+                   Process = Process.Start(ProcessInfo);
+                   Application.Exit();
+                #endif
+            }
         }
 
         private void Checks()
@@ -141,8 +143,10 @@ namespace MayDayButton
 
         private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
+            if (ps.Default.HighDPI)
+                Y = nY;
             if (Form.ActiveForm != this)
-                this.Location = new Point(ps.Default.X, -350);
+                this.Location = new Point(ps.Default.X, Y);
             backgroundWorker1.RunWorkerAsync();
         }
 
@@ -157,7 +161,7 @@ namespace MayDayButton
             frm.Show();
         }
 
-        #region TCP Commands
+#region TCP Commands
         public static string GetLocalIPAddress()
         {
             var host = Dns.GetHostEntry(Dns.GetHostName());
@@ -345,7 +349,7 @@ namespace MayDayButton
             Command = "";
             backgroundWorker2.RunWorkerAsync();
         }
-        #endregion
+#endregion
 
         private void AppendLog(string Text)
         {
@@ -478,7 +482,7 @@ namespace MayDayButton
         public static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
         [DllImportAttribute("user32.dll")]
         public static extern bool ReleaseCapture();
-
+         
         private void label1_MouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
@@ -496,7 +500,7 @@ namespace MayDayButton
             AppendLog("I did done did get closeded :(");
         }
 
-        #region Long HDD Stuff
+#region Long HDD Stuff
         public class HDD
         {
 
@@ -741,7 +745,7 @@ namespace MayDayButton
             }
 
         }
-        #endregion
+#endregion
 
         private void backgroundWorker3_DoWork(object sender, DoWorkEventArgs e)
         {

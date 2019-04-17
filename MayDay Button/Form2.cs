@@ -32,7 +32,11 @@ namespace MayDayButton
 
         private void Form2_Load(object sender, EventArgs e)
         {
-            numericUpDown1.Value = (decimal)Properties.Settings.Default.X;
+            Decimal x = (decimal)Properties.Settings.Default.X;
+            if (x < 0)
+                x = 0;
+            numericUpDown1.Value = x;
+            checkBox1.Checked = Properties.Settings.Default.HighDPI;
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -85,6 +89,12 @@ namespace MayDayButton
             Properties.Settings.Default.ShouldUpdate = true;
             Properties.Settings.Default.Save();
             Application.Restart();
+        }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.HighDPI = checkBox1.Checked;
+            Properties.Settings.Default.Save();
         }
     }
 }
