@@ -19,3 +19,4 @@ C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Debug\Ma
 C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Debug\MayDay Button.csproj.CoreCompileInputs.cache
 C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Debug\MayDayButton.exe
 C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Debug\MayDayButton.pdb
+C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Debug\MayDay Button.csprojAssemblyReference.cache

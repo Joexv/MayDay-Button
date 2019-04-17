@@ -54,6 +54,7 @@ namespace MayDayButton
 
         private void SetStartup()
         {
+#if (!DEBUG)
             try
             {
                 using (RegistryKey key = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run\\"))
@@ -71,15 +72,15 @@ namespace MayDayButton
                 }
             }
             catch {
-                #if (!DEBUG)
                    ProcessStartInfo ProcessInfo;
                    Process Process;
-                   ProcessInfo = new ProcessStartInfo(@"C:\MayDayButton\MayDayButton.exe");
+                   ProcessInfo = new ProcessStartInfo(Application.ExecutablePath);
                    ProcessInfo.Verb = "runas";
                    Process = Process.Start(ProcessInfo);
                    Application.Exit();
-                #endif
-            }
+
+             }
+#endif
         }
 
         private void Checks()
@@ -161,7 +162,7 @@ namespace MayDayButton
             frm.Show();
         }
 
-#region TCP Commands
+    #region TCP Commands
         public static string GetLocalIPAddress()
         {
             var host = Dns.GetHostEntry(Dns.GetHostName());
@@ -244,7 +245,7 @@ namespace MayDayButton
             AppendLog("Restarted Flowhub");
             foreach (var process in Process.GetProcessesByName("Flowhub"))
                 process.Kill();
-            Process.Start(@"C:\Users\Joe\AppData\Local\FlowhubPos\Update.exe --processStart Flowhub.exe");
+            Process.Start(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\FlowhubPos\Update.exe --processStart Flowhub.exe");
         }
 
         private void CloseAdobe()
@@ -252,7 +253,6 @@ namespace MayDayButton
             AppendLog("Closed Adobe");
             foreach (var process in Process.GetProcessesByName("Adobe"))
                 process.Kill();
-            
         }
 
         private void UpdateEXE()
@@ -269,6 +269,8 @@ namespace MayDayButton
                 File.Move("MayDayButton.exe", Root + "MayDayButton_Old.exe");
                 if (File.Exists(@"C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup\MayDayButton.exe"))
                     File.Delete(@"C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup\MayDayButton.exe");
+                //This needs to be changed to where ever you're pulling your update from.
+                //For me, I have a NAS system that I have visual studio set to push releases to so this exe will always be updated
                 File.Copy(@"\\192.168.1.210\Server\MaydayButton\MayDayButton.exe", Root + "MayDayButton.exe");
                 Process.Start(Root + "MayDayButton.exe");
                 Application.Exit();
@@ -278,25 +280,17 @@ namespace MayDayButton
                 ps.Default.Save();
             }
         }
-        void wc_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
-        {
-            Console.WriteLine(e.ProgressPercentage);
-            if(e.ProgressPercentage == 100)
-            {
-                Process.Start(@"C:\MayDayButton\MayDayButton.exe");
-                this.Close();
-            }
-        }
 
         public string Command;
         private void backgroundWorker2_DoWork(object sender, DoWorkEventArgs e)
-        {
+        { 
             Command = RecieveData();
         }
 
+        //Check string recived by TCP server
         private void backgroundWorker2_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            if (Command != "" || Command != null)
+            if (Command == "" || Command == null)
             {
                 AppendLog("Command was sent via TCP");
                 AppendLog(Command);
@@ -342,17 +336,32 @@ namespace MayDayButton
                         if (File.Exists(Log))
                             File.Delete(Log);
                         break;
+                    case "CLEAN":
+                        CleanSystem();
+                        break;
                     default:
                         break;
                 }
             }
-            Command = "";
             backgroundWorker2.RunWorkerAsync();
+            Command = "";
         }
-#endregion
+    #endregion
 
+        private void CleanSystem()
+        {
+
+        }
+
+        //Appends time and event to prove bitches wrong
         private void AppendLog(string Text)
         {
+            if (File.Exists(Log))
+            {
+                DateTime logFileEnd = File.GetLastWriteTime(Log);
+                if (logFileEnd.ToString("MM-dd-yyyy") != DateTime.Now.ToString("MM-dd-yyyy"))
+                    File.Delete(Log);
+            }
             try
             {
                 string formatted = String.Format("[{0}]::{1}", DateTime.Now.ToString("MM/dd h:mm tt"), Text);
@@ -363,6 +372,7 @@ namespace MayDayButton
                 else
                     using (StreamWriter sw = File.AppendText(Log))
                         sw.WriteLine(formatted);
+
             }
             catch { }
         }
@@ -378,6 +388,7 @@ namespace MayDayButton
                 MessageBox.Show("TeamViewer is already open!");
         }
 
+        //Send message to tech, and if on a known computer, open slack direct chat with the tech.
         private void button6_Click(object sender, EventArgs e)
         {
             if (!File.Exists(@"C:\MayDayButton\Email.config"))
@@ -434,6 +445,7 @@ namespace MayDayButton
         }
 
         const string Log = @"C:\MayDayButton\Log.txt";
+        //Proves bitches wrong
         private string WhatIveTried()
         {
             if (File.Exists(Log) && File.ReadAllText(Log) != "")
@@ -442,6 +454,9 @@ namespace MayDayButton
                 return "I've tried nothing";
         }
 
+        //Sends message via gmail smtp
+        //Can be used to send SMS via then recivers carrier email to sms converter.
+        //ie sprint is Phonenumber@messaging.sprintpcs.com
         public void sendMessage(string To, string Message, string Subject = "", string Name = "Joe")
         {
             try
@@ -482,7 +497,9 @@ namespace MayDayButton
         public static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
         [DllImportAttribute("user32.dll")]
         public static extern bool ReleaseCapture();
-         
+        
+        //Allows the form to be dragged to anywhere without having to go into options
+        //Still allows the form to be clicked to be seen
         private void label1_MouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
@@ -500,7 +517,7 @@ namespace MayDayButton
             AppendLog("I did done did get closeded :(");
         }
 
-#region Long HDD Stuff
+          #region Long HDD Stuff
         public class HDD
         {
 
@@ -509,7 +526,7 @@ namespace MayDayButton
             public string Model { get; set; }
             public string Type { get; set; }
             public string Serial { get; set; }
-            public Dictionary<int, Smart> Attributes = new Dictionary<int, Smart>() {
+            public Dictionary<int, Smart> NormalAttributes = new Dictionary<int, Smart>() {
                 {0x00, new Smart("Invalid")},
                 {0x01, new Smart("Raw read error rate")},
                 {0x02, new Smart("Throughput performance")},
@@ -561,6 +578,25 @@ namespace MayDayButton
                 /* slot in any new codes you find in here */
             };
 
+            //Attributes for my register drives, which are Samsung MZMTE128 SSDs
+            public Dictionary<int, Smart> Attributes = new Dictionary<int, Smart>() {
+                {0x00, new Smart("Invalid")},
+                {0x05, new Smart("Reallocated Sector Count")},
+                {0x09, new Smart("Power-on Hours")},
+                {0x0C, new Smart("Power-on Count")},
+                {0xB1, new Smart("Wear leveling Count")},
+                {0xB3, new Smart("Used Reserved Block Count (Total)")},
+                {0xB5, new Smart("Program Fail Count (Total)")},
+                {0xB6, new Smart("Erase Fail Count (Total)")},
+                {0xB7, new Smart("Runtime Bad Block (Total)")},
+                {0xBB, new Smart("Uncorrectable Error Count")},
+                {0xBE, new Smart("Airflow Temperature")},
+                {0xC3, new Smart("ECC Error Rate")},
+                {0xC7, new Smart("CRC Error Rate")},
+                {0xEB, new Smart("POR Recovery Count")},
+                {0xF1, new Smart("Total LBAs Written")},
+                {0xF2, new Smart("Total LBAs Read")},
+            };
         }
 
         public class Smart
@@ -581,10 +617,7 @@ namespace MayDayButton
             public int Data { get; set; }
             public bool IsOK { get; set; }
 
-            public Smart()
-            {
-
-            }
+            public Smart(){}
 
             public Smart(string attributeName)
             {
@@ -715,8 +748,6 @@ namespace MayDayButton
                         iDriveIndex++;
                     }
 
-
-                    // print
                     foreach (var drive in dicDrives)
                     {
                         Console.WriteLine("-----------------------------------------------------");
@@ -745,10 +776,12 @@ namespace MayDayButton
             }
 
         }
-#endregion
+    #endregion
 
         private void backgroundWorker3_DoWork(object sender, DoWorkEventArgs e)
         {
+            //Waits 2 hours and then runs battery and HDD check on the device.
+            //If things look abnormal message will be sent to Tech.
             Thread.Sleep(12000000);
         }
 
