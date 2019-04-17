@@ -35,3 +35,11 @@ File should be structured as such
 Adjust in Form1.cs your Slack.config file location
 In the file each line will be the address to your direc message to your tech.
 Can be changed to whatever but that's how I'm using it.
+
+# Update:
+Removed need to have the program run as admin. In doing so the root folder of the application was moved to C:\MayDayButton\ which is where updates and the lgos are stored normally anyways. Program will only run as admin if it needs to adjust the startup registry key. If you want to change the location of the program just make sure to adjust the locations as needed in the code.
+
+In doing this hopefully the reliability of it starting up everytime will be fixed. Fuck windows 10.
+
+This change might not always work 100% of the time. In my testing, unless you manually update the program it may need to be updated twice. This is just how I chose to handle removing the old program from the startup folder. If it is not startting up properly check the registry key
+\\Local Machine\\Software\\Microsoft\\Windows\Current Version\\Run\\MayDayButton and make sure that it's set to the correct Folder path (C:\MayDayButton\MayDayButton.exe)
