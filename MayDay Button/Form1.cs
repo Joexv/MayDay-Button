@@ -116,16 +116,17 @@ namespace MayDayButton
             FixInternet();
         }
 
-        public void cmd(string Arguments, bool isHidden = true)
+        public void cmd(string Arguments, bool isHidden = false, bool asAdmin = false)
         {
             ProcessStartInfo ProcessInfo;
             Process Process;
             try
             {
                 ProcessInfo = new ProcessStartInfo("cmd.exe", "/C " + Arguments);
-                ProcessInfo.UseShellExecute = false;
+                ProcessInfo.UseShellExecute = true;
                 ProcessInfo.CreateNoWindow = isHidden;
-                ProcessInfo.Verb = "runas";
+                if(asAdmin)
+                    ProcessInfo.Verb = "runas";
                 Process = Process.Start(ProcessInfo);
                 Process.WaitForExit();
                 Process.Dispose();
@@ -223,9 +224,11 @@ namespace MayDayButton
             AppendLog("Printer fix");
             foreach (var process in Process.GetProcessesByName("Adobe"))
                 process.Kill();
-            cmd(@"net stop spooler & del %systemroot%\System32\spool\printers\* /Q");
+            foreach (var process in Process.GetProcessesByName("Acrobat"))
+                process.Kill();
+            cmd(@"net stop spooler & del %systemroot%\System32\spool\printers\* /Q & net start spooler", false, true);
             //cmd(@"del %systemroot%\System32\spool\printers\* /Q");
-            cmd("net start spooler");
+            //cmd("net start spooler");
             MessageBox.Show("Try it now");
         }
 
