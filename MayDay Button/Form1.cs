@@ -342,6 +342,10 @@ namespace MayDayButton
             Command = RecieveData();
         }
 
+
+        private string SecretPhrase
+            => File.ReadAllText(@"\\192.168.1.210\Server\MayDayButton\SecretPhrase.txt");
+
         //Check string recived by TCP server
         private void backgroundWorker2_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
@@ -352,8 +356,25 @@ namespace MayDayButton
             }
             else if (Command.ToUpper().Contains("COMMAND $"))
             {
-                string Temp = Command.Substring(9);
-                cmd(Temp);
+                //In order for the tech to not need to have the user hit OK for every command adding $ then the secret phrase to the sent command will bypass the check. This phrase should not be a password
+                //This phrase cannot be used to activate an admin command, unless set in the source to do so.
+                if (File.Exists(@"\\192.168.1.210\Server\MayDayButton\SecretPhrase.txt") && Command.Contains("$" + SecretPhrase))
+                {
+                    string Temp = Command.Substring(9).Replace("$" + SecretPhrase, "").Replace("$Admin", "");
+                    cmd(Temp, false, false);
+                }
+                else
+                {
+                    string Temp = Command.Substring(9);
+                    DialogResult dialogResult = MessageBox.Show(String.Format("This device recieved the command \n-'{0}'-\nIf this was done by your tech please press Yes. Otherwise press no. Unsure? Ask your tech before proceeding.", Temp), "Command was recived, but not yet handeled", MessageBoxButtons.YesNo); ;
+                    if (dialogResult == DialogResult.Yes)
+                    {
+                        if (Temp.Contains("$Admin"))
+                            cmd(Temp.Replace("$Admin", ""), false, true);
+                        else
+                            cmd(Temp);
+                    }
+                }
             }
             else if (Command.ToUpper().Contains("MSG $"))
             {
