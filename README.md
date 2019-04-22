@@ -21,7 +21,7 @@ File path for the updated file will need to be manually adjusted.
 Make sure to adjust the IP addresses as needed
 
 "But Joe having TCP open on your network to a program with admin privilages is unsafe! Why Would you ever do that?!"
-"UwU, but no tbh I don't really care. Our network doesn't contain any sensitive information, and all our device do, is launch a web app and play spotify. If someone does decide to do malicious things with this, go for it. Please. My job is boring I want something to do."
+"UwU, but no tbh I don't really care. Our network doesn't contain any sensitive information. And all that our devices do, is launch a web app and play spotify. If someone does decide to do malicious things with this, go for it. Please. My job is boring I want something to do."
 
 
 #Email Config
