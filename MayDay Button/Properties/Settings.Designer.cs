@@ -58,5 +58,29 @@ namespace MayDayButton.Properties {
                 this["HighDPI"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public string EnableWindowsFormsHighDpiAutoResizing {
+            get {
+                return ((string)(this["EnableWindowsFormsHighDpiAutoResizing"]));
+            }
+            set {
+                this["EnableWindowsFormsHighDpiAutoResizing"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool AdminStart {
+            get {
+                return ((bool)(this["AdminStart"]));
+            }
+            set {
+                this["AdminStart"] = value;
+            }
+        }
     }
 }

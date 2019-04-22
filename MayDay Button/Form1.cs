@@ -16,6 +16,8 @@ using System.Windows.Forms;
 using System.Net.Mail;
 using Microsoft.Win32;
 using System.Management;
+using System.Security.Principal;
+using System.Media;
 
 namespace MayDayButton
 {
@@ -30,8 +32,31 @@ namespace MayDayButton
         public int Y = -351;
         public int nY = -526;
 
+        public static bool IsAdministrator =>
+             new WindowsPrincipal(WindowsIdentity.GetCurrent())
+               .IsInRole(WindowsBuiltInRole.Administrator);
+
+        private void GetAdmin(bool ShouldLoop = true)
+        {
+            try
+            {
+                var exeName = Process.GetCurrentProcess().MainModule.FileName;
+                ProcessStartInfo startInfo = new ProcessStartInfo(exeName);
+                startInfo.Verb = "runas";
+                Process.Start(startInfo);
+                Application.Exit();
+            }
+            catch {
+                //Loop to essentially force user to start as admin, if it's checked under settings.
+                if(ShouldLoop)
+                   GetAdmin();
+            }
+        }
+
         private void Form1_Load(object sender, EventArgs e)
         {
+            if (!IsAdministrator && ps.Default.AdminStart)
+                GetAdmin();
             SetStartup();
             if (ps.Default.HighDPI)
                 Y = nY;
@@ -72,32 +97,60 @@ namespace MayDayButton
                 }
             }
             catch {
-                   ProcessStartInfo ProcessInfo;
-                   Process Process;
-                   ProcessInfo = new ProcessStartInfo(Application.ExecutablePath);
-                   ProcessInfo.Verb = "runas";
-                   Process = Process.Start(ProcessInfo);
-                   Application.Exit();
-
+                GetAdmin();
              }
 #endif
         }
 
         private void Checks()
         {
+            PowerLineStatus status = SystemInformation.PowerStatus.PowerLineStatus;
+
             string Result = "";
             //Check Battery %
             PowerStatus p = SystemInformation.PowerStatus;
             int a = (int)(p.BatteryLifePercent * 100);
             if (a < 50)
+            {
+                BatteryLow = true;
                 Result += String.Format("Power is {0}, charger needs to be checked.\n", a);
+            }
+            else
+                BatteryLow = false;
             string temp = Program.CheckHealth();
             if (temp != "")
                 Result += temp + "\n";
 
             if (Result != "")
                 sendMessage(GetEmail[2], Result);
+
+
+            if(a < 25 && status != PowerLineStatus.Offline)
+            {
+                wakeScreen();
+                SystemSounds.Beep.Play();
+                Thread.Sleep(500);
+                SystemSounds.Beep.Play();
+                Thread.Sleep(500);
+                SystemSounds.Beep.Play();
+                Thread.Sleep(500);
+                SystemSounds.Beep.Play();
+                Thread.Sleep(500);
+                SystemSounds.Beep.Play();
+                Thread.Sleep(500);
+                MessageBox.Show("YOUR BATTERY IS STARTING TO GET LOW AND THE DEVICE NEEDS TO BE PLUGGED IN. IF YOU UNPLUGGED THE DEVICE ON PURPOSE STOP!! YOU DO NOT NEED TO BE UNPLUGGING THE DEVICE!!", "BATTERY LOW");
+            }
         }
+
+        [DllImport("user32.dll")]
+        static extern void mouse_event(Int32 dwFlags, Int32 dx, Int32 dy, Int32 dwData, UIntPtr dwExtraInfo);
+        private const int MOUSEEVENTF_MOVE = 0x0001;
+        private void wakeScreen()
+        {
+            mouse_event(MOUSEEVENTF_MOVE, 0, 1, 0, UIntPtr.Zero);
+        }
+
+        bool BatteryLow = false;
 
         private void label1_Click(object sender, EventArgs e)
         {
@@ -221,25 +274,22 @@ namespace MayDayButton
 
         private void FixPrinters()
         {
+            CloseAdobe();
             AppendLog("Printer fix");
-            foreach (var process in Process.GetProcessesByName("Adobe"))
-                process.Kill();
-            foreach (var process in Process.GetProcessesByName("Acrobat"))
-                process.Kill();
-            cmd(@"net stop spooler & del %systemroot%\System32\spool\printers\* /Q & net start spooler", false, true);
-            //cmd(@"del %systemroot%\System32\spool\printers\* /Q");
-            //cmd("net start spooler");
+            cmd(@"net stop spooler & " + 
+                @"del %systemroot%\System32\spool\printers\* /Q & " + 
+                "net start spooler", false, true);
             MessageBox.Show("Try it now");
         }
 
         private void FixInternet()
         {
             AppendLog("Internet flush");
-            cmd("netsh winsock reset");
-            cmd("netsh int ip reset");
-            cmd("ipconfig /release");
-            cmd("ipconfig /flushdns");
-            cmd("ipconfig /renew");
+            cmd("netsh winsock reset & " +
+                "netsh int ip reset & " +
+                "ipconfig /release & " +
+                "ipconfig /flushdns & " +
+                "ipconfig /renew", false);
             MessageBox.Show("Try it now");
         }
 
@@ -255,6 +305,8 @@ namespace MayDayButton
         {
             AppendLog("Closed Adobe");
             foreach (var process in Process.GetProcessesByName("Adobe"))
+                process.Kill();
+            foreach (var process in Process.GetProcessesByName("Acrobat"))
                 process.Kill();
         }
 
@@ -341,6 +393,12 @@ namespace MayDayButton
                         break;
                     case "CLEAN":
                         CleanSystem();
+                        break;
+                    case "ADMIN":
+                        GetAdmin();
+                        break;
+                    case "CHECK":
+                        Checks();
                         break;
                     default:
                         break;
@@ -500,7 +558,7 @@ namespace MayDayButton
         public static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
         [DllImportAttribute("user32.dll")]
         public static extern bool ReleaseCapture();
-        
+
         //Allows the form to be dragged to anywhere without having to go into options
         //Still allows the form to be clicked to be seen
         private void label1_MouseDown(object sender, MouseEventArgs e)
@@ -509,9 +567,13 @@ namespace MayDayButton
             {
                 ReleaseCapture();
                 SendMessage(Handle, WM_NCLBUTTONDOWN, HT_CAPTION, 0);
-                ps.Default.X = this.Location.X;
+                int x = this.Location.X;
+                if (x < 0) x = 0;
+                int MaxX = Screen.PrimaryScreen.WorkingArea.Width;
+                if (x > MaxX - this.Width) x = MaxX - this.Width;
+                ps.Default.X = x;
                 ps.Default.Save();
-                this.Location = new Point(ps.Default.X, -50);
+                this.Location = new Point(x, -50);
             }
         }
 
@@ -785,7 +847,10 @@ namespace MayDayButton
         {
             //Waits 2 hours and then runs battery and HDD check on the device.
             //If things look abnormal message will be sent to Tech.
-            Thread.Sleep(12000000);
+            if (!BatteryLow)
+                Thread.Sleep(12000000);
+            else //If Battery was noted to be low on the last check, device will check every 5 minutes until battery is adequite
+                Thread.Sleep(300000);
         }
 
         private void backgroundWorker3_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
