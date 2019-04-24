@@ -3,6 +3,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
 using System.Security.Principal;
+using System.Threading;
+using SHDocVw;
 
 namespace MayDayButton
 {
@@ -39,7 +41,10 @@ namespace MayDayButton
             checkBox1.Checked = Properties.Settings.Default.HighDPI;
             checkBox2.Checked = Properties.Settings.Default.AdminStart;
             if (IsAdministrator)
+            {
                 button5.Enabled = false;
+                button5.Text = "Button is Admin";
+            }
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -71,7 +76,9 @@ namespace MayDayButton
                 Height = 150,
                 FormBorderStyle = FormBorderStyle.FixedDialog,
                 Text = caption,
-                StartPosition = FormStartPosition.CenterScreen
+                StartPosition = FormStartPosition.CenterScreen,
+                AutoScaleMode = AutoScaleMode.Dpi,
+                AutoSize = true
             };
             Label textLabel = new Label() { Left = 50, Top = 20, Text = text };
             textLabel.AutoSize = true;
@@ -91,6 +98,14 @@ namespace MayDayButton
         {
             Properties.Settings.Default.ShouldUpdate = true;
             Properties.Settings.Default.Save();
+
+            Process p = new Process();
+            p.StartInfo.FileName = "explorer.exe";
+            p.StartInfo.Arguments = @"\\192.168.1.210\Server\MaydayButton\";
+            p.Start();
+            p.Kill();
+            p.Dispose();
+
             Application.Restart();
         }
 

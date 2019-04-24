@@ -38,19 +38,18 @@ namespace MayDayButton
 
         private void GetAdmin(bool ShouldLoop = true)
         {
+#if (!DEBUG)
+            Process p = new Process();
             try
             {
+                
                 var exeName = Process.GetCurrentProcess().MainModule.FileName;
-                ProcessStartInfo startInfo = new ProcessStartInfo(exeName);
-                startInfo.Verb = "runas";
-                Process.Start(startInfo);
-                Application.Exit();
+                p.StartInfo.FileName = exeName;
+                p.StartInfo.Verb = "runas";
+                p.Start();
             }
-            catch {
-                //Loop to essentially force user to start as admin, if it's checked under settings.
-                if(ShouldLoop)
-                   GetAdmin();
-            }
+            catch {}
+#endif
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -66,12 +65,15 @@ namespace MayDayButton
             if (ps.Default.ShouldUpdate)
             {
                 try{ UpdateEXE(); }
-                catch {}
+                catch(Exception ex) {
+                    MessageBox.Show(ex.ToString(), "Failed To Update Notify Your Tech");
+                }
             }
 
             backgroundWorker1.RunWorkerAsync();
             backgroundWorker2.RunWorkerAsync();
             backgroundWorker3.RunWorkerAsync();
+            backgroundWorker4.RunWorkerAsync();
 
             if (Process.GetProcessesByName("MayDayButton").Count() > 1)
                 Application.Exit();
@@ -80,25 +82,24 @@ namespace MayDayButton
         private void SetStartup()
         {
 #if (!DEBUG)
-            try
-            {
-                using (RegistryKey key = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run\\"))
+            if (IsAdministrator)
+                try
                 {
-                    if (key != null)
+                    using (RegistryKey key = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run\\"))
                     {
-                        Object o = key.GetValue("MayDayButton");
-                        if (o == null || o.ToString() != Application.ExecutablePath)
+                        if (key != null)
                         {
+                            Object o = key.GetValue("MayDayButton");
+                            if (o == null || o.ToString() != Application.ExecutablePath)
+                            {
                                 RegistryKey rk = Registry.LocalMachine.OpenSubKey
                                   ("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
                                 rk.SetValue("MayDayButton", Application.ExecutablePath);
+                            }
                         }
                     }
                 }
-            }
-            catch {
-                GetAdmin();
-             }
+                catch { }
 #endif
         }
 
@@ -125,7 +126,7 @@ namespace MayDayButton
                 sendMessage(GetEmail[2], Result);
 
 
-            if(a < 25 && status != PowerLineStatus.Offline)
+            if(a < 25 && status == PowerLineStatus.Offline)
             {
                 wakeScreen();
                 SystemSounds.Beep.Play();
@@ -216,7 +217,7 @@ namespace MayDayButton
             frm.Show();
         }
 
-    #region TCP Commands
+#region TCP Commands
         public static string GetLocalIPAddress()
         {
             var host = Dns.GetHostEntry(Dns.GetHostName());
@@ -312,6 +313,7 @@ namespace MayDayButton
 
         private void UpdateEXE()
         {
+#if (!DEBUG)
             try
             {
                 ps.Default.ShouldUpdate = false;
@@ -334,6 +336,7 @@ namespace MayDayButton
                 ps.Default.ShouldUpdate = true;
                 ps.Default.Save();
             }
+#endif
         }
 
         public string Command;
@@ -428,7 +431,7 @@ namespace MayDayButton
             backgroundWorker2.RunWorkerAsync();
             Command = "";
         }
-    #endregion
+#endregion
 
         private void CleanSystem()
         {
@@ -603,7 +606,7 @@ namespace MayDayButton
             AppendLog("I did done did get closeded :(");
         }
 
-          #region Long HDD Stuff
+#region Long HDD Stuff
         public class HDD
         {
 
@@ -862,7 +865,7 @@ namespace MayDayButton
             }
 
         }
-    #endregion
+#endregion
 
         private void backgroundWorker3_DoWork(object sender, DoWorkEventArgs e)
         {
@@ -878,6 +881,26 @@ namespace MayDayButton
         {
             Checks();
             backgroundWorker3.RunWorkerAsync();
+        }
+
+        private void backgroundWorker4_DoWork(object sender, DoWorkEventArgs e)
+        {
+            Thread.Sleep(1000);
+        }
+
+        bool isPluggedIn = true;
+        private void backgroundWorker4_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            PowerLineStatus status = SystemInformation.PowerStatus.PowerLineStatus;
+            if(status == PowerLineStatus.Offline && isPluggedIn)
+            {
+                isPluggedIn = false;
+                MessageBox.Show("Why am I unplugged? Do You want me to die?\n:(");
+                Thread.Sleep(1000);
+            }
+            else
+                isPluggedIn = true;
+            backgroundWorker4.RunWorkerAsync();
         }
     }
 }
