@@ -36,26 +36,28 @@ namespace MayDayButton
              new WindowsPrincipal(WindowsIdentity.GetCurrent())
                .IsInRole(WindowsBuiltInRole.Administrator);
 
-        private void GetAdmin(bool ShouldLoop = true)
+        private void GetAdmin(bool ShouldLoop = false)
         {
 #if (!DEBUG)
             Process p = new Process();
             try
             {
-                
                 var exeName = Process.GetCurrentProcess().MainModule.FileName;
                 p.StartInfo.FileName = exeName;
                 p.StartInfo.Verb = "runas";
                 p.Start();
             }
-            catch {}
+            catch {
+                if (ShouldLoop)
+                    GetAdmin(true);
+            }
 #endif
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
             if (!IsAdministrator && ps.Default.AdminStart)
-                GetAdmin();
+                GetAdmin(true);
             SetStartup();
             if (ps.Default.HighDPI)
                 Y = nY;
@@ -82,7 +84,6 @@ namespace MayDayButton
         private void SetStartup()
         {
 #if (!DEBUG)
-            if (IsAdministrator)
                 try
                 {
                     using (RegistryKey key = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run\\"))
@@ -99,7 +100,7 @@ namespace MayDayButton
                         }
                     }
                 }
-                catch { }
+                catch { GetAdmin(); }
 #endif
         }
 
@@ -212,9 +213,16 @@ namespace MayDayButton
         }
 
         private void button4_Click(object sender, EventArgs e)
-        {
+        { 
             Form2 frm = new Form2();
+            frm.FormClosing += new FormClosingEventHandler(onClose);
             frm.Show();
+        }
+
+        private void onClose(object sender, FormClosingEventArgs e)
+        {
+            if(ps.Default.ShouldUpdate)
+                 UpdateEXE();
         }
 
 #region TCP Commands
@@ -299,6 +307,8 @@ namespace MayDayButton
             AppendLog("Restarted Flowhub");
             foreach (var process in Process.GetProcessesByName("Flowhub"))
                 process.Kill();
+            if (Process.GetProcessesByName("Flowhub").Count() > 0)
+                cmd("taskkill /F /IM Flowhub", false, true);
             Process.Start(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\FlowhubPos\Update.exe --processStart Flowhub.exe");
         }
 
@@ -309,6 +319,12 @@ namespace MayDayButton
                 process.Kill();
             foreach (var process in Process.GetProcessesByName("Acrobat"))
                 process.Kill();
+
+            if(Process.GetProcessesByName("Adobe").Count() > 0)
+                cmd("taskkill /F /IM Adobe", false, true);
+
+            if (Process.GetProcessesByName("Acrobat").Count() > 0)
+                cmd("taskkill /F /IM Acrobat", false, true);
         }
 
         private void UpdateEXE()
@@ -316,8 +332,17 @@ namespace MayDayButton
 #if (!DEBUG)
             try
             {
+
+                Process p = new Process();
+                p.StartInfo.FileName = "explorer.exe";
+                p.StartInfo.Arguments = @"\\192.168.1.210\Server\MaydayButton\";
+                p.Start();
+                p.Kill();
+                p.Dispose();
+
                 ps.Default.ShouldUpdate = false;
                 ps.Default.Save();
+
                 AppendLog("Updating");
                 Directory.CreateDirectory(@"C:\MayDayButton\");
                 string Root = @"C:\MayDayButton\";
@@ -476,18 +501,28 @@ namespace MayDayButton
         //Send message to tech, and if on a known computer, open slack direct chat with the tech.
         private void button6_Click(object sender, EventArgs e)
         {
-            if (!File.Exists(@"C:\MayDayButton\Email.config"))
-                File.Copy(@"\\192.168.1.210\Server\MaydayButton\Email.config", @"C:\MayDayButton\Email.config");
-            sendMessage(GetEmail[2], "Help I broke something really bad!");
-            string link = SlackLink();
-            if (link != "NA")
+            if (!isOnVayCay)
             {
-                MessageBox.Show("You will be contacted via Slack shortly.");
-                Process.Start(link);
+                if (!File.Exists(@"C:\MayDayButton\Email.config"))
+                    File.Copy(@"\\192.168.1.210\Server\MaydayButton\Email.config", @"C:\MayDayButton\Email.config");
+                sendMessage(GetEmail[2], "Help I broke something really bad!");
+                string link = SlackLink();
+                if (link != "NA")
+                {
+                    MessageBox.Show("You will be contacted via Slack shortly.");
+                    Process.Start(link);
+                }
+                else
+                    MessageBox.Show("You will be contaced soon! Please wait at least 15 minutes before calling unless its an emergency!");
             }
             else
-                MessageBox.Show("You will be contaced soon! Please wait at least 15 minutes before calling unless its an emergency!");
+            {
+                MessageBox.Show("It looks like your tech has marked himself as being on vacation! Go see your on site manager for more assistance! But dont contact your tech or he will get ur IP addres an brick your xbox u noob scrub.", "Oh No!");
+            }
         }
+
+        private bool isOnVayCay
+            => File.Exists(@"\\192.168.1.210\Server\MaydayButton\TechVacation[TRUE].txt");
 
         private string[] GetEmail
             => File.ReadAllLines(@"C:\MayDayButton\Email.config");

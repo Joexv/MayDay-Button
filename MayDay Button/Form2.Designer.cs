@@ -38,6 +38,7 @@
             this.checkBox2 = new System.Windows.Forms.CheckBox();
             this.button5 = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.button6 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
@@ -147,6 +148,16 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Settings";
             // 
+            // button6
+            // 
+            this.button6.Location = new System.Drawing.Point(122, 140);
+            this.button6.Name = "button6";
+            this.button6.Size = new System.Drawing.Size(105, 37);
+            this.button6.TabIndex = 10;
+            this.button6.Text = "VayCay Status";
+            this.button6.UseVisualStyleBackColor = true;
+            this.button6.Click += new System.EventHandler(this.button6_Click);
+            // 
             // Form2
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -154,6 +165,7 @@
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.ClientSize = new System.Drawing.Size(238, 261);
+            this.Controls.Add(this.button6);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.button5);
             this.Controls.Add(this.button4);
@@ -186,5 +198,6 @@
         private System.Windows.Forms.CheckBox checkBox2;
         private System.Windows.Forms.Button button5;
         private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.Button button6;
     }
 }

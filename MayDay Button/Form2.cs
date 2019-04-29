@@ -45,6 +45,11 @@ namespace MayDayButton
                 button5.Enabled = false;
                 button5.Text = "Button is Admin";
             }
+#if (DEBUG)
+            button6.Visible = true;
+#else
+            button6.Visible = false;
+#endif
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -98,15 +103,8 @@ namespace MayDayButton
         {
             Properties.Settings.Default.ShouldUpdate = true;
             Properties.Settings.Default.Save();
-
-            Process p = new Process();
-            p.StartInfo.FileName = "explorer.exe";
-            p.StartInfo.Arguments = @"\\192.168.1.210\Server\MaydayButton\";
-            p.Start();
-            p.Kill();
-            p.Dispose();
-
-            Application.Restart();
+            //Application.Restart();
+            this.Close();
         }
 
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
@@ -150,5 +148,19 @@ namespace MayDayButton
         public static bool IsAdministrator =>
              new WindowsPrincipal(WindowsIdentity.GetCurrent())
                .IsInRole(WindowsBuiltInRole.Administrator);
+
+        string vFalse = @"\\192.168.1.210\Server\MaydayButton\TechVacation[FALSE].txt";
+        string vTrue = @"\\192.168.1.210\Server\MaydayButton\TechVacation[TRUE].txt";
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            if (File.Exists(vFalse))
+                File.Move(vFalse, vTrue);
+            else if (File.Exists(vTrue))
+                File.Move(vTrue, vFalse);
+            else
+                using (StreamWriter sw = File.CreateText(vFalse))
+                    sw.WriteLine("");
+        }
     }
 }
