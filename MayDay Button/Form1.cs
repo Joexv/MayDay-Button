@@ -472,7 +472,7 @@ namespace MayDayButton
         }
 #endregion
 
-        string SettingsFile = @"\\192.168.1.210\MaydayButton\Settings.Config";
+        string SettingsFile = @"\\192.168.1.210\Server\MaydayButton\Settings.Config";
         private void ImportSettings()
         {
             RestoreConnection();

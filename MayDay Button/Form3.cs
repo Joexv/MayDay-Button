@@ -225,7 +225,7 @@ namespace MayDayButton
             ps.Default.Save();
         }
 
-        string SettingsFile = @"\\192.168.1.210\MaydayButton\Settings.Config";
+        string SettingsFile = @"\\192.168.1.210\Server\MaydayButton\Settings.Config";
         private void button11_Click(object sender, EventArgs e)
         {
             File.Delete(SettingsFile);
