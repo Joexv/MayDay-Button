@@ -22,3 +22,4 @@ C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Debug\Ma
 C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Debug\MayDay Button.csprojAssemblyReference.cache
 C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Debug\Interop.SHDocVw.dll
 C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Debug\MayDay Button.csproj.ResolveComReference.cache
+C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Debug\MayDayButton.Form3.resources

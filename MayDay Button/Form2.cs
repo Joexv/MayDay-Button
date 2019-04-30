@@ -40,16 +40,6 @@ namespace MayDayButton
             numericUpDown1.Minimum = 0;
             checkBox1.Checked = Properties.Settings.Default.HighDPI;
             checkBox2.Checked = Properties.Settings.Default.AdminStart;
-            if (IsAdministrator)
-            {
-                button5.Enabled = false;
-                button5.Text = "Button is Admin";
-            }
-#if (DEBUG)
-            button6.Visible = true;
-#else
-            button6.Visible = false;
-#endif
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -161,6 +151,23 @@ namespace MayDayButton
             else
                 using (StreamWriter sw = File.CreateText(vFalse))
                     sw.WriteLine("");
+        }
+
+        private void button7_Click(object sender, EventArgs e)
+        {
+            AppendLog("Someone tried to open the admin panel");
+            string promptValue = ShowDialog("Warning!", "The Admin Panel has a lot of things that can potentially break the register, only use it if you know what you're doing!");
+            if (promptValue == Password)
+            {
+                Form3 frm = new Form3();
+                frm.Show();
+                this.Close();
+            }
+        }
+
+        private void numericUpDown1_ValueChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

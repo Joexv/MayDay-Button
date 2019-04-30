@@ -29,8 +29,9 @@ namespace MayDayButton
             InitializeComponent();
         }
 
-        public int Y = -351;
-        public int nY = -526;
+        public int Y = ps.Default.Y_Norm;
+        public int nY = ps.Default.Y_Adjustment;
+        public int X = ps.Default.X;
 
         public static bool IsAdministrator =>
              new WindowsPrincipal(WindowsIdentity.GetCurrent())
@@ -58,12 +59,14 @@ namespace MayDayButton
         {
             if (!IsAdministrator && ps.Default.AdminStart)
                 GetAdmin(true);
+
             SetStartup();
+
             if (ps.Default.HighDPI)
                 Y = nY;
 
             this.AutoScaleDimensions = new Size(96, 96);
-            this.Location = new Point(ps.Default.X, Y);
+            this.Location = new Point(X, Y);
             if (ps.Default.ShouldUpdate)
             {
                 try{ UpdateEXE(); }
@@ -156,7 +159,7 @@ namespace MayDayButton
 
         private void label1_Click(object sender, EventArgs e)
         {
-                //this.Location = new Point(ps.Default.X, -50);
+                //this.Location = new Point(X, -50);
         }
 
         //Printer
@@ -203,7 +206,7 @@ namespace MayDayButton
             if (ps.Default.HighDPI)
                 Y = nY;
             if (Form.ActiveForm != this)
-                this.Location = new Point(ps.Default.X, Y);
+                this.Location = new Point(X, Y);
             backgroundWorker1.RunWorkerAsync();
         }
 
@@ -283,12 +286,35 @@ namespace MayDayButton
 
         private void FixPrinters()
         {
+            bool wasOutofPaper = false;
+            if (Process.GetProcessesByName("PDFPrint").Count() > 0)
+                wasOutofPaper = true;
+
             CloseAdobe();
             AppendLog("Printer fix");
             cmd(@"net stop spooler & " + 
                 @"del %systemroot%\System32\spool\printers\* /Q & " + 
                 "net start spooler", false, true);
-            MessageBox.Show("Try it now");
+            if (wasOutofPaper)
+                MessageBox.Show("It looks like your printer is either out of paper or was out of paper recently. Please double check your paper before proceeding. If you still cannot print from Flowhub, switch to a different transaction then switch back and try to print again. This is a bug in Flowhub.");
+            else
+              MessageBox.Show("Try it now");
+        }
+
+        private void CloseAdobe()
+        {
+            AppendLog("Closing Adobe processes");
+            Close("PDFPrint");
+            Close("Adobe");
+            Close("Acrobat");
+        }
+
+        private void Close(string ProcessName)
+        {
+            foreach (var process in Process.GetProcessesByName(ProcessName))
+                process.Kill();
+            if (Process.GetProcessesByName(ProcessName).Count() > 0)
+                cmd("taskkill /F /IM " + ProcessName, false, true);
         }
 
         private void FixInternet()
@@ -305,26 +331,18 @@ namespace MayDayButton
         private void RestartFlowhub()
         {
             AppendLog("Restarted Flowhub");
-            foreach (var process in Process.GetProcessesByName("Flowhub"))
-                process.Kill();
-            if (Process.GetProcessesByName("Flowhub").Count() > 0)
-                cmd("taskkill /F /IM Flowhub", false, true);
+            Close("Flowhub");
             Process.Start(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\FlowhubPos\Update.exe --processStart Flowhub.exe");
         }
 
-        private void CloseAdobe()
+        private void RestoreConnection()
         {
-            AppendLog("Closed Adobe");
-            foreach (var process in Process.GetProcessesByName("Adobe"))
-                process.Kill();
-            foreach (var process in Process.GetProcessesByName("Acrobat"))
-                process.Kill();
-
-            if(Process.GetProcessesByName("Adobe").Count() > 0)
-                cmd("taskkill /F /IM Adobe", false, true);
-
-            if (Process.GetProcessesByName("Acrobat").Count() > 0)
-                cmd("taskkill /F /IM Acrobat", false, true);
+            Process p = new Process();
+            p.StartInfo.FileName = "explorer.exe";
+            p.StartInfo.Arguments = @"\\192.168.1.210\Server\MaydayButton\";
+            p.Start();
+            p.Kill();
+            p.Dispose();
         }
 
         private void UpdateEXE()
@@ -332,14 +350,7 @@ namespace MayDayButton
 #if (!DEBUG)
             try
             {
-
-                Process p = new Process();
-                p.StartInfo.FileName = "explorer.exe";
-                p.StartInfo.Arguments = @"\\192.168.1.210\Server\MaydayButton\";
-                p.Start();
-                p.Kill();
-                p.Dispose();
-
+                RestoreConnection();
                 ps.Default.ShouldUpdate = false;
                 ps.Default.Save();
 
@@ -449,6 +460,9 @@ namespace MayDayButton
                     case "CHECK":
                         Checks();
                         break;
+                    case "IMPORT":
+                        ImportSettings();
+                        break;
                     default:
                         break;
                 }
@@ -457,6 +471,26 @@ namespace MayDayButton
             Command = "";
         }
 #endregion
+
+        string SettingsFile = @"\\192.168.1.210\MaydayButton\Settings.Config";
+        private void ImportSettings()
+        {
+            RestoreConnection();
+            if (File.Exists(SettingsFile))
+            {
+                string[] Settings = File.ReadAllLines(SettingsFile);
+                ps.Default.X = Int32.Parse(Settings[0]);
+                ps.Default.Y_Adjustment = Int32.Parse(Settings[1]);
+                ps.Default.Y_Norm = Int32.Parse(Settings[2]);
+
+                ps.Default.ShouldUpdate = Boolean.Parse(Settings[3]);
+                ps.Default.HighDPI = Boolean.Parse(Settings[4]);
+                ps.Default.AdminStart = Boolean.Parse(Settings[5]);
+
+                ps.Default.Save();
+                Application.Restart();
+            }
+        }
 
         private void CleanSystem()
         {
@@ -501,8 +535,11 @@ namespace MayDayButton
         //Send message to tech, and if on a known computer, open slack direct chat with the tech.
         private void button6_Click(object sender, EventArgs e)
         {
+            RestoreConnection();
             if (!isOnVayCay)
             {
+                ps.Default.Tried2Contact = 0;
+                ps.Default.Save();
                 if (!File.Exists(@"C:\MayDayButton\Email.config"))
                     File.Copy(@"\\192.168.1.210\Server\MaydayButton\Email.config", @"C:\MayDayButton\Email.config");
                 sendMessage(GetEmail[2], "Help I broke something really bad!");
@@ -517,7 +554,11 @@ namespace MayDayButton
             }
             else
             {
-                MessageBox.Show("It looks like your tech has marked himself as being on vacation! Go see your on site manager for more assistance! But dont contact your tech or he will get ur IP addres an brick your xbox u noob scrub.", "Oh No!");
+                ps.Default.Tried2Contact++;
+                ps.Default.Save();
+                MessageBox.Show(String.Format(
+                            "It looks like your tech has marked himself as being on vacation! Go see your on site manager for more assistance! But dont contact your tech or he will get ur IP addres an brick your xbox u noob scrub.\n\n" +
+                            "It looks like on this Register alone you've tried to contact your tech {0} times while he was on vacation. {1}", ps.Default.Tried2Contact, ps.Default.Tried2Contact > 2 ? "That's not very nice. He just wants to enjoy himself away from work for one week." : ""), "Oh No!");
             }
         }
 
@@ -568,6 +609,13 @@ namespace MayDayButton
         //Proves bitches wrong
         private string WhatIveTried()
         {
+            if (File.Exists(Log))
+            {
+                DateTime logFileEnd = File.GetLastWriteTime(Log);
+                if (logFileEnd.ToString("MM-dd-yyyy") != DateTime.Now.ToString("MM-dd-yyyy"))
+                    File.Delete(Log);
+            }
+              
             if (File.Exists(Log) && File.ReadAllText(Log) != "")
                 return "Here's what I've tried: \n" + File.ReadAllText(Log);
             else
@@ -630,7 +678,7 @@ namespace MayDayButton
                 if (x < 0) x = 0;
                 int MaxX = Screen.PrimaryScreen.WorkingArea.Width;
                 if (x > MaxX - this.Width) x = MaxX - this.Width;
-                ps.Default.X = x;
+                X = x;
                 ps.Default.Save();
                 this.Location = new Point(x, -50);
             }

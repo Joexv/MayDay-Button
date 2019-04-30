@@ -17,5 +17,14 @@
     <Setting Name="AdminStart" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="Tried2Contact" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="Y_Adjustment" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">-526</Value>
+    </Setting>
+    <Setting Name="Y_Norm" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">-351</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

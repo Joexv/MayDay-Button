@@ -82,5 +82,41 @@ namespace MayDayButton.Properties {
                 this["AdminStart"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int Tried2Contact {
+            get {
+                return ((int)(this["Tried2Contact"]));
+            }
+            set {
+                this["Tried2Contact"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("-526")]
+        public int Y_Adjustment {
+            get {
+                return ((int)(this["Y_Adjustment"]));
+            }
+            set {
+                this["Y_Adjustment"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("-351")]
+        public int Y_Norm {
+            get {
+                return ((int)(this["Y_Norm"]));
+            }
+            set {
+                this["Y_Norm"] = value;
+            }
+        }
     }
 }

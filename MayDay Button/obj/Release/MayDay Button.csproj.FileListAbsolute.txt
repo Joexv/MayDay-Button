@@ -11,3 +11,4 @@ C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Release\
 C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Release\MayDayButton.pdb
 C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Release\Interop.SHDocVw.dll
 C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Release\MayDay Button.csproj.ResolveComReference.cache
+C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Release\MayDayButton.Form3.resources
