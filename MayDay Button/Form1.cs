@@ -18,6 +18,9 @@ using Microsoft.Win32;
 using System.Management;
 using System.Security.Principal;
 using System.Media;
+using Windows.Data.Xml.Dom;
+using Windows.UI.Notifications;
+using System.Timers;
 
 namespace MayDayButton
 {
@@ -57,6 +60,7 @@ namespace MayDayButton
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            //RestoreConnection();
             if (!IsAdministrator && ps.Default.AdminStart)
                 GetAdmin(true);
 
@@ -82,6 +86,9 @@ namespace MayDayButton
 
             if (Process.GetProcessesByName("MayDayButton").Count() > 1)
                 Application.Exit();
+
+            if (!File.Exists(@"C:\MayDayButton\toast.png"))
+                File.Copy(@"\\192.168.1.210\Server\MaydayButton\toast.png", @"C:\MayDayButton\toast.png");
         }
 
         private void SetStartup()
@@ -341,6 +348,7 @@ namespace MayDayButton
             p.StartInfo.FileName = "explorer.exe";
             p.StartInfo.Arguments = @"\\192.168.1.210\Server\MaydayButton\";
             p.Start();
+            p.WaitForInputIdle(100);
             p.Kill();
             p.Dispose();
         }
@@ -350,6 +358,7 @@ namespace MayDayButton
 #if (!DEBUG)
             try
             {
+                NotiMsg("Updating....");
                 RestoreConnection();
                 ps.Default.ShouldUpdate = false;
                 ps.Default.Save();
@@ -357,9 +366,14 @@ namespace MayDayButton
                 AppendLog("Updating");
                 Directory.CreateDirectory(@"C:\MayDayButton\");
                 string Root = @"C:\MayDayButton\";
-                if (File.Exists(Root + "MayDayButton_Old.exe"))
-                    File.Delete(Root + "MayDayButton_Old.exe");
-                File.Move("MayDayButton.exe", Root + "MayDayButton_Old.exe");
+                try
+                {
+                    if (File.Exists(Root + "MayDayButton_Old.exe"))
+                        File.Delete(Root + "MayDayButton_Old.exe");
+                    File.Move("MayDayButton.exe", Root + "MayDayButton_Old.exe");
+                }
+                catch { File.Move("MayDayButton.exe", Root + "MayDayButton_Old_Error.exe"); }
+                
                 if (File.Exists(@"C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup\MayDayButton.exe"))
                     File.Delete(@"C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup\MayDayButton.exe");
                 //This needs to be changed to where ever you're pulling your update from.
@@ -379,15 +393,6 @@ namespace MayDayButton
         private void backgroundWorker2_DoWork(object sender, DoWorkEventArgs e)
         { 
             Command = RecieveData();
-        }
-
-
-        private string SecretPhrase
-            => File.ReadAllText(@"\\192.168.1.210\Server\MayDayButton\SecretPhrase.txt");
-
-        //Check string recived by TCP server
-        private void backgroundWorker2_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
             if (Command == "" || Command == null)
             {
                 AppendLog("Command was sent via TCP");
@@ -417,10 +422,21 @@ namespace MayDayButton
             }
             else if (Command.ToUpper().Contains("MSG $"))
             {
-                string Temp = Command.Substring(5);
-                MessageBox.Show(Temp);
+                if (Command.ToUpper().Contains("BMSG $"))
+                {
+                    string Temp = Command.Substring(6);
+                    NotiMsg(Temp);
+                }
+                else
+                {
+                    string Temp = Command.Substring(5);
+                    //MessageBox.Show(Temp);
+                    Message = Temp;
+                    backgroundWorker2.ReportProgress(99);
+                }
             }
-            else {
+            else
+            {
                 switch (Command.ToUpper())
                 {
                     case "ADOBE":
@@ -447,6 +463,9 @@ namespace MayDayButton
                     case "RESTART":
                         Application.Restart();
                         break;
+                    case "FUCKOFF":
+                        cmd("shutdown /h", true, false);
+                        break;
                     case "DLOG":
                         if (File.Exists(Log))
                             File.Delete(Log);
@@ -467,8 +486,21 @@ namespace MayDayButton
                         break;
                 }
             }
-            backgroundWorker2.RunWorkerAsync();
             Command = "";
+        }
+
+        private string SecretPhrase
+            => File.ReadAllText(@"\\192.168.1.210\Server\MayDayButton\SecretPhrase.txt");
+
+        private const string APP_ID = "MayDayButton";
+
+        //Check string recived by TCP server
+
+        public string Message = "";
+        private void backgroundWorker2_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            Thread.Sleep(300);
+            backgroundWorker2.RunWorkerAsync();
         }
 #endregion
 
@@ -504,8 +536,9 @@ namespace MayDayButton
             {
                 DateTime logFileEnd = File.GetLastWriteTime(Log);
                 if (logFileEnd.ToString("MM-dd-yyyy") != DateTime.Now.ToString("MM-dd-yyyy"))
-                    File.Delete(Log);
+                    File.Move(Log, @"C:\MayDayButton\Log_" + logFileEnd.ToString("MM-dd-yyyy") + ".txt");
             }
+
             try
             {
                 string formatted = String.Format("[{0}]::{1}", DateTime.Now.ToString("MM/dd h:mm tt"), Text);
@@ -546,7 +579,7 @@ namespace MayDayButton
                 string link = SlackLink();
                 if (link != "NA")
                 {
-                    MessageBox.Show("You will be contacted via Slack shortly.");
+                    MessageBox.Show("You will be contacted via Slack shortly. Please make sure to send your name and the issue at hand.");
                     Process.Start(link);
                 }
                 else
@@ -556,10 +589,42 @@ namespace MayDayButton
             {
                 ps.Default.Tried2Contact++;
                 ps.Default.Save();
+                string promptValue = ShowDialog("Notice", "Joe is on vacation and will only be responding to important issues. Please note your name here and then contact Jessica if there is an issue/");
+                if (promptValue != null)
+                    AppendLog(promptValue + " tried to contact the tech!");
+                else
+                    AppendLog("Someone tried to contact the tech, no name was given.");
+               
                 MessageBox.Show(String.Format(
                             "It looks like your tech has marked himself as being on vacation! Go see your on site manager for more assistance! But dont contact your tech or he will get ur IP addres an brick your xbox u noob scrub.\n\n" +
                             "It looks like on this Register alone you've tried to contact your tech {0} times while he was on vacation. {1}", ps.Default.Tried2Contact, ps.Default.Tried2Contact > 2 ? "That's not very nice. He just wants to enjoy himself away from work for one week." : ""), "Oh No!");
             }
+        }
+
+        public static string ShowDialog(string caption, string text)
+        {
+            Form prompt = new Form()
+            {
+                Width = 500,
+                Height = 150,
+                FormBorderStyle = FormBorderStyle.FixedDialog,
+                Text = caption,
+                StartPosition = FormStartPosition.CenterScreen,
+                AutoScaleMode = AutoScaleMode.Dpi,
+                AutoSize = true
+            };
+            Label textLabel = new Label() { Left = 50, Top = 20, Text = text };
+            textLabel.AutoSize = true;
+            TextBox textBox = new TextBox() { Left = 50, Top = 60, Width = 400 };
+            textBox.UseSystemPasswordChar = true;
+            Button confirmation = new Button() { Text = "Ok", Left = 350, Width = 100, Top = 90, DialogResult = DialogResult.OK };
+            confirmation.Click += (sender, e) => { prompt.Close(); };
+            prompt.Controls.Add(textBox);
+            prompt.Controls.Add(confirmation);
+            prompt.Controls.Add(textLabel);
+            prompt.AcceptButton = confirmation;
+
+            return prompt.ShowDialog() == DialogResult.OK ? textBox.Text : "";
         }
 
         private bool isOnVayCay
@@ -613,7 +678,7 @@ namespace MayDayButton
             {
                 DateTime logFileEnd = File.GetLastWriteTime(Log);
                 if (logFileEnd.ToString("MM-dd-yyyy") != DateTime.Now.ToString("MM-dd-yyyy"))
-                    File.Delete(Log);
+                    File.Move(Log, @"C:\MayDayButton\Log_" + logFileEnd.ToString("MM-dd-yyyy") + ".txt");
             }
               
             if (File.Exists(Log) && File.ReadAllText(Log) != "")
@@ -971,6 +1036,15 @@ namespace MayDayButton
             Thread.Sleep(1000);
         }
 
+        private void BalloonNotification(string Text, string Title = "Hey Listen!")
+        {
+            notifyIcon1.BalloonTipTitle = Title;
+            notifyIcon1.BalloonTipText = Text;
+            notifyIcon1.Visible = true;
+            notifyIcon1.ShowBalloonTip(180000);
+            notifyIcon1.Visible = false;
+        }
+
         bool isPluggedIn = true;
         private void backgroundWorker4_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
@@ -978,12 +1052,61 @@ namespace MayDayButton
             if(status == PowerLineStatus.Offline && isPluggedIn)
             {
                 isPluggedIn = false;
-                MessageBox.Show("Why am I unplugged? Do You want me to die?\n:(");
+                //MessageBox.Show("Why am I unplugged? Do You want me to die?\n:(");
+                BalloonNotification("Why am I unplugged? Do you want me to die?", "What a sad day");
                 Thread.Sleep(1000);
             }
             else
                 isPluggedIn = true;
             backgroundWorker4.RunWorkerAsync();
+        }
+
+        private void backgroundWorker2_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            //ToastNoti("Notice!", Message);
+            StartTimer(30);
+            label1.Text = Message;
+            //BalloonNotification("MayDayButton", Message);
+        }
+
+        private System.Timers.Timer timer = new System.Timers.Timer();
+        public void StartTimer(int Minutes)
+        {
+            try { timer.Stop(); }
+            catch { }
+            timer = new System.Timers.Timer(60000 * Minutes);
+            //timer = new System.Timers.Timer(1000);
+            timer.Elapsed += new ElapsedEventHandler(OnElapsed);
+            timer.AutoReset = false;
+            timer.Start();
+        }
+
+        public void OnElapsed(object sender, ElapsedEventArgs e)
+        {
+            Message = "MAYDAY";
+            if (InvokeRequired)
+            {
+                Invoke((MethodInvoker)delegate { OnElapsed(sender, e); });
+                return;
+            }
+            label1.Text = Message;
+        }
+
+        public void NotiMsg(string Message)
+        {
+            Console.WriteLine("NotiMSG");
+            if (InvokeRequired)
+            {
+                Console.WriteLine("Invoking");
+                Invoke((MethodInvoker)delegate { NotiMsg(Message); });
+                return;
+            }
+            BalloonNotification(Message);
+        }
+
+        private void label1_TextChanged(object sender, EventArgs e)
+        {
+           
         }
     }
 }

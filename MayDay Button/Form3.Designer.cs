@@ -31,12 +31,18 @@
             this.logView = new System.Windows.Forms.RichTextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.aAdmin = new System.Windows.Forms.CheckBox();
-            this.xPos = new System.Windows.Forms.NumericUpDown();
-            this.label2 = new System.Windows.Forms.Label();
-            this.highDPI = new System.Windows.Forms.CheckBox();
+            this.button10 = new System.Windows.Forms.Button();
+            this.label5 = new System.Windows.Forms.Label();
+            this.yPos = new System.Windows.Forms.NumericUpDown();
+            this.sUpdate = new System.Windows.Forms.CheckBox();
+            this.label4 = new System.Windows.Forms.Label();
+            this.cTimes = new System.Windows.Forms.NumericUpDown();
             this.label3 = new System.Windows.Forms.Label();
             this.yAdj = new System.Windows.Forms.NumericUpDown();
+            this.highDPI = new System.Windows.Forms.CheckBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.xPos = new System.Windows.Forms.NumericUpDown();
+            this.aAdmin = new System.Windows.Forms.CheckBox();
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
@@ -46,20 +52,16 @@
             this.button7 = new System.Windows.Forms.Button();
             this.button8 = new System.Windows.Forms.Button();
             this.button9 = new System.Windows.Forms.Button();
-            this.label4 = new System.Windows.Forms.Label();
-            this.cTimes = new System.Windows.Forms.NumericUpDown();
-            this.sUpdate = new System.Windows.Forms.CheckBox();
-            this.label5 = new System.Windows.Forms.Label();
-            this.yPos = new System.Windows.Forms.NumericUpDown();
-            this.button10 = new System.Windows.Forms.Button();
             this.button11 = new System.Windows.Forms.Button();
             this.button12 = new System.Windows.Forms.Button();
             this.button13 = new System.Windows.Forms.Button();
+            this.button14 = new System.Windows.Forms.Button();
+            this.button15 = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.xPos)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.yAdj)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.cTimes)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.yPos)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.cTimes)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.yAdj)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.xPos)).BeginInit();
             this.SuspendLayout();
             // 
             // logView
@@ -100,41 +102,67 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Settings - XXXX";
             // 
-            // aAdmin
+            // button10
             // 
-            this.aAdmin.AutoSize = true;
-            this.aAdmin.Location = new System.Drawing.Point(130, 74);
-            this.aAdmin.Name = "aAdmin";
-            this.aAdmin.Size = new System.Drawing.Size(95, 17);
-            this.aAdmin.TabIndex = 3;
-            this.aAdmin.Text = "Start As Admin";
-            this.aAdmin.UseVisualStyleBackColor = true;
+            this.button10.Location = new System.Drawing.Point(10, 144);
+            this.button10.Name = "button10";
+            this.button10.Size = new System.Drawing.Size(246, 23);
+            this.button10.TabIndex = 13;
+            this.button10.Text = "Save Changes";
+            this.button10.UseVisualStyleBackColor = true;
+            this.button10.Click += new System.EventHandler(this.button10_Click);
             // 
-            // xPos
+            // label5
             // 
-            this.xPos.Location = new System.Drawing.Point(6, 36);
-            this.xPos.Name = "xPos";
-            this.xPos.Size = new System.Drawing.Size(95, 20);
-            this.xPos.TabIndex = 3;
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(7, 102);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(39, 13);
+            this.label5.TabIndex = 12;
+            this.label5.Text = "Y POS";
             // 
-            // label2
+            // yPos
             // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(6, 20);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(39, 13);
-            this.label2.TabIndex = 4;
-            this.label2.Text = "X POS";
+            this.yPos.Location = new System.Drawing.Point(7, 118);
+            this.yPos.Maximum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
+            this.yPos.Minimum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            -2147483648});
+            this.yPos.Name = "yPos";
+            this.yPos.Size = new System.Drawing.Size(95, 20);
+            this.yPos.TabIndex = 11;
             // 
-            // highDPI
+            // sUpdate
             // 
-            this.highDPI.AutoSize = true;
-            this.highDPI.Location = new System.Drawing.Point(130, 28);
-            this.highDPI.Name = "highDPI";
-            this.highDPI.Size = new System.Drawing.Size(69, 17);
-            this.highDPI.TabIndex = 5;
-            this.highDPI.Text = "High DPI";
-            this.highDPI.UseVisualStyleBackColor = true;
+            this.sUpdate.AutoSize = true;
+            this.sUpdate.Location = new System.Drawing.Point(158, 49);
+            this.sUpdate.Name = "sUpdate";
+            this.sUpdate.Size = new System.Drawing.Size(97, 17);
+            this.sUpdate.TabIndex = 10;
+            this.sUpdate.Text = "Should Update";
+            this.sUpdate.UseVisualStyleBackColor = true;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(158, 100);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(75, 13);
+            this.label4.TabIndex = 9;
+            this.label4.Text = "Contact Times";
+            // 
+            // cTimes
+            // 
+            this.cTimes.Location = new System.Drawing.Point(158, 116);
+            this.cTimes.Name = "cTimes";
+            this.cTimes.Size = new System.Drawing.Size(95, 20);
+            this.cTimes.TabIndex = 8;
             // 
             // label3
             // 
@@ -161,6 +189,42 @@
             this.yAdj.Name = "yAdj";
             this.yAdj.Size = new System.Drawing.Size(95, 20);
             this.yAdj.TabIndex = 6;
+            // 
+            // highDPI
+            // 
+            this.highDPI.AutoSize = true;
+            this.highDPI.Location = new System.Drawing.Point(158, 26);
+            this.highDPI.Name = "highDPI";
+            this.highDPI.Size = new System.Drawing.Size(69, 17);
+            this.highDPI.TabIndex = 5;
+            this.highDPI.Text = "High DPI";
+            this.highDPI.UseVisualStyleBackColor = true;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(6, 20);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(39, 13);
+            this.label2.TabIndex = 4;
+            this.label2.Text = "X POS";
+            // 
+            // xPos
+            // 
+            this.xPos.Location = new System.Drawing.Point(6, 36);
+            this.xPos.Name = "xPos";
+            this.xPos.Size = new System.Drawing.Size(95, 20);
+            this.xPos.TabIndex = 3;
+            // 
+            // aAdmin
+            // 
+            this.aAdmin.AutoSize = true;
+            this.aAdmin.Location = new System.Drawing.Point(158, 72);
+            this.aAdmin.Name = "aAdmin";
+            this.aAdmin.Size = new System.Drawing.Size(95, 17);
+            this.aAdmin.TabIndex = 3;
+            this.aAdmin.Text = "Start As Admin";
+            this.aAdmin.UseVisualStyleBackColor = true;
             // 
             // button1
             // 
@@ -252,71 +316,9 @@
             this.button9.UseVisualStyleBackColor = true;
             this.button9.Click += new System.EventHandler(this.button9_Click);
             // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(130, 102);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(75, 13);
-            this.label4.TabIndex = 9;
-            this.label4.Text = "Contact Times";
-            // 
-            // cTimes
-            // 
-            this.cTimes.Location = new System.Drawing.Point(130, 118);
-            this.cTimes.Name = "cTimes";
-            this.cTimes.Size = new System.Drawing.Size(95, 20);
-            this.cTimes.TabIndex = 8;
-            // 
-            // sUpdate
-            // 
-            this.sUpdate.AutoSize = true;
-            this.sUpdate.Location = new System.Drawing.Point(130, 51);
-            this.sUpdate.Name = "sUpdate";
-            this.sUpdate.Size = new System.Drawing.Size(97, 17);
-            this.sUpdate.TabIndex = 10;
-            this.sUpdate.Text = "Should Update";
-            this.sUpdate.UseVisualStyleBackColor = true;
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(7, 102);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(39, 13);
-            this.label5.TabIndex = 12;
-            this.label5.Text = "Y POS";
-            // 
-            // yPos
-            // 
-            this.yPos.Location = new System.Drawing.Point(7, 118);
-            this.yPos.Maximum = new decimal(new int[] {
-            1000,
-            0,
-            0,
-            0});
-            this.yPos.Minimum = new decimal(new int[] {
-            1000,
-            0,
-            0,
-            -2147483648});
-            this.yPos.Name = "yPos";
-            this.yPos.Size = new System.Drawing.Size(95, 20);
-            this.yPos.TabIndex = 11;
-            // 
-            // button10
-            // 
-            this.button10.Location = new System.Drawing.Point(10, 144);
-            this.button10.Name = "button10";
-            this.button10.Size = new System.Drawing.Size(215, 23);
-            this.button10.TabIndex = 13;
-            this.button10.Text = "Save Changes";
-            this.button10.UseVisualStyleBackColor = true;
-            this.button10.Click += new System.EventHandler(this.button10_Click);
-            // 
             // button11
             // 
-            this.button11.Location = new System.Drawing.Point(12, 428);
+            this.button11.Location = new System.Drawing.Point(9, 545);
             this.button11.Name = "button11";
             this.button11.Size = new System.Drawing.Size(127, 40);
             this.button11.TabIndex = 12;
@@ -326,7 +328,7 @@
             // 
             // button12
             // 
-            this.button12.Location = new System.Drawing.Point(145, 428);
+            this.button12.Location = new System.Drawing.Point(142, 591);
             this.button12.Name = "button12";
             this.button12.Size = new System.Drawing.Size(127, 40);
             this.button12.TabIndex = 13;
@@ -336,7 +338,7 @@
             // 
             // button13
             // 
-            this.button13.Location = new System.Drawing.Point(145, 382);
+            this.button13.Location = new System.Drawing.Point(9, 591);
             this.button13.Name = "button13";
             this.button13.Size = new System.Drawing.Size(127, 40);
             this.button13.TabIndex = 14;
@@ -344,11 +346,33 @@
             this.button13.UseVisualStyleBackColor = true;
             this.button13.Click += new System.EventHandler(this.button13_Click);
             // 
+            // button14
+            // 
+            this.button14.Location = new System.Drawing.Point(145, 382);
+            this.button14.Name = "button14";
+            this.button14.Size = new System.Drawing.Size(127, 40);
+            this.button14.TabIndex = 15;
+            this.button14.Text = "Run Checks";
+            this.button14.UseVisualStyleBackColor = true;
+            this.button14.Click += new System.EventHandler(this.button14_Click);
+            // 
+            // button15
+            // 
+            this.button15.Location = new System.Drawing.Point(12, 428);
+            this.button15.Name = "button15";
+            this.button15.Size = new System.Drawing.Size(127, 40);
+            this.button15.TabIndex = 16;
+            this.button15.Text = "Delete Log";
+            this.button15.UseVisualStyleBackColor = true;
+            this.button15.Click += new System.EventHandler(this.button15_Click);
+            // 
             // Form3
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(634, 646);
+            this.Controls.Add(this.button15);
+            this.Controls.Add(this.button14);
             this.Controls.Add(this.button13);
             this.Controls.Add(this.button12);
             this.Controls.Add(this.button11);
@@ -366,13 +390,14 @@
             this.Controls.Add(this.logView);
             this.Name = "Form3";
             this.Text = "Form3";
+            this.TopMost = true;
             this.Load += new System.EventHandler(this.Form3_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.xPos)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.yAdj)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.cTimes)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.yPos)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.cTimes)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.yAdj)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.xPos)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -407,5 +432,7 @@
         private System.Windows.Forms.Button button11;
         private System.Windows.Forms.Button button12;
         private System.Windows.Forms.Button button13;
+        private System.Windows.Forms.Button button14;
+        private System.Windows.Forms.Button button15;
     }
 }

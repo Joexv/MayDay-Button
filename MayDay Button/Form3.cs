@@ -29,7 +29,14 @@ namespace MayDayButton
             InitializeComponent();
         }
 
+        bool shouldRemove = false;
         private void button1_Click(object sender, EventArgs e)
+        {
+            ChangeStartup(shouldRemove);
+            LoadSettings();
+        }
+
+        private void ChangeStartup(bool Remove = false)
         {
             try
             {
@@ -43,6 +50,11 @@ namespace MayDayButton
                             RegistryKey rk = Registry.LocalMachine.OpenSubKey
                               ("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
                             rk.SetValue("MayDayButton", Application.ExecutablePath);
+                        }else if (Remove)
+                        {
+                            RegistryKey rk = Registry.LocalMachine.OpenSubKey
+                                                          ("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
+                            rk.DeleteSubKey("MayDayButton");
                         }
                     }
                 }
@@ -82,11 +94,10 @@ namespace MayDayButton
             {
                 TcpClient tcpclnt = new TcpClient();
                 Console.WriteLine("Connecting.....");
-                tcpclnt.Connect(IP, 8001); // use the ipaddress as in the server program
+                tcpclnt.Connect(IP, 8001);
 
                 Console.WriteLine("Connected");
-                Console.Write("Enter the string to be transmitted : {0}", Input);
-                Console.Write("Enter the string to be transmitted : {0}", Input);
+                Console.WriteLine("Enter the string to be transmitted : {0}", Input);
 
                 Stream stm = tcpclnt.GetStream();
 
@@ -100,7 +111,7 @@ namespace MayDayButton
                 int k = stm.Read(bb, 0, 100);
 
                 for (int i = 0; i < k; i++)
-                    Console.Write(Convert.ToChar(bb[i]));
+                    Console.WriteLine(Convert.ToChar(bb[i]));
 
                 tcpclnt.Close();
             }
@@ -150,6 +161,7 @@ namespace MayDayButton
             p.StartInfo.FileName = "explorer.exe";
             p.StartInfo.Arguments = @"\\192.168.1.210\Server\MaydayButton\";
             p.Start();
+            p.WaitForInputIdle(100);
             p.Kill();
             p.Dispose();
         }
@@ -161,7 +173,7 @@ namespace MayDayButton
 
         private void button9_Click(object sender, EventArgs e)
         {
-            cmd("shutdown /r /n", false, true);
+            cmd("shutdown /r", false, true);
         }
 
         public void cmd(string Arguments, bool isHidden = false, bool asAdmin = false)
@@ -204,8 +216,30 @@ namespace MayDayButton
             aAdmin.Checked = ps.Default.AdminStart;
 
             cTimes.Value = ps.Default.Tried2Contact;
+            if(File.Exists(Log))
+                logView.Text = File.ReadAllText(Log);
 
-            logView.Text = File.ReadAllText(Log);
+            try
+            {
+                using (RegistryKey key = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run\\"))
+                {
+                    if (key != null)
+                    {
+                        Object o = key.GetValue("MayDayButton");
+                        if (o == null || o.ToString() != Application.ExecutablePath)
+                        {
+                            shouldRemove = false;
+                            button1.Text = "Set Startup";
+                        }
+                        else
+                        {
+                            shouldRemove = true;
+                            button1.Text = "Remove Startup";
+                        }
+                    }
+                }
+            }
+            catch { }
         }
 
         const string Log = @"C:\MayDayButton\Log.txt";
@@ -266,6 +300,30 @@ namespace MayDayButton
             SendData("IMPORT", "192.168.1.151");
             SendData("IMPORT", "192.168.1.203");
             SendData("IMPORT", "192.168.1.158");
+        }
+
+        public static string GetLocalIPAddress()
+        {
+            var host = Dns.GetHostEntry(Dns.GetHostName());
+            foreach (var ip in host.AddressList)
+            {
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    return ip.ToString();
+                }
+            }
+            throw new Exception("No network adapters with an IPv4 address in the system!");
+        }
+
+        private void button14_Click(object sender, EventArgs e)
+        {
+            SendData("CHECKS", GetLocalIPAddress());
+        }
+
+        private void button15_Click(object sender, EventArgs e)
+        {
+            File.Delete(Log);
+            logView.Text = "";
         }
     }
 }

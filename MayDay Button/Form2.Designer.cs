@@ -43,7 +43,7 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(122, 54);
+            this.button1.Location = new System.Drawing.Point(121, 66);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(105, 37);
             this.button1.TabIndex = 0;
@@ -76,7 +76,7 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(11, 54);
+            this.button2.Location = new System.Drawing.Point(10, 66);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(105, 37);
             this.button2.TabIndex = 3;
@@ -86,7 +86,7 @@
             // 
             // button4
             // 
-            this.button4.Location = new System.Drawing.Point(121, 97);
+            this.button4.Location = new System.Drawing.Point(121, 109);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(105, 37);
             this.button4.TabIndex = 5;
@@ -131,7 +131,7 @@
             // 
             // button7
             // 
-            this.button7.Location = new System.Drawing.Point(11, 97);
+            this.button7.Location = new System.Drawing.Point(11, 109);
             this.button7.Name = "button7";
             this.button7.Size = new System.Drawing.Size(105, 37);
             this.button7.TabIndex = 11;
@@ -145,7 +145,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.ClientSize = new System.Drawing.Size(238, 145);
+            this.ClientSize = new System.Drawing.Size(238, 158);
             this.Controls.Add(this.button7);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.button4);

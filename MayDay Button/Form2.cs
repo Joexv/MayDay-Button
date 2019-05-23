@@ -79,7 +79,7 @@ namespace MayDayButton
             textLabel.AutoSize = true;
             TextBox textBox = new TextBox() { Left = 50, Top = 60, Width = 400 };
             textBox.UseSystemPasswordChar = true;
-            Button confirmation = new Button() { Text = "Ok", Left = 350, Width = 100, Top = 80, DialogResult = DialogResult.OK };
+            Button confirmation = new Button() { Text = "Ok", Left = 350, Width = 100, Top = 90, DialogResult = DialogResult.OK };
             confirmation.Click += (sender, e) => { prompt.Close(); };
             prompt.Controls.Add(textBox);
             prompt.Controls.Add(confirmation);
@@ -155,7 +155,7 @@ namespace MayDayButton
 
         private void button7_Click(object sender, EventArgs e)
         {
-            AppendLog("Someone tried to open the admin panel");
+            //AppendLog("Someone tried to open the admin panel");
             string promptValue = ShowDialog("Warning!", "The Admin Panel has a lot of things that can potentially break the register, only use it if you know what you're doing!");
             if (promptValue == Password)
             {
