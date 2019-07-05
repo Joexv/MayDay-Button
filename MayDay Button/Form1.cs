@@ -18,8 +18,6 @@ using Microsoft.Win32;
 using System.Management;
 using System.Security.Principal;
 using System.Media;
-using Windows.Data.Xml.Dom;
-using Windows.UI.Notifications;
 using System.Timers;
 
 namespace MayDayButton
@@ -42,7 +40,6 @@ namespace MayDayButton
 
         private void GetAdmin(bool ShouldLoop = false)
         {
-#if (!DEBUG)
             Process p = new Process();
             try
             {
@@ -55,7 +52,6 @@ namespace MayDayButton
                 if (ShouldLoop)
                     GetAdmin(true);
             }
-#endif
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -94,23 +90,19 @@ namespace MayDayButton
         private void SetStartup()
         {
 #if (!DEBUG)
-                try
+            try
+            {
+                RegistryKey key = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run\\");
+                Object o = key.GetValue("MayDayButton");
+                if (o == null)
                 {
-                    using (RegistryKey key = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run\\"))
-                    {
-                        if (key != null)
-                        {
-                            Object o = key.GetValue("MayDayButton");
-                            if (o == null || o.ToString() != Application.ExecutablePath)
-                            {
-                                RegistryKey rk = Registry.LocalMachine.OpenSubKey
-                                  ("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
-                                rk.SetValue("MayDayButton", Application.ExecutablePath);
-                            }
-                        }
-                    }
+                    key = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run\\", true);
+                    key.SetValue("MayDayButton", Application.ExecutablePath);
                 }
-                catch { GetAdmin(); }
+            }
+            catch(Exception ex) {
+                Console.WriteLine(ex.ToString());
+            }
 #endif
         }
 
@@ -355,7 +347,6 @@ namespace MayDayButton
 
         private void UpdateEXE()
         {
-#if (!DEBUG)
             try
             {
                 NotiMsg("Updating....");
@@ -386,7 +377,6 @@ namespace MayDayButton
                 ps.Default.ShouldUpdate = true;
                 ps.Default.Save();
             }
-#endif
         }
 
         public string Command;

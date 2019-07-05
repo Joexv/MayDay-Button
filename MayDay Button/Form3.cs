@@ -32,7 +32,7 @@ namespace MayDayButton
         bool shouldRemove = false;
         private void button1_Click(object sender, EventArgs e)
         {
-            ChangeStartup(shouldRemove);
+            ChangeStartup(false);
             LoadSettings();
         }
 
@@ -40,23 +40,12 @@ namespace MayDayButton
         {
             try
             {
-                using (RegistryKey key = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run\\"))
+                RegistryKey key = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run\\", false);
+                Object o = key.GetValue("MayDayButton");
+                if (o == null)
                 {
-                    if (key != null)
-                    {
-                        Object o = key.GetValue("MayDayButton");
-                        if (o == null || o.ToString() != Application.ExecutablePath)
-                        {
-                            RegistryKey rk = Registry.LocalMachine.OpenSubKey
-                              ("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
-                            rk.SetValue("MayDayButton", Application.ExecutablePath);
-                        }else if (Remove)
-                        {
-                            RegistryKey rk = Registry.LocalMachine.OpenSubKey
-                                                          ("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
-                            rk.DeleteSubKey("MayDayButton");
-                        }
-                    }
+                    key = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run\\", true);
+                    key.SetValue("MayDayButton", Application.ExecutablePath);
                 }
             }
             catch { GetAdmin(); }
@@ -67,7 +56,7 @@ namespace MayDayButton
             Process p = new Process();
             try
             {
-                var exeName = Process.GetCurrentProcess().MainModule.FileName;
+                var exeName = @"C:\MayDayButton\MayDayButton.exe";
                 p.StartInfo.FileName = exeName;
                 p.StartInfo.Verb = "runas";
                 p.Start();
@@ -122,6 +111,7 @@ namespace MayDayButton
             }
         }
 
+        //This is gross and I hate it
         string vFalse = @"\\192.168.1.210\Server\MaydayButton\TechVacation[FALSE].txt";
         string vTrue = @"\\192.168.1.210\Server\MaydayButton\TechVacation[TRUE].txt";
         private void button3_Click(object sender, EventArgs e)
@@ -218,28 +208,6 @@ namespace MayDayButton
             cTimes.Value = ps.Default.Tried2Contact;
             if(File.Exists(Log))
                 logView.Text = File.ReadAllText(Log);
-
-            try
-            {
-                using (RegistryKey key = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run\\"))
-                {
-                    if (key != null)
-                    {
-                        Object o = key.GetValue("MayDayButton");
-                        if (o == null || o.ToString() != Application.ExecutablePath)
-                        {
-                            shouldRemove = false;
-                            button1.Text = "Set Startup";
-                        }
-                        else
-                        {
-                            shouldRemove = true;
-                            button1.Text = "Remove Startup";
-                        }
-                    }
-                }
-            }
-            catch { }
         }
 
         const string Log = @"C:\MayDayButton\Log.txt";
@@ -324,6 +292,12 @@ namespace MayDayButton
         {
             File.Delete(Log);
             logView.Text = "";
+        }
+
+        private void button17_Click(object sender, EventArgs e)
+        {
+            RegistryKey rk = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
+            rk.DeleteValue("MayDayButton");
         }
     }
 }
