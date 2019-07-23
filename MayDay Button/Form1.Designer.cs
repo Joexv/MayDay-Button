@@ -135,9 +135,9 @@
             this.button4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.button4.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.button4.Location = new System.Drawing.Point(135, 226);
+            this.button4.Location = new System.Drawing.Point(119, 226);
             this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(53, 30);
+            this.button4.Size = new System.Drawing.Size(69, 30);
             this.button4.TabIndex = 7;
             this.button4.Text = "Options";
             this.button4.UseVisualStyleBackColor = true;
@@ -155,11 +155,12 @@
             this.button5.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.button5.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.button5.Enabled = false;
             this.button5.Location = new System.Drawing.Point(12, 226);
             this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(117, 30);
+            this.button5.Size = new System.Drawing.Size(101, 30);
             this.button5.TabIndex = 8;
-            this.button5.Text = "Open TeamViewer";
+            this.button5.Text = "v1.0";
             this.button5.UseVisualStyleBackColor = true;
             this.button5.Click += new System.EventHandler(this.button5_Click);
             // 

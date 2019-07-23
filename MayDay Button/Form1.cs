@@ -19,6 +19,7 @@ using System.Management;
 using System.Security.Principal;
 using System.Media;
 using System.Timers;
+using System.Net.NetworkInformation;
 
 namespace MayDayButton
 {
@@ -29,6 +30,8 @@ namespace MayDayButton
         {
             InitializeComponent();
         }
+
+        public static string ServerLocation = @"\\192.168.1.210\server\MayDayButton\";
 
         public int Y = ps.Default.Y_Norm;
         public int nY = ps.Default.Y_Adjustment;
@@ -54,11 +57,33 @@ namespace MayDayButton
             }
         }
 
+        void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
+        {
+            AppendLog(e.Exception.Message);
+        }
+
+        void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            AppendLog((e.ExceptionObject as Exception).Message);
+        }
+
         private void Form1_Load(object sender, EventArgs e)
         {
-            //RestoreConnection();
+            Application.ThreadException += new ThreadExceptionEventHandler(Application_ThreadException);
+            AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
+
+            Process CurrentProcess = Process.GetCurrentProcess();
+            foreach (Process p in Process.GetProcesses().Where(n => n.Id != CurrentProcess.Id))
+                if (p.ProcessName == "MayDayButton")
+                    p.Kill();
+
+            //This is done to make sure that upon running on boot, the location doesn't get jumped to C:\System32 or whatever bullshit Windows likes to do.
+            Directory.SetCurrentDirectory(@"C:\MayDayButton\");
+
+            RestoreConnection();
+
             if (!IsAdministrator && ps.Default.AdminStart)
-                GetAdmin(true);
+                GetAdmin();
 
             SetStartup();
 
@@ -67,24 +92,33 @@ namespace MayDayButton
 
             this.AutoScaleDimensions = new Size(96, 96);
             this.Location = new Point(X, Y);
-            if (ps.Default.ShouldUpdate)
-            {
-                try{ UpdateEXE(); }
-                catch(Exception ex) {
-                    MessageBox.Show(ex.ToString(), "Failed To Update Notify Your Tech");
-                }
-            }
 
+            //Manual Update or checks for needed updates from your server
+            if (ps.Default.ShouldUpdate)
+                UpdateEXE(); 
+            else
+            {
+                try
+                {
+                    var versionInfo = FileVersionInfo.GetVersionInfo(ServerLocation + "MayDayButton.exe");
+                    string version = versionInfo.ProductVersion.Replace(".", "");
+                    if (Int32.Parse(version) > Int32.Parse(Application.ProductVersion.Replace(".", "")))
+                        UpdateEXE();
+                }
+                catch(Exception ex) { MessageBox.Show(ex.ToString()); }
+            }
+            button5.Text = Application.ProductVersion; //Setting the button to the version is temporary untill I find another use for the button
+
+            //Starts background processes, for monitoring battery, checking for commands, and the like
             backgroundWorker1.RunWorkerAsync();
             backgroundWorker2.RunWorkerAsync();
             backgroundWorker3.RunWorkerAsync();
             backgroundWorker4.RunWorkerAsync();
 
-            if (Process.GetProcessesByName("MayDayButton").Count() > 1)
-                Application.Exit();
-
             if (!File.Exists(@"C:\MayDayButton\toast.png"))
-                File.Copy(@"\\192.168.1.210\Server\MaydayButton\toast.png", @"C:\MayDayButton\toast.png");
+                File.Copy(ServerLocation + @"toast.png", @"C:\MayDayButton\toast.png");
+
+            importSettings();
         }
 
         private void SetStartup()
@@ -100,21 +134,30 @@ namespace MayDayButton
                     key.SetValue("MayDayButton", Application.ExecutablePath);
                 }
             }
-            catch(Exception ex) {
-                Console.WriteLine(ex.ToString());
-            }
+            catch{}//Problems dont exist if we ignore them
 #endif
         }
 
         private void Checks()
         {
+            //Checks for new update, in a try catch in case Windows is a bitch and doesn't allow access to the network drive
+            try
+            {
+                RestoreConnection();
+                var versionInfo = FileVersionInfo.GetVersionInfo(ServerLocation + "MayDayButton.exe");
+                string version = versionInfo.ProductVersion.Replace(".", "");
+                if (Int32.Parse(version) > Int32.Parse(Application.ProductVersion.Replace(".", "")))
+                    UpdateEXE(); 
+            }
+            catch { }
+
             PowerLineStatus status = SystemInformation.PowerStatus.PowerLineStatus;
 
             string Result = "";
             //Check Battery %
             PowerStatus p = SystemInformation.PowerStatus;
             int a = (int)(p.BatteryLifePercent * 100);
-            if (a < 50)
+            if (a == 25 || a == 15 || a == 5)
             {
                 BatteryLow = true;
                 Result += String.Format("Power is {0}, charger needs to be checked.\n", a);
@@ -205,7 +248,7 @@ namespace MayDayButton
             if (ps.Default.HighDPI)
                 Y = nY;
             if (Form.ActiveForm != this)
-                this.Location = new Point(X, Y);
+                this.Location = new Point(ps.Default.X, Y);
             backgroundWorker1.RunWorkerAsync();
         }
 
@@ -225,6 +268,14 @@ namespace MayDayButton
         {
             if(ps.Default.ShouldUpdate)
                  UpdateEXE();
+
+            if (ps.Default.HighDPI)
+                Y = nY;
+
+            X = ps.Default.X;
+
+            this.AutoScaleDimensions = new Size(96, 96);
+            this.Location = new Point(X, Y);
         }
 
 #region TCP Commands
@@ -292,12 +343,12 @@ namespace MayDayButton
             CloseAdobe();
             AppendLog("Printer fix");
             cmd(@"net stop spooler & " + 
-                @"del %systemroot%\System32\spool\printers\* /Q & " + 
+                @"del /Q /F /S %systemroot%\System32\spool\printers\*.* & " + 
                 "net start spooler", false, true);
             if (wasOutofPaper)
                 MessageBox.Show("It looks like your printer is either out of paper or was out of paper recently. Please double check your paper before proceeding. If you still cannot print from Flowhub, switch to a different transaction then switch back and try to print again. This is a bug in Flowhub.");
             else
-              MessageBox.Show("Try it now");
+              MessageBox.Show("Try it now. If issues persist, disconnect your printer for 20 seconds and reconnect it!");
         }
 
         private void CloseAdobe()
@@ -316,7 +367,35 @@ namespace MayDayButton
                 cmd("taskkill /F /IM " + ProcessName, false, true);
         }
 
+        //Set this to your network interface name, to specifically enable/disable when fixing internet, or leave empty to do a reset to all adapters
+        string Interface = "";
         private void FixInternet()
+        {
+            if (Ping("google.com") && !Ping("flowhub.co"))
+            {
+                MessageBox.Show("It looks like your internet is currently working just fine! But Flowhub is unable to be pinged. It's a Flowhub issue, there's nothing anyone can do.");
+            }
+            else
+            {
+                AdapterReset();
+
+                if (!Ping("google.com") && !Ping("flowhub.co"))
+                    IPReset();
+
+                if(!Ping("google.com") && !Ping("flowhub.co"))
+                {
+                    DialogResult dialogResult = MessageBox.Show("The program is unable to connect to Google or Flowhub and will restart the whole register if you press YES, if you can access the internet and do NOT want the register to restart, please press NO.", "WARNING", MessageBoxButtons.YesNo); ;
+                    if (dialogResult == DialogResult.Yes)
+                        cmd("shutdown /r", false, true);
+                }
+                else
+                {
+                    NotiMsg("Try it now!");
+                }
+            }
+        }
+
+        private void IPReset()
         {
             AppendLog("Internet flush");
             cmd("netsh winsock reset & " +
@@ -324,59 +403,119 @@ namespace MayDayButton
                 "ipconfig /release & " +
                 "ipconfig /flushdns & " +
                 "ipconfig /renew", false);
-            MessageBox.Show("Try it now");
         }
+
+        private void AdapterReset()
+        {
+            AppendLog("Adapter Reset");
+            if (Interface != "")
+            {
+                cmd("netsh interface set interface\"" + Interface + "\" disable", true, true);
+                cmd("netsh interface set interface\"" + Interface + "\" enable", true, true);
+            }
+            else
+            {
+                SelectQuery wmiQuery = new SelectQuery("SELECT * FROM Win32_NetworkAdapter WHERE NetConnectionId != NULL");
+                ManagementObjectSearcher searchProcedure = new ManagementObjectSearcher(wmiQuery);
+                foreach (ManagementObject item in searchProcedure.Get())
+                {
+                    NotiMsg((string)item["NetConnectionId"]);
+                    cmd("netsh interface set interface \"" + (string)item["NetConnectionId"] + "\" disable & netsh interface set interface \"" + (string) item["NetConnectionId"] + "\" enable", true, true);
+                }
+            }
+        }
+
+
+        private bool Ping(string IP)
+        {
+            bool pingable = false;
+            Ping pinger = null;
+            try
+            {
+                pinger = new Ping();
+                PingReply reply = pinger.Send(IP);
+                pingable = reply.Status == IPStatus.Success;
+            }
+            catch { }
+            finally { if (pinger != null) { pinger.Dispose(); } }
+
+            return pingable;
+        }
+
 
         private void RestartFlowhub()
         {
             AppendLog("Restarted Flowhub");
             Close("Flowhub");
-            Process.Start(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\FlowhubPos\Update.exe --processStart Flowhub.exe");
+            if (File.Exists(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\FlowhubPos\Update.exe"))
+                Process.Start(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\FlowhubPos\Update.exe --processStart Flowhub.exe");
+            else
+                MessageBox.Show("Error, did not locate Flowhub! Please start it manually!");
         }
 
         private void RestoreConnection()
         {
             Process p = new Process();
             p.StartInfo.FileName = "explorer.exe";
-            p.StartInfo.Arguments = @"\\192.168.1.210\Server\MaydayButton\";
+            p.StartInfo.Arguments = ServerLocation;
             p.Start();
             p.WaitForInputIdle(100);
             p.Kill();
             p.Dispose();
         }
 
+        private void exportSettings()
+        {
+            File.Delete("Settings.Config");
+            using (StreamWriter sw = File.CreateText("Settings.Config"))
+            {
+                sw.WriteLine(ps.Default.X);
+                sw.WriteLine(ps.Default.Y_Adjustment);
+                sw.WriteLine(ps.Default.Y_Norm);
+
+                sw.WriteLine(ps.Default.ShouldUpdate);
+                sw.WriteLine(ps.Default.HighDPI);
+                sw.WriteLine(ps.Default.AdminStart);
+
+                //sw.WriteLine(ps.Default.Tried2Contact);
+            }
+        }
+
+        private void importSettings()
+        {
+            if (File.Exists("Settings.Config"))
+            {
+                string[] Settings = File.ReadAllLines(SettingsFile);
+                ps.Default.X = Int32.Parse(Settings[0]);
+                ps.Default.Y_Adjustment = Int32.Parse(Settings[1]);
+                ps.Default.Y_Norm = Int32.Parse(Settings[2]);
+
+                ps.Default.ShouldUpdate = Boolean.Parse(Settings[3]);
+                ps.Default.HighDPI = Boolean.Parse(Settings[4]);
+                ps.Default.AdminStart = Boolean.Parse(Settings[5]);
+
+                ps.Default.Save();
+                File.Delete("Settings.Config");
+            }
+        }
+
         private void UpdateEXE()
         {
-            try
-            {
-                NotiMsg("Updating....");
-                RestoreConnection();
-                ps.Default.ShouldUpdate = false;
-                ps.Default.Save();
+            ps.Default.ShouldUpdate = false;
+            ps.Default.Save();
 
-                AppendLog("Updating");
-                Directory.CreateDirectory(@"C:\MayDayButton\");
-                string Root = @"C:\MayDayButton\";
-                try
-                {
-                    if (File.Exists(Root + "MayDayButton_Old.exe"))
-                        File.Delete(Root + "MayDayButton_Old.exe");
-                    File.Move("MayDayButton.exe", Root + "MayDayButton_Old.exe");
-                }
-                catch { File.Move("MayDayButton.exe", Root + "MayDayButton_Old_Error.exe"); }
-                
-                if (File.Exists(@"C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup\MayDayButton.exe"))
-                    File.Delete(@"C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup\MayDayButton.exe");
-                //This needs to be changed to where ever you're pulling your update from.
-                //For me, I have a NAS system that I have visual studio set to push releases to so this exe will always be updated
-                File.Copy(@"\\192.168.1.210\Server\MaydayButton\MayDayButton.exe", Root + "MayDayButton.exe");
-                Process.Start(Root + "MayDayButton.exe");
-                Application.Exit();
-            }
-            catch {
-                ps.Default.ShouldUpdate = true;
-                ps.Default.Save();
-            }
+            exportSettings();
+
+            AppendLog("Updating");
+            Directory.CreateDirectory(@"C:\MayDayButton\");
+
+            File.Delete("MayDayButton_Old.exe");
+            File.Move("MayDayButton.exe", "MayDayButton_Old.exe");
+            File.Copy(ServerLocation + @"MayDayButton.exe", "MayDayButton.exe");
+
+            Process.Start(@"C:\MayDayButton\MayDayButton.exe");
+            NotiMsg("Updating....");
+            //Application.Restart();
         }
 
         public string Command;
@@ -392,7 +531,7 @@ namespace MayDayButton
             {
                 //In order for the tech to not need to have the user hit OK for every command adding $ then the secret phrase to the sent command will bypass the check. This phrase should not be a password
                 //This phrase cannot be used to activate an admin command, unless set in the source to do so.
-                if (File.Exists(@"\\192.168.1.210\Server\MayDayButton\SecretPhrase.txt") && Command.Contains("$" + SecretPhrase))
+                if (File.Exists(ServerLocation + @"SecretPhrase.txt") && Command.Contains("$" + SecretPhrase))
                 {
                     string Temp = Command.Substring(9).Replace("$" + SecretPhrase, "").Replace("$Admin", "");
                     cmd(Temp, false, false);
@@ -480,7 +619,7 @@ namespace MayDayButton
         }
 
         private string SecretPhrase
-            => File.ReadAllText(@"\\192.168.1.210\Server\MayDayButton\SecretPhrase.txt");
+            => File.ReadAllText(ServerLocation + @"SecretPhrase.txt");
 
         private const string APP_ID = "MayDayButton";
 
@@ -494,7 +633,7 @@ namespace MayDayButton
         }
 #endregion
 
-        string SettingsFile = @"\\192.168.1.210\Server\MaydayButton\Settings.Config";
+        string SettingsFile = ServerLocation + @"Settings.Config";
         private void ImportSettings()
         {
             RestoreConnection();
@@ -564,7 +703,7 @@ namespace MayDayButton
                 ps.Default.Tried2Contact = 0;
                 ps.Default.Save();
                 if (!File.Exists(@"C:\MayDayButton\Email.config"))
-                    File.Copy(@"\\192.168.1.210\Server\MaydayButton\Email.config", @"C:\MayDayButton\Email.config");
+                    File.Copy(ServerLocation + @"Email.config", @"C:\MayDayButton\Email.config");
                 sendMessage(GetEmail[2], "Help I broke something really bad!");
                 string link = SlackLink();
                 if (link != "NA")
@@ -618,7 +757,7 @@ namespace MayDayButton
         }
 
         private bool isOnVayCay
-            => File.Exists(@"\\192.168.1.210\Server\MaydayButton\TechVacation[TRUE].txt");
+            => File.Exists(ServerLocation + @"TechVacation[TRUE].txt");
 
         private string[] GetEmail
             => File.ReadAllLines(@"C:\MayDayButton\Email.config");
@@ -646,7 +785,7 @@ namespace MayDayButton
 
         private string SlackLink()
         {
-            string[] SlackLinks = File.ReadAllLines(@"\\192.168.1.210\Server\MaydayButton\Slack.config");
+            string[] SlackLinks = File.ReadAllLines(ServerLocation + @"Slack.config");
             switch (GetLocalIPAddress())
             {
                 case "192.168.1.158":
@@ -733,7 +872,7 @@ namespace MayDayButton
                 if (x < 0) x = 0;
                 int MaxX = Screen.PrimaryScreen.WorkingArea.Width;
                 if (x > MaxX - this.Width) x = MaxX - this.Width;
-                X = x;
+                ps.Default.X = x;
                 ps.Default.Save();
                 this.Location = new Point(x, -50);
             }
@@ -1011,7 +1150,7 @@ namespace MayDayButton
             //If things look abnormal message will be sent to Tech.
             if (!BatteryLow)
                 Thread.Sleep(12000000);
-            else //If Battery was noted to be low on the last check, device will check every 5 minutes until battery is adequite
+            else //If Battery was noted to be low on the last check, device will check every so often until battery is adequite
                 Thread.Sleep(300000);
         }
 

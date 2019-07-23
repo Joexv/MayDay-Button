@@ -29,7 +29,6 @@ namespace MayDayButton
             InitializeComponent();
         }
 
-        bool shouldRemove = false;
         private void button1_Click(object sender, EventArgs e)
         {
             ChangeStartup(false);
@@ -63,7 +62,7 @@ namespace MayDayButton
             }
             catch {
                 if (ShouldLoop)
-                    GetAdmin(true);
+                    GetAdmin();
             }
         }
 
@@ -142,16 +141,24 @@ namespace MayDayButton
 
         private void button7_Click(object sender, EventArgs e)
         {
-            RestoreConnection();
+            Process p = new Process();
+            RestoreConnection(p);
+            Thread.Sleep(1000);
+            CloseConnection(p);
         }
 
-        private void RestoreConnection()
+        private void RestoreConnection(Process p)
         {
-            Process p = new Process();
             p.StartInfo.FileName = "explorer.exe";
             p.StartInfo.Arguments = @"\\192.168.1.210\Server\MaydayButton\";
             p.Start();
-            p.WaitForInputIdle(100);
+            //p.WaitForInputIdle(100);
+            //p.Kill();
+            //p.Dispose();
+        }
+
+        private void CloseConnection(Process p)
+        {
             p.Kill();
             p.Dispose();
         }
@@ -298,6 +305,11 @@ namespace MayDayButton
         {
             RegistryKey rk = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
             rk.DeleteValue("MayDayButton");
+        }
+
+        private void button16_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
