@@ -152,9 +152,9 @@ namespace MayDayButton
             p.StartInfo.FileName = "explorer.exe";
             p.StartInfo.Arguments = @"\\192.168.1.210\Server\MaydayButton\";
             p.Start();
-            //p.WaitForInputIdle(100);
-            //p.Kill();
-            //p.Dispose();
+            p.WaitForInputIdle(100);
+            p.Kill();
+            p.Dispose();
         }
 
         private void CloseConnection(Process p)

@@ -20,6 +20,7 @@ using System.Security.Principal;
 using System.Media;
 using System.Timers;
 using System.Net.NetworkInformation;
+using SimpleWifi;
 
 namespace MayDayButton
 {
@@ -77,8 +78,12 @@ namespace MayDayButton
                 if (p.ProcessName == "MayDayButton")
                     p.Kill();
 
-            //This is done to make sure that upon running on boot, the location doesn't get jumped to C:\System32 or whatever bullshit Windows likes to do.
-            Directory.SetCurrentDirectory(@"C:\MayDayButton\");
+            //This is done to make sure that upon running on boot, the location doesn't get jumped to 
+            //C:\System32 or whatever bullshit Windows likes to do.
+            if (Directory.GetCurrentDirectory() == ServerLocation)
+                Process.Start(@"C:\MayDayButton\MayDayButton.exe");
+            else
+                Directory.SetCurrentDirectory(@"C:\MayDayButton\");
 
             RestoreConnection();
 
@@ -107,7 +112,9 @@ namespace MayDayButton
                 }
                 catch(Exception ex) { MessageBox.Show(ex.ToString()); }
             }
-            button5.Text = Application.ProductVersion; //Setting the button to the version is temporary untill I find another use for the button
+
+            //Setting the button to the version is temporary untill I find another use for the button
+            button5.Text = Application.ProductVersion; 
 
             //Starts background processes, for monitoring battery, checking for commands, and the like
             backgroundWorker1.RunWorkerAsync();
@@ -213,7 +220,37 @@ namespace MayDayButton
         //No internet
         private void button2_Click(object sender, EventArgs e)
         {
-            FixInternet();
+            wifi = new Wifi();
+            if (wifi.NoWifiAvailable)
+                MessageBox.Show("I am unable to detect a Wifi adapter in this device... Please contact your tech for more support.");
+            else
+            {
+                if (wifi.ConnectionStatus == WifiStatus.Connected)
+                    FixInternet();
+                else
+                {
+                    Connect("FX420");
+                    MessageBox.Show("Your wifi network was not connected. Please verify that you are connected to the network before attempting to run troubleshooting methods or before asking for additional support.");
+                }
+            }
+        }
+
+        private static Wifi wifi;
+
+        //This requires that the connecting network already has a saved profile and has the correct password. 
+        //I'm doing it this way in order to prevent the button to be transfered to unwanted devices
+        //And then allows said devices to connect to our register network all willy nilly.
+        //While theoretically this doesn't matter much, as our network is IP and Mac whitelisted only, 
+        //these things can easily be spoofed by someone who really really wants to see all the memes on my NAS drive
+        private static void Connect(string SSID)
+        {
+            AccessPoint selectedAP = null;
+            IEnumerable<AccessPoint> accessPoints = wifi.GetAccessPoints().OrderByDescending(ap => ap.SignalStrength);
+            foreach (AccessPoint ap in accessPoints)
+                if (ap.Name == SSID)
+                    selectedAP = ap;
+            AuthRequest authRequest = new AuthRequest(selectedAP);
+            selectedAP.ConnectAsync(authRequest);
         }
 
         public void cmd(string Arguments, bool isHidden = false, bool asAdmin = false)
@@ -371,18 +408,18 @@ namespace MayDayButton
         string Interface = "";
         private void FixInternet()
         {
-            if (Ping("google.com") && !Ping("flowhub.co"))
-            {
+            if (Ping("google.com") && Ping("flowhub.co"))
+                MessageBox.Show("It looks like your internet is currently working just fine! If Flowhub is having some issues try restarting Flowhub!");
+            else if (Ping("google.com") && !Ping("flowhub.co"))
                 MessageBox.Show("It looks like your internet is currently working just fine! But Flowhub is unable to be pinged. It's a Flowhub issue, there's nothing anyone can do.");
-            }
             else
             {
-                AdapterReset();
+                IPReset();
 
                 if (!Ping("google.com") && !Ping("flowhub.co"))
-                    IPReset();
+                    AdapterReset();
 
-                if(!Ping("google.com") && !Ping("flowhub.co"))
+                if (!Ping("google.com") && !Ping("flowhub.co"))
                 {
                     DialogResult dialogResult = MessageBox.Show("The program is unable to connect to Google or Flowhub and will restart the whole register if you press YES, if you can access the internet and do NOT want the register to restart, please press NO.", "WARNING", MessageBoxButtons.YesNo); ;
                     if (dialogResult == DialogResult.Yes)
@@ -1177,17 +1214,17 @@ namespace MayDayButton
         bool isPluggedIn = true;
         private void backgroundWorker4_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            PowerLineStatus status = SystemInformation.PowerStatus.PowerLineStatus;
-            if(status == PowerLineStatus.Offline && isPluggedIn)
-            {
-                isPluggedIn = false;
-                //MessageBox.Show("Why am I unplugged? Do You want me to die?\n:(");
-                BalloonNotification("Why am I unplugged? Do you want me to die?", "What a sad day");
-                Thread.Sleep(1000);
-            }
-            else
-                isPluggedIn = true;
-            backgroundWorker4.RunWorkerAsync();
+                PowerLineStatus status = SystemInformation.PowerStatus.PowerLineStatus;
+                if (status == PowerLineStatus.Offline && isPluggedIn)
+                {
+                    isPluggedIn = false;
+                    //MessageBox.Show("Why am I unplugged? Do You want me to die?\n:(");
+                    BalloonNotification("Why am I unplugged? Do you want me to die?", "What a sad day");
+                    Thread.Sleep(1000);
+                }
+                else
+                    isPluggedIn = true;
+                backgroundWorker4.RunWorkerAsync();
         }
 
         private void backgroundWorker2_ProgressChanged(object sender, ProgressChangedEventArgs e)

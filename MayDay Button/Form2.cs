@@ -39,7 +39,6 @@ namespace MayDayButton
             numericUpDown1.Maximum = MaxX - this.Width;
             numericUpDown1.Minimum = 0;
             checkBox1.Checked = Properties.Settings.Default.HighDPI;
-            checkBox2.Checked = Properties.Settings.Default.AdminStart;
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -98,24 +97,6 @@ namespace MayDayButton
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default.HighDPI = checkBox1.Checked;
-            Properties.Settings.Default.Save();
-        }
-
-        private bool noPass = false;
-        private void checkBox2_CheckedChanged(object sender, EventArgs e)
-        {
-            if (!checkBox2.Checked && !noPass)
-            {
-                    string promptValue = ShowDialog("Warning!", "In order to disable starting as an Admin you must confirm with a password.");
-                    if (promptValue != Password)
-                    {
-                         noPass = true;
-                         checkBox2.Checked = true;
-                         noPass = false;
-                    }
-            }
-
-            Properties.Settings.Default.AdminStart = checkBox2.Checked;
             Properties.Settings.Default.Save();
         }
 
