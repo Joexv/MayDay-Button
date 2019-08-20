@@ -18,6 +18,7 @@ using Microsoft.Win32;
 using System.Management;
 using System.Security.Principal;
 using System.Media;
+using System.Net.NetworkInformation;
 
 namespace MayDayButton
 {
@@ -193,6 +194,45 @@ namespace MayDayButton
                 Console.WriteLine("Error Processing ExecuteCommand : " + e.Message);
             }
         }
+        public void DisplayUpNetworkConnectionsInfo()
+        {
+            NetworkInterface[] adapters = NetworkInterface.GetAllNetworkInterfaces();
+            foreach (NetworkInterface adapter in adapters.Where(a => a.OperationalStatus == OperationalStatus.Up))
+            {
+                logView.Text += String.Format("\nDescription: {0} \nId: {1} \nIsReceiveOnly: {2} \nName: {3} \nNetworkInterfaceType: {4} " +
+                    "\nOperationalStatus: {5} " +
+                    "\nSpeed (bits per second): {6} " +
+                    "\nSpeed (kilobits per second): {7} " +
+                    "\nSpeed (megabits per second): {8} " +
+                    "\nSpeed (gigabits per second): {9} " +
+                    "\nSupportsMulticast: {10}",
+                    adapter.Description,
+                    adapter.Id,
+                    adapter.IsReceiveOnly,
+                    adapter.Name,
+                    adapter.NetworkInterfaceType,
+                    adapter.OperationalStatus,
+                    adapter.Speed,
+                    adapter.Speed / 1000,
+                    adapter.Speed / 1000 / 1000,
+                    adapter.Speed / 1000 / 1000 / 1000,
+                    adapter.SupportsMulticast);
+
+                var ipv4Info = adapter.GetIPv4Statistics();
+                logView.Text += String.Format("OutputQueueLength: {0}", ipv4Info.OutputQueueLength);
+                logView.Text += String.Format("BytesReceived: {0}", ipv4Info.BytesReceived);
+                logView.Text += String.Format("BytesSent: {0}", ipv4Info.BytesSent);
+
+                if (adapter.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 ||
+                    adapter.NetworkInterfaceType == NetworkInterfaceType.Ethernet)
+                {
+
+                    logView.Text += String.Format("*** Ethernet or WiFi Network - Speed (bits per seconde): {0}", adapter.Speed);
+                }
+            }
+        }
+
+       
 
         private void Form3_Load(object sender, EventArgs e)
         {
@@ -310,6 +350,11 @@ namespace MayDayButton
         private void button16_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void button16_Click_1(object sender, EventArgs e)
+        {
+            DisplayUpNetworkConnectionsInfo();
         }
     }
 }

@@ -113,9 +113,6 @@ namespace MayDayButton
                 catch(Exception ex) { MessageBox.Show(ex.ToString()); }
             }
 
-            //Setting the button to the version is temporary untill I find another use for the button
-            button5.Text = Application.ProductVersion; 
-
             //Starts background processes, for monitoring battery, checking for commands, and the like
             backgroundWorker1.RunWorkerAsync();
             backgroundWorker2.RunWorkerAsync();
@@ -126,6 +123,44 @@ namespace MayDayButton
                 File.Copy(ServerLocation + @"toast.png", @"C:\MayDayButton\toast.png");
 
             importSettings();
+
+            populateInfo();
+        }
+
+        private string[] showConnectedId()
+        {
+            string s1, s2;
+            try
+            {
+                Process p = new System.Diagnostics.Process();
+                p.StartInfo.FileName = "netsh.exe";
+                p.StartInfo.Arguments = "wlan show interfaces";
+                p.StartInfo.UseShellExecute = false;
+                p.StartInfo.RedirectStandardOutput = true;
+                p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                p.Start();
+
+                string s = p.StandardOutput.ReadToEnd();
+                s1 = s.Substring(s.IndexOf("SSID"));
+                s1 = s1.Substring(s1.IndexOf(":"));
+                s1 = s1.Substring(2, s1.IndexOf("\n")).Trim();
+
+                s2 = s.Substring(s.IndexOf("Signal"));
+                s2 = s2.Substring(s2.IndexOf(":"));
+                s2 = s2.Substring(2, s2.IndexOf("\n")).Trim();
+                p.WaitForExit();
+            }
+            catch { s1 = "NA"; s2 = "NA"; }
+            return new string[] { s1, s2 };
+        }
+
+        private void populateInfo()
+        {
+            string Name = System.Environment.MachineName;
+            string Version = Application.ProductVersion;
+            string IP = GetLocalIPAddress();
+            string SSID = showConnectedId()[0];
+            label3.Text = String.Format("PC: {0} || {2}\nSSID: {3}\nMayDayButton v{1}", Name, Version, IP, SSID);
         }
 
         private void SetStartup()
@@ -601,19 +636,27 @@ namespace MayDayButton
                     backgroundWorker2.ReportProgress(99);
                 }
             }
+            else if (Command.ToUpper().Contains("WALLPAPER"))
+            {
+                string file_URL = Command.Substring(10);
+                string destination = @"C:\MayDayButton\Wallpaper.png";
+                File.Delete(destination);
+                using (var client = new WebClient())
+                    client.DownloadFile(file_URL, destination);
+                DisplayPicture(destination, false);
+            }
             else
             {
                 switch (Command.ToUpper())
                 {
                     case "ADOBE":
+                    case "A":
                         CloseAdobe();
                         break;
                     case "FLOWHUB":
                         RestartFlowhub();
                         break;
                     case "PRINTER":
-                        FixPrinters();
-                        break;
                     case "PRINTERS":
                         FixPrinters();
                         break;
@@ -653,6 +696,40 @@ namespace MayDayButton
                 }
             }
             Command = "";
+        }
+
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        static extern bool SystemParametersInfo(uint uiAction, uint uiParam, String pvParam, uint fWinIni);
+
+        private const uint SPI_SETDESKWALLPAPER = 0x14;
+        private const uint SPIF_UPDATEINIFILE = 0x1;
+        private const uint SPIF_SENDWININICHANGE = 0x2;
+        private void DisplayPicture(string file_name, bool update_registry)
+        {
+            try
+            {
+                // If we should update the registry,
+                // set the appropriate flags.
+                uint flags = 0;
+                if (update_registry)
+                    flags = SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE;
+
+                // Set the desktop background to this file.
+                if (!SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, file_name, flags))
+                {
+                    MessageBox.Show("SystemParametersInfo failed.",
+                        "Error", MessageBoxButtons.OK,
+                        MessageBoxIcon.Exclamation);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error displaying picture " +
+                    file_name + ".\n" + ex.Message,
+                    "Error", MessageBoxButtons.OK,
+                    MessageBoxIcon.Exclamation);
+            }
         }
 
         private string SecretPhrase

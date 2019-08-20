@@ -39,11 +39,11 @@
             this.button3 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
             this.backgroundWorker2 = new System.ComponentModel.BackgroundWorker();
-            this.button5 = new System.Windows.Forms.Button();
             this.button6 = new System.Windows.Forms.Button();
             this.backgroundWorker3 = new System.ComponentModel.BackgroundWorker();
             this.backgroundWorker4 = new System.ComponentModel.BackgroundWorker();
             this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
+            this.label3 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -71,7 +71,7 @@
             this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.button1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.button1.Location = new System.Drawing.Point(12, 120);
+            this.button1.Location = new System.Drawing.Point(15, 86);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(176, 30);
             this.button1.TabIndex = 1;
@@ -82,7 +82,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(57, 103);
+            this.label2.Location = new System.Drawing.Point(58, 67);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(90, 13);
             this.label2.TabIndex = 2;
@@ -93,7 +93,7 @@
             this.button2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.button2.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.button2.Location = new System.Drawing.Point(12, 156);
+            this.button2.Location = new System.Drawing.Point(15, 122);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(176, 30);
             this.button2.TabIndex = 3;
@@ -106,7 +106,7 @@
             this.pictureBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pictureBox1.Image = global::MayDayButton.Properties.Resources.confetti;
-            this.pictureBox1.Location = new System.Drawing.Point(-5, -1);
+            this.pictureBox1.Location = new System.Drawing.Point(-5, -21);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(211, 101);
             this.pictureBox1.TabIndex = 5;
@@ -122,7 +122,7 @@
             this.button3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.button3.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.button3.Location = new System.Drawing.Point(12, 192);
+            this.button3.Location = new System.Drawing.Point(15, 158);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(176, 30);
             this.button3.TabIndex = 6;
@@ -135,9 +135,9 @@
             this.button4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.button4.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.button4.Location = new System.Drawing.Point(119, 226);
+            this.button4.Location = new System.Drawing.Point(122, 294);
             this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(69, 30);
+            this.button4.Size = new System.Drawing.Size(69, 23);
             this.button4.TabIndex = 7;
             this.button4.Text = "Options";
             this.button4.UseVisualStyleBackColor = true;
@@ -150,28 +150,14 @@
             this.backgroundWorker2.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker2_ProgressChanged);
             this.backgroundWorker2.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker2_RunWorkerCompleted);
             // 
-            // button5
-            // 
-            this.button5.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.button5.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.button5.Enabled = false;
-            this.button5.Location = new System.Drawing.Point(12, 226);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(101, 30);
-            this.button5.TabIndex = 8;
-            this.button5.Text = "v1.0";
-            this.button5.UseVisualStyleBackColor = true;
-            this.button5.Click += new System.EventHandler(this.button5_Click);
-            // 
             // button6
             // 
             this.button6.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.button6.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.button6.Location = new System.Drawing.Point(12, 262);
+            this.button6.Location = new System.Drawing.Point(15, 194);
             this.button6.Name = "button6";
-            this.button6.Size = new System.Drawing.Size(176, 44);
+            this.button6.Size = new System.Drawing.Size(176, 42);
             this.button6.TabIndex = 9;
             this.button6.Text = "I need more help";
             this.button6.UseVisualStyleBackColor = true;
@@ -193,6 +179,15 @@
             this.notifyIcon1.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIcon1.Icon")));
             this.notifyIcon1.Text = "notifyIcon1";
             // 
+            // label3
+            // 
+            this.label3.BackColor = System.Drawing.Color.Transparent;
+            this.label3.Location = new System.Drawing.Point(12, 239);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(179, 64);
+            this.label3.TabIndex = 10;
+            this.label3.Text = "label3";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -202,13 +197,13 @@
             this.ClientSize = new System.Drawing.Size(204, 348);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.button6);
-            this.Controls.Add(this.button5);
             this.Controls.Add(this.button4);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.pictureBox1);
+            this.Controls.Add(this.label3);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
@@ -238,11 +233,11 @@
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Button button4;
         private System.ComponentModel.BackgroundWorker backgroundWorker2;
-        private System.Windows.Forms.Button button5;
         private System.Windows.Forms.Button button6;
         private System.ComponentModel.BackgroundWorker backgroundWorker3;
         private System.ComponentModel.BackgroundWorker backgroundWorker4;
         public System.Windows.Forms.NotifyIcon notifyIcon1;
+        private System.Windows.Forms.Label label3;
     }
 }
 
