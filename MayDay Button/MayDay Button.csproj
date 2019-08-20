@@ -186,6 +186,18 @@
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Help_Glyph.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Printer_Glyph.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Wifi_Glyph.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Flowhub_Glyph.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Fody.4.0.2\build\Fody.targets" Condition="Exists('..\packages\Fody.4.0.2\build\Fody.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
