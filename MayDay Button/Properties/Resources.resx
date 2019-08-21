@@ -121,4 +121,16 @@
   <data name="confetti" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\confetti.gif;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="Flowhub_Glyph" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Flowhub_Glyph.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Help_Glyph" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Help_Glyph.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Printer_Glyph" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Printer_Glyph.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Wifi_Glyph" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Wifi_Glyph.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
 </root>
