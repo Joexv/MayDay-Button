@@ -101,6 +101,7 @@
     <Reference Include="Windows.UI.Xaml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MD_Core.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>

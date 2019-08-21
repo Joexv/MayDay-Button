@@ -1,30 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Net;
 using System.Net.Sockets;
-using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Net.Mail;
-using Microsoft.Win32;
-using System.Management;
-using System.Security.Principal;
-using System.Media;
-using System.Net.NetworkInformation;
 
 namespace MayDayButton
 {
     using ps = Properties.Settings;
     public partial class Form3 : Form
     {
+        MD_Core MD = new MD_Core();
+        Form1 frm1 = new Form1();
+        public static string ServerLocation = Form1.ServerLocation;
+
         public Form3()
         {
             InitializeComponent();
@@ -32,39 +21,8 @@ namespace MayDayButton
 
         private void button1_Click(object sender, EventArgs e)
         {
-            ChangeStartup(false);
+            MD.SetStartup();
             LoadSettings();
-        }
-
-        private void ChangeStartup(bool Remove = false)
-        {
-            try
-            {
-                RegistryKey key = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run\\", false);
-                Object o = key.GetValue("MayDayButton");
-                if (o == null)
-                {
-                    key = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run\\", true);
-                    key.SetValue("MayDayButton", Application.ExecutablePath);
-                }
-            }
-            catch { GetAdmin(); }
-        }
-
-        private void GetAdmin(bool ShouldLoop = false)
-        {
-            Process p = new Process();
-            try
-            {
-                var exeName = @"C:\MayDayButton\MayDayButton.exe";
-                p.StartInfo.FileName = exeName;
-                p.StartInfo.Verb = "runas";
-                p.Start();
-            }
-            catch {
-                if (ShouldLoop)
-                    GetAdmin();
-            }
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -111,18 +69,10 @@ namespace MayDayButton
             }
         }
 
-        //This is gross and I hate it
-        string vFalse = @"\\192.168.1.210\Server\MaydayButton\TechVacation[FALSE].txt";
-        string vTrue = @"\\192.168.1.210\Server\MaydayButton\TechVacation[TRUE].txt";
+
         private void button3_Click(object sender, EventArgs e)
         {
-                if (File.Exists(vFalse))
-                    File.Move(vFalse, vTrue);
-                else if (File.Exists(vTrue))
-                    File.Move(vTrue, vFalse);
-                else
-                    using (StreamWriter sw = File.CreateText(vFalse))
-                        sw.WriteLine("");
+            MD.setVayCay();
         }
 
         private void button4_Click(object sender, EventArgs e)
@@ -137,31 +87,12 @@ namespace MayDayButton
 
         private void button6_Click(object sender, EventArgs e)
         {
-            GetAdmin();
+            MD.GetAdmin();
         }
 
         private void button7_Click(object sender, EventArgs e)
         {
-            Process p = new Process();
-            RestoreConnection(p);
-            Thread.Sleep(1000);
-            CloseConnection(p);
-        }
-
-        private void RestoreConnection(Process p)
-        {
-            p.StartInfo.FileName = "explorer.exe";
-            p.StartInfo.Arguments = @"\\192.168.1.210\Server\MaydayButton\";
-            p.Start();
-            p.WaitForInputIdle(100);
-            p.Kill();
-            p.Dispose();
-        }
-
-        private void CloseConnection(Process p)
-        {
-            p.Kill();
-            p.Dispose();
+            MD.RestoreConnection();
         }
 
         private void button8_Click(object sender, EventArgs e)
@@ -171,74 +102,15 @@ namespace MayDayButton
 
         private void button9_Click(object sender, EventArgs e)
         {
-            cmd("shutdown /r", false, true);
+            MD.cmd("shutdown /r /t 0");
         }
-
-        public void cmd(string Arguments, bool isHidden = false, bool asAdmin = false)
-        {
-            ProcessStartInfo ProcessInfo;
-            Process Process;
-            try
-            {
-                ProcessInfo = new ProcessStartInfo("cmd.exe", "/C " + Arguments);
-                ProcessInfo.UseShellExecute = true;
-                ProcessInfo.CreateNoWindow = isHidden;
-                if (asAdmin)
-                    ProcessInfo.Verb = "runas";
-                Process = Process.Start(ProcessInfo);
-                Process.WaitForExit();
-                Process.Dispose();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Error Processing ExecuteCommand : " + e.Message);
-            }
-        }
-        public void DisplayUpNetworkConnectionsInfo()
-        {
-            NetworkInterface[] adapters = NetworkInterface.GetAllNetworkInterfaces();
-            foreach (NetworkInterface adapter in adapters.Where(a => a.OperationalStatus == OperationalStatus.Up))
-            {
-                logView.Text += String.Format("\nDescription: {0} \nId: {1} \nIsReceiveOnly: {2} \nName: {3} \nNetworkInterfaceType: {4} " +
-                    "\nOperationalStatus: {5} " +
-                    "\nSpeed (bits per second): {6} " +
-                    "\nSpeed (kilobits per second): {7} " +
-                    "\nSpeed (megabits per second): {8} " +
-                    "\nSpeed (gigabits per second): {9} " +
-                    "\nSupportsMulticast: {10}",
-                    adapter.Description,
-                    adapter.Id,
-                    adapter.IsReceiveOnly,
-                    adapter.Name,
-                    adapter.NetworkInterfaceType,
-                    adapter.OperationalStatus,
-                    adapter.Speed,
-                    adapter.Speed / 1000,
-                    adapter.Speed / 1000 / 1000,
-                    adapter.Speed / 1000 / 1000 / 1000,
-                    adapter.SupportsMulticast);
-
-                var ipv4Info = adapter.GetIPv4Statistics();
-                logView.Text += String.Format("OutputQueueLength: {0}", ipv4Info.OutputQueueLength);
-                logView.Text += String.Format("BytesReceived: {0}", ipv4Info.BytesReceived);
-                logView.Text += String.Format("BytesSent: {0}", ipv4Info.BytesSent);
-
-                if (adapter.NetworkInterfaceType == NetworkInterfaceType.Wireless80211 ||
-                    adapter.NetworkInterfaceType == NetworkInterfaceType.Ethernet)
-                {
-
-                    logView.Text += String.Format("*** Ethernet or WiFi Network - Speed (bits per seconde): {0}", adapter.Speed);
-                }
-            }
-        }
-
-       
 
         private void Form3_Load(object sender, EventArgs e)
         {
             LoadSettings();   
         }
 
+        string Log = @"C:\MayDayButton\Log.txt";
         private void LoadSettings()
         {
             groupBox1.Text = "Settings - Max X:" + Screen.PrimaryScreen.WorkingArea.Width; ;
@@ -257,57 +129,29 @@ namespace MayDayButton
                 logView.Text = File.ReadAllText(Log);
         }
 
-        const string Log = @"C:\MayDayButton\Log.txt";
-
         private void button10_Click(object sender, EventArgs e)
         {
-            ps.Default.X = (Int32)xPos.Value;
-            ps.Default.Y_Adjustment = (Int32)yAdj.Value;
-            ps.Default.Y_Norm = (Int32)yPos.Value;
+            ps.Default.X = (int)xPos.Value;
+            ps.Default.Y_Norm = (int)yPos.Value;
+            ps.Default.Y_Adjustment = (int)yAdj.Value;
 
             ps.Default.ShouldUpdate = sUpdate.Checked;
             ps.Default.HighDPI = highDPI.Checked;
             ps.Default.AdminStart = aAdmin.Checked;
 
-            ps.Default.Tried2Contact = (Int32)cTimes.Value;
+            ps.Default.Tried2Contact = (int)cTimes.Value;
 
             ps.Default.Save();
         }
 
-        string SettingsFile = @"\\192.168.1.210\Server\MaydayButton\Settings.Config";
         private void button11_Click(object sender, EventArgs e)
         {
-            File.Delete(SettingsFile);
-            using (StreamWriter sw = File.CreateText(SettingsFile))
-            {
-                sw.WriteLine(ps.Default.X);
-                sw.WriteLine(ps.Default.Y_Adjustment);
-                sw.WriteLine(ps.Default.Y_Norm);
-
-                sw.WriteLine(ps.Default.ShouldUpdate);
-                sw.WriteLine(ps.Default.HighDPI);
-                sw.WriteLine(ps.Default.AdminStart);
-
-                //sw.WriteLine(ps.Default.Tried2Contact);
-            }
+            MD.exportSettings();
         }
 
         private void button12_Click(object sender, EventArgs e)
         {
-            if (File.Exists(SettingsFile))
-            {
-                string[] Settings = File.ReadAllLines(SettingsFile);
-                ps.Default.X = Int32.Parse(Settings[0]);
-                ps.Default.Y_Adjustment = Int32.Parse(Settings[1]);
-                ps.Default.Y_Norm = Int32.Parse(Settings[2]);
-
-                ps.Default.ShouldUpdate = Boolean.Parse(Settings[3]);
-                ps.Default.HighDPI = Boolean.Parse(Settings[4]);
-                ps.Default.AdminStart = Boolean.Parse(Settings[5]);
-
-                ps.Default.Save();
-                LoadSettings();
-            }
+            MD.importSettings(ServerLocation + "\\Settings.Config");
         }
 
         private void button13_Click(object sender, EventArgs e)
@@ -317,22 +161,9 @@ namespace MayDayButton
             SendData("IMPORT", "192.168.1.158");
         }
 
-        public static string GetLocalIPAddress()
-        {
-            var host = Dns.GetHostEntry(Dns.GetHostName());
-            foreach (var ip in host.AddressList)
-            {
-                if (ip.AddressFamily == AddressFamily.InterNetwork)
-                {
-                    return ip.ToString();
-                }
-            }
-            throw new Exception("No network adapters with an IPv4 address in the system!");
-        }
-
         private void button14_Click(object sender, EventArgs e)
         {
-            SendData("CHECKS", GetLocalIPAddress());
+            MD.Checks();
         }
 
         private void button15_Click(object sender, EventArgs e)
@@ -343,8 +174,8 @@ namespace MayDayButton
 
         private void button17_Click(object sender, EventArgs e)
         {
-            RegistryKey rk = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
-            rk.DeleteValue("MayDayButton");
+            MD.DeleteStartup();
+            LoadSettings();
         }
 
         private void button16_Click(object sender, EventArgs e)
@@ -354,7 +185,7 @@ namespace MayDayButton
 
         private void button16_Click_1(object sender, EventArgs e)
         {
-            DisplayUpNetworkConnectionsInfo();
+           logView.Text = MD.DisplayUpNetworkConnectionsInfo();
         }
     }
 }

@@ -61,15 +61,13 @@
             this.label1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(219)))), ((int)(((byte)(80)))), ((int)(((byte)(74)))));
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Underline))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.ForeColor = System.Drawing.Color.White;
-            this.label1.Location = new System.Drawing.Point(-2, 382);
+            this.label1.Location = new System.Drawing.Point(-2, 356);
             this.label1.Name = "label1";
             this.label1.Padding = new System.Windows.Forms.Padding(0, 10, 0, 0);
-            this.label1.Size = new System.Drawing.Size(246, 26);
+            this.label1.Size = new System.Drawing.Size(246, 34);
             this.label1.TabIndex = 0;
             this.label1.Text = "MAYDAY!";
             this.label1.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.label1.TextChanged += new System.EventHandler(this.label1_TextChanged);
-            this.label1.Click += new System.EventHandler(this.label1_Click);
             this.label1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.label1_MouseDown);
             // 
             // button1
@@ -144,7 +142,7 @@
             this.button4.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button4.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button4.ForeColor = System.Drawing.Color.White;
-            this.button4.Location = new System.Drawing.Point(153, 305);
+            this.button4.Location = new System.Drawing.Point(153, 259);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(83, 37);
             this.button4.TabIndex = 7;
@@ -194,11 +192,11 @@
             // label3
             // 
             this.label3.BackColor = System.Drawing.Color.Transparent;
-            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label3.ForeColor = System.Drawing.Color.White;
-            this.label3.Location = new System.Drawing.Point(5, 256);
+            this.label3.Location = new System.Drawing.Point(3, 259);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(231, 46);
+            this.label3.Size = new System.Drawing.Size(145, 97);
             this.label3.TabIndex = 10;
             this.label3.Text = "label3";
             // 
@@ -249,7 +247,7 @@
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(61)))), ((int)(((byte)(72)))), ((int)(((byte)(85)))));
-            this.ClientSize = new System.Drawing.Size(243, 405);
+            this.ClientSize = new System.Drawing.Size(243, 389);
             this.Controls.Add(this.pictureBox4);
             this.Controls.Add(this.pictureBox3);
             this.Controls.Add(this.pictureBox2);

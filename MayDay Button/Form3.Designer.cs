@@ -77,6 +77,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
+            this.label1.ForeColor = System.Drawing.Color.White;
             this.label1.Location = new System.Drawing.Point(280, 22);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(25, 13);
@@ -97,6 +98,7 @@
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Controls.Add(this.xPos);
             this.groupBox1.Controls.Add(this.aAdmin);
+            this.groupBox1.ForeColor = System.Drawing.Color.White;
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(262, 180);
@@ -106,12 +108,16 @@
             // 
             // button10
             // 
+            this.button10.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(67)))), ((int)(((byte)(170)))), ((int)(((byte)(139)))));
+            this.button10.FlatAppearance.BorderSize = 0;
+            this.button10.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button10.ForeColor = System.Drawing.Color.White;
             this.button10.Location = new System.Drawing.Point(10, 144);
             this.button10.Name = "button10";
             this.button10.Size = new System.Drawing.Size(246, 23);
             this.button10.TabIndex = 13;
             this.button10.Text = "Save Changes";
-            this.button10.UseVisualStyleBackColor = true;
+            this.button10.UseVisualStyleBackColor = false;
             this.button10.Click += new System.EventHandler(this.button10_Click);
             // 
             // label5
@@ -143,6 +149,7 @@
             // sUpdate
             // 
             this.sUpdate.AutoSize = true;
+            this.sUpdate.ForeColor = System.Drawing.Color.White;
             this.sUpdate.Location = new System.Drawing.Point(158, 49);
             this.sUpdate.Name = "sUpdate";
             this.sUpdate.Size = new System.Drawing.Size(97, 17);
@@ -195,6 +202,7 @@
             // highDPI
             // 
             this.highDPI.AutoSize = true;
+            this.highDPI.ForeColor = System.Drawing.Color.White;
             this.highDPI.Location = new System.Drawing.Point(158, 26);
             this.highDPI.Name = "highDPI";
             this.highDPI.Size = new System.Drawing.Size(69, 17);
@@ -221,6 +229,7 @@
             // aAdmin
             // 
             this.aAdmin.AutoSize = true;
+            this.aAdmin.ForeColor = System.Drawing.Color.White;
             this.aAdmin.Location = new System.Drawing.Point(158, 72);
             this.aAdmin.Name = "aAdmin";
             this.aAdmin.Size = new System.Drawing.Size(95, 17);
@@ -230,168 +239,233 @@
             // 
             // button1
             // 
+            this.button1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(67)))), ((int)(((byte)(170)))), ((int)(((byte)(139)))));
+            this.button1.FlatAppearance.BorderSize = 0;
+            this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button1.ForeColor = System.Drawing.Color.White;
             this.button1.Location = new System.Drawing.Point(12, 198);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(127, 40);
             this.button1.TabIndex = 3;
             this.button1.Text = "Set Startup";
-            this.button1.UseVisualStyleBackColor = true;
+            this.button1.UseVisualStyleBackColor = false;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // button2
             // 
+            this.button2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(67)))), ((int)(((byte)(170)))), ((int)(((byte)(139)))));
+            this.button2.FlatAppearance.BorderSize = 0;
+            this.button2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button2.ForeColor = System.Drawing.Color.White;
             this.button2.Location = new System.Drawing.Point(145, 198);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(129, 40);
+            this.button2.Size = new System.Drawing.Size(127, 40);
             this.button2.TabIndex = 4;
             this.button2.Text = "Update All Devices";
-            this.button2.UseVisualStyleBackColor = true;
+            this.button2.UseVisualStyleBackColor = false;
             this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
             // button3
             // 
+            this.button3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(67)))), ((int)(((byte)(170)))), ((int)(((byte)(139)))));
+            this.button3.FlatAppearance.BorderSize = 0;
+            this.button3.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button3.ForeColor = System.Drawing.Color.White;
             this.button3.Location = new System.Drawing.Point(12, 290);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(127, 40);
             this.button3.TabIndex = 5;
             this.button3.Text = "Change Vacation Status";
-            this.button3.UseVisualStyleBackColor = true;
+            this.button3.UseVisualStyleBackColor = false;
             this.button3.Click += new System.EventHandler(this.button3_Click);
             // 
             // button4
             // 
+            this.button4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(67)))), ((int)(((byte)(170)))), ((int)(((byte)(139)))));
+            this.button4.FlatAppearance.BorderSize = 0;
+            this.button4.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button4.ForeColor = System.Drawing.Color.White;
             this.button4.Location = new System.Drawing.Point(145, 244);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(127, 40);
             this.button4.TabIndex = 6;
             this.button4.Text = "Close";
-            this.button4.UseVisualStyleBackColor = true;
+            this.button4.UseVisualStyleBackColor = false;
             this.button4.Click += new System.EventHandler(this.button4_Click);
             // 
             // button5
             // 
+            this.button5.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(67)))), ((int)(((byte)(170)))), ((int)(((byte)(139)))));
+            this.button5.FlatAppearance.BorderSize = 0;
+            this.button5.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button5.ForeColor = System.Drawing.Color.White;
             this.button5.Location = new System.Drawing.Point(12, 336);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(127, 40);
             this.button5.TabIndex = 7;
             this.button5.Text = "Restart";
-            this.button5.UseVisualStyleBackColor = true;
+            this.button5.UseVisualStyleBackColor = false;
             this.button5.Click += new System.EventHandler(this.button5_Click);
             // 
             // button6
             // 
+            this.button6.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(67)))), ((int)(((byte)(170)))), ((int)(((byte)(139)))));
+            this.button6.FlatAppearance.BorderSize = 0;
+            this.button6.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button6.ForeColor = System.Drawing.Color.White;
             this.button6.Location = new System.Drawing.Point(145, 290);
             this.button6.Name = "button6";
             this.button6.Size = new System.Drawing.Size(127, 40);
             this.button6.TabIndex = 8;
             this.button6.Text = "Restart As Admin";
-            this.button6.UseVisualStyleBackColor = true;
+            this.button6.UseVisualStyleBackColor = false;
             this.button6.Click += new System.EventHandler(this.button6_Click);
             // 
             // button7
             // 
+            this.button7.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(67)))), ((int)(((byte)(170)))), ((int)(((byte)(139)))));
+            this.button7.FlatAppearance.BorderSize = 0;
+            this.button7.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button7.ForeColor = System.Drawing.Color.White;
             this.button7.Location = new System.Drawing.Point(12, 382);
             this.button7.Name = "button7";
             this.button7.Size = new System.Drawing.Size(127, 40);
             this.button7.TabIndex = 9;
             this.button7.Text = "Reestablish Server Connection";
-            this.button7.UseVisualStyleBackColor = true;
+            this.button7.UseVisualStyleBackColor = false;
             this.button7.Click += new System.EventHandler(this.button7_Click);
             // 
             // button8
             // 
+            this.button8.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(67)))), ((int)(((byte)(170)))), ((int)(((byte)(139)))));
+            this.button8.FlatAppearance.BorderSize = 0;
+            this.button8.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button8.ForeColor = System.Drawing.Color.White;
             this.button8.Location = new System.Drawing.Point(145, 336);
             this.button8.Name = "button8";
             this.button8.Size = new System.Drawing.Size(127, 40);
             this.button8.TabIndex = 10;
             this.button8.Text = "Open Command Prompt";
-            this.button8.UseVisualStyleBackColor = true;
+            this.button8.UseVisualStyleBackColor = false;
             this.button8.Click += new System.EventHandler(this.button8_Click);
             // 
             // button9
             // 
+            this.button9.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(67)))), ((int)(((byte)(170)))), ((int)(((byte)(139)))));
+            this.button9.FlatAppearance.BorderSize = 0;
+            this.button9.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button9.ForeColor = System.Drawing.Color.White;
             this.button9.Location = new System.Drawing.Point(12, 428);
             this.button9.Name = "button9";
             this.button9.Size = new System.Drawing.Size(127, 40);
             this.button9.TabIndex = 11;
             this.button9.Text = " Restart Register";
-            this.button9.UseVisualStyleBackColor = true;
+            this.button9.UseVisualStyleBackColor = false;
             this.button9.Click += new System.EventHandler(this.button9_Click);
             // 
             // button11
             // 
+            this.button11.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(67)))), ((int)(((byte)(170)))), ((int)(((byte)(139)))));
+            this.button11.FlatAppearance.BorderSize = 0;
+            this.button11.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button11.ForeColor = System.Drawing.Color.White;
             this.button11.Location = new System.Drawing.Point(9, 545);
             this.button11.Name = "button11";
             this.button11.Size = new System.Drawing.Size(127, 40);
             this.button11.TabIndex = 12;
             this.button11.Text = "Export Settings";
-            this.button11.UseVisualStyleBackColor = true;
+            this.button11.UseVisualStyleBackColor = false;
             this.button11.Click += new System.EventHandler(this.button11_Click);
             // 
             // button12
             // 
+            this.button12.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(67)))), ((int)(((byte)(170)))), ((int)(((byte)(139)))));
+            this.button12.FlatAppearance.BorderSize = 0;
+            this.button12.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button12.ForeColor = System.Drawing.Color.White;
             this.button12.Location = new System.Drawing.Point(145, 545);
             this.button12.Name = "button12";
             this.button12.Size = new System.Drawing.Size(127, 40);
             this.button12.TabIndex = 13;
             this.button12.Text = "Import Settings";
-            this.button12.UseVisualStyleBackColor = true;
+            this.button12.UseVisualStyleBackColor = false;
             this.button12.Click += new System.EventHandler(this.button12_Click);
             // 
             // button13
             // 
+            this.button13.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(67)))), ((int)(((byte)(170)))), ((int)(((byte)(139)))));
+            this.button13.FlatAppearance.BorderSize = 0;
+            this.button13.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button13.ForeColor = System.Drawing.Color.White;
             this.button13.Location = new System.Drawing.Point(77, 591);
             this.button13.Name = "button13";
             this.button13.Size = new System.Drawing.Size(127, 40);
             this.button13.TabIndex = 14;
             this.button13.Text = "Import Settings To All Registers";
-            this.button13.UseVisualStyleBackColor = true;
+            this.button13.UseVisualStyleBackColor = false;
             this.button13.Click += new System.EventHandler(this.button13_Click);
             // 
             // button14
             // 
+            this.button14.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(67)))), ((int)(((byte)(170)))), ((int)(((byte)(139)))));
+            this.button14.FlatAppearance.BorderSize = 0;
+            this.button14.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button14.ForeColor = System.Drawing.Color.White;
             this.button14.Location = new System.Drawing.Point(145, 382);
             this.button14.Name = "button14";
             this.button14.Size = new System.Drawing.Size(127, 40);
             this.button14.TabIndex = 15;
             this.button14.Text = "Run Checks";
-            this.button14.UseVisualStyleBackColor = true;
+            this.button14.UseVisualStyleBackColor = false;
             this.button14.Click += new System.EventHandler(this.button14_Click);
             // 
             // button15
             // 
+            this.button15.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(67)))), ((int)(((byte)(170)))), ((int)(((byte)(139)))));
+            this.button15.FlatAppearance.BorderSize = 0;
+            this.button15.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button15.ForeColor = System.Drawing.Color.White;
             this.button15.Location = new System.Drawing.Point(145, 428);
             this.button15.Name = "button15";
             this.button15.Size = new System.Drawing.Size(127, 40);
             this.button15.TabIndex = 16;
             this.button15.Text = "Delete Log";
-            this.button15.UseVisualStyleBackColor = true;
+            this.button15.UseVisualStyleBackColor = false;
             this.button15.Click += new System.EventHandler(this.button15_Click);
             // 
             // button17
             // 
+            this.button17.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(67)))), ((int)(((byte)(170)))), ((int)(((byte)(139)))));
+            this.button17.FlatAppearance.BorderSize = 0;
+            this.button17.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button17.ForeColor = System.Drawing.Color.White;
             this.button17.Location = new System.Drawing.Point(12, 244);
             this.button17.Name = "button17";
             this.button17.Size = new System.Drawing.Size(127, 40);
             this.button17.TabIndex = 18;
             this.button17.Text = "Delete Startup";
-            this.button17.UseVisualStyleBackColor = true;
+            this.button17.UseVisualStyleBackColor = false;
             this.button17.Click += new System.EventHandler(this.button17_Click);
             // 
             // button16
             // 
-            this.button16.Location = new System.Drawing.Point(9, 474);
+            this.button16.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(67)))), ((int)(((byte)(170)))), ((int)(((byte)(139)))));
+            this.button16.FlatAppearance.BorderSize = 0;
+            this.button16.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button16.ForeColor = System.Drawing.Color.White;
+            this.button16.Location = new System.Drawing.Point(12, 474);
             this.button16.Name = "button16";
             this.button16.Size = new System.Drawing.Size(127, 40);
             this.button16.TabIndex = 19;
             this.button16.Text = "Internet Test";
-            this.button16.UseVisualStyleBackColor = true;
+            this.button16.UseVisualStyleBackColor = false;
             this.button16.Click += new System.EventHandler(this.button16_Click_1);
             // 
             // Form3
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(61)))), ((int)(((byte)(72)))), ((int)(((byte)(85)))));
             this.ClientSize = new System.Drawing.Size(634, 646);
             this.Controls.Add(this.button16);
             this.Controls.Add(this.button17);
@@ -412,8 +486,9 @@
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.logView);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Name = "Form3";
-            this.Text = "Form3";
+            this.Text = "Admin Panel";
             this.TopMost = true;
             this.Load += new System.EventHandler(this.Form3_Load);
             this.groupBox1.ResumeLayout(false);

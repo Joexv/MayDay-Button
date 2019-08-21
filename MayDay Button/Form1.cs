@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
@@ -7,19 +6,12 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Sockets;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Net.Mail;
-using Microsoft.Win32;
-using System.Management;
 using System.Security.Principal;
-using System.Media;
 using System.Timers;
-using System.Net.NetworkInformation;
 using SimpleWifi;
 
 namespace MayDayButton
@@ -32,37 +24,24 @@ namespace MayDayButton
             InitializeComponent();
         }
 
+        MD_Core MD = new MD_Core();
+
         public static string ServerLocation = @"\\192.168.1.210\server\MayDayButton\";
 
         public int Y = ps.Default.Y_Norm;
         public int nY = ps.Default.Y_Adjustment;
         public int X = ps.Default.X;
 
-        public static bool IsAdministrator =>
-             new WindowsPrincipal(WindowsIdentity.GetCurrent())
-               .IsInRole(WindowsBuiltInRole.Administrator);
-
-        private void GetAdmin(bool ShouldLoop = false)
-        {
-            Process p = new Process();
-            try
-            {
-                var exeName = Process.GetCurrentProcess().MainModule.FileName;
-                p.StartInfo.FileName = exeName;
-                p.StartInfo.Verb = "runas";
-                p.Start();
-            }
-            catch {
-                if (ShouldLoop)
-                    GetAdmin(true);
-            }
-        }
+        //Used to allow admin commands from TCP, must be manually setup
+        private string SecretPhrase
+          => File.ReadAllText(ServerLocation + @"SecretPhrase.txt");
+        //ID for Balloon notifications
+        private const string APP_ID = "MayDayButton";
 
         void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
         {
             AppendLog(e.Exception.Message);
         }
-
         void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             AppendLog((e.ExceptionObject as Exception).Message);
@@ -85,12 +64,12 @@ namespace MayDayButton
             else
                 Directory.SetCurrentDirectory(@"C:\MayDayButton\");
 
-            RestoreConnection();
+            MD.RestoreConnection();
 
-            if (!IsAdministrator && ps.Default.AdminStart)
-                GetAdmin();
+            if (!MD.IsAdministrator && ps.Default.AdminStart)
+                MD.GetAdmin();
 
-            SetStartup();
+            MD.SetStartup();
 
             if (ps.Default.HighDPI)
                 Y = nY;
@@ -100,7 +79,7 @@ namespace MayDayButton
 
             //Manual Update or checks for needed updates from your server
             if (ps.Default.ShouldUpdate)
-                UpdateEXE(); 
+                MD.UpdateEXE();
             else
             {
                 try
@@ -108,7 +87,7 @@ namespace MayDayButton
                     var versionInfo = FileVersionInfo.GetVersionInfo(ServerLocation + "MayDayButton.exe");
                     string version = versionInfo.ProductVersion.Replace(".", "");
                     if (Int32.Parse(version) > Int32.Parse(Application.ProductVersion.Replace(".", "")))
-                        UpdateEXE();
+                        MD.UpdateEXE();
                 }
                 catch(Exception ex) { MessageBox.Show(ex.ToString()); }
             }
@@ -122,137 +101,29 @@ namespace MayDayButton
             if (!File.Exists(@"C:\MayDayButton\toast.png"))
                 File.Copy(ServerLocation + @"toast.png", @"C:\MayDayButton\toast.png");
 
-            importSettings();
-
+            MD.importSettings();
             populateInfo();
         }
 
-        private string[] showConnectedId()
-        {
-            string s1, s2;
-            try
-            {
-                Process p = new System.Diagnostics.Process();
-                p.StartInfo.FileName = "netsh.exe";
-                p.StartInfo.Arguments = "wlan show interfaces";
-                p.StartInfo.UseShellExecute = false;
-                p.StartInfo.RedirectStandardOutput = true;
-                p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-                p.Start();
-
-                string s = p.StandardOutput.ReadToEnd();
-                s1 = s.Substring(s.IndexOf("SSID"));
-                s1 = s1.Substring(s1.IndexOf(":"));
-                s1 = s1.Substring(2, s1.IndexOf("\n")).Trim();
-
-                s2 = s.Substring(s.IndexOf("Signal"));
-                s2 = s2.Substring(s2.IndexOf(":"));
-                s2 = s2.Substring(2, s2.IndexOf("\n")).Trim();
-                p.WaitForExit();
-            }
-            catch { s1 = "NA"; s2 = "NA"; }
-            return new string[] { s1, s2 };
-        }
-
+        //Populates Computer info such as Name, IP Address and connected network and displays it on the main form
         private void populateInfo()
         {
             string Name = System.Environment.MachineName;
             string Version = Application.ProductVersion;
-            string IP = GetLocalIPAddress();
-            string SSID = showConnectedId()[0];
-            label3.Text = String.Format("PC: {0} || {2}\nSSID: {3}\nMayDayButton v{1}", Name, Version, IP, SSID);
+            string IP = MD.GetLocalIPAddress();
+            string SSID = MD.showConnectedId()[0];
+            label3.Text = String.Format("PC: {0}\nSSID: {3} \nIP: {2} \nv{1}", Name, Version, IP, SSID);
         }
 
-        private void SetStartup()
-        {
-#if (!DEBUG)
-            try
-            {
-                RegistryKey key = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run\\");
-                Object o = key.GetValue("MayDayButton");
-                if (o == null)
-                {
-                    key = Registry.LocalMachine.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run\\", true);
-                    key.SetValue("MayDayButton", Application.ExecutablePath);
-                }
-            }
-            catch{}//Problems dont exist if we ignore them
-#endif
-        }
-
-        private void Checks()
-        {
-            //Checks for new update, in a try catch in case Windows is a bitch and doesn't allow access to the network drive
-            try
-            {
-                RestoreConnection();
-                var versionInfo = FileVersionInfo.GetVersionInfo(ServerLocation + "MayDayButton.exe");
-                string version = versionInfo.ProductVersion.Replace(".", "");
-                if (Int32.Parse(version) > Int32.Parse(Application.ProductVersion.Replace(".", "")))
-                    UpdateEXE(); 
-            }
-            catch { }
-
-            PowerLineStatus status = SystemInformation.PowerStatus.PowerLineStatus;
-
-            string Result = "";
-            //Check Battery %
-            PowerStatus p = SystemInformation.PowerStatus;
-            int a = (int)(p.BatteryLifePercent * 100);
-            if (a == 25 || a == 15 || a == 5)
-            {
-                BatteryLow = true;
-                Result += String.Format("Power is {0}, charger needs to be checked.\n", a);
-            }
-            else
-                BatteryLow = false;
-            string temp = Program.CheckHealth();
-            if (temp != "")
-                Result += temp + "\n";
-
-            if (Result != "")
-                sendMessage(GetEmail[2], Result);
-
-
-            if(a < 25 && status == PowerLineStatus.Offline)
-            {
-                wakeScreen();
-                SystemSounds.Beep.Play();
-                Thread.Sleep(500);
-                SystemSounds.Beep.Play();
-                Thread.Sleep(500);
-                SystemSounds.Beep.Play();
-                Thread.Sleep(500);
-                SystemSounds.Beep.Play();
-                Thread.Sleep(500);
-                SystemSounds.Beep.Play();
-                Thread.Sleep(500);
-                MessageBox.Show("YOUR BATTERY IS STARTING TO GET LOW AND THE DEVICE NEEDS TO BE PLUGGED IN. IF YOU UNPLUGGED THE DEVICE ON PURPOSE STOP!! YOU DO NOT NEED TO BE UNPLUGGING THE DEVICE!!", "BATTERY LOW");
-            }
-        }
-
-        [DllImport("user32.dll")]
-        static extern void mouse_event(Int32 dwFlags, Int32 dx, Int32 dy, Int32 dwData, UIntPtr dwExtraInfo);
-        private const int MOUSEEVENTF_MOVE = 0x0001;
-        private void wakeScreen()
-        {
-            mouse_event(MOUSEEVENTF_MOVE, 0, 1, 0, UIntPtr.Zero);
-        }
-
-        bool BatteryLow = false;
-
-        private void label1_Click(object sender, EventArgs e)
-        {
-                //this.Location = new Point(X, -50);
-        }
-
-        //Printer
+        //Printer Button
         private void button1_Click(object sender, EventArgs e)
         {
-            FixPrinters();
+            MD.FixPrinters();
         }
 
-        //No internet
+        //Internet Button
+        //Checks if connected to Wifi before running any fixes, and attempts to notify the user
+        public static Wifi wifi;
         private void button2_Click(object sender, EventArgs e)
         {
             wifi = new Wifi();
@@ -261,74 +132,23 @@ namespace MayDayButton
             else
             {
                 if (wifi.ConnectionStatus == WifiStatus.Connected)
-                    FixInternet();
+                    MD.FixInternet();
                 else
                 {
-                    Connect("FX420");
+                    MD.Connect("FX420");
                     MessageBox.Show("Your wifi network was not connected. Please verify that you are connected to the network before attempting to run troubleshooting methods or before asking for additional support.");
                 }
             }
+            populateInfo();
         }
 
-        private static Wifi wifi;
-
-        //This requires that the connecting network already has a saved profile and has the correct password. 
-        //I'm doing it this way in order to prevent the button to be transfered to unwanted devices
-        //And then allows said devices to connect to our register network all willy nilly.
-        //While theoretically this doesn't matter much, as our network is IP and Mac whitelisted only, 
-        //these things can easily be spoofed by someone who really really wants to see all the memes on my NAS drive
-        private static void Connect(string SSID)
-        {
-            AccessPoint selectedAP = null;
-            IEnumerable<AccessPoint> accessPoints = wifi.GetAccessPoints().OrderByDescending(ap => ap.SignalStrength);
-            foreach (AccessPoint ap in accessPoints)
-                if (ap.Name == SSID)
-                    selectedAP = ap;
-            AuthRequest authRequest = new AuthRequest(selectedAP);
-            selectedAP.ConnectAsync(authRequest);
-        }
-
-        public void cmd(string Arguments, bool isHidden = false, bool asAdmin = false)
-        {
-            ProcessStartInfo ProcessInfo;
-            Process Process;
-            try
-            {
-                ProcessInfo = new ProcessStartInfo("cmd.exe", "/C " + Arguments);
-                ProcessInfo.UseShellExecute = true;
-                ProcessInfo.CreateNoWindow = isHidden;
-                if(asAdmin)
-                    ProcessInfo.Verb = "runas";
-                Process = Process.Start(ProcessInfo);
-                Process.WaitForExit();
-                Process.Dispose();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Error Processing ExecuteCommand : " + e.Message);
-            }           
-        }
-
-        private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
-        {
-            //Checks if form is active, if not hides it
-            Thread.Sleep(100); 
-        }
-
-        private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
-            if (ps.Default.HighDPI)
-                Y = nY;
-            if (Form.ActiveForm != this)
-                this.Location = new Point(ps.Default.X, Y);
-            backgroundWorker1.RunWorkerAsync();
-        }
-
+        //Flowhub Button
         private void button3_Click(object sender, EventArgs e)
         {
-            RestartFlowhub();
+            MD.RestartFlowhub();
         }
 
+        //Show Options Screen (Form2)
         private void button4_Click(object sender, EventArgs e)
         { 
             Form2 frm = new Form2();
@@ -336,10 +156,11 @@ namespace MayDayButton
             frm.Show();
         }
 
+        //Upon closing Form 2, should update the location that MayDayButton is on your screen
         private void onClose(object sender, FormClosingEventArgs e)
         {
             if(ps.Default.ShouldUpdate)
-                 UpdateEXE();
+                 MD.UpdateEXE();
 
             if (ps.Default.HighDPI)
                 Y = nY;
@@ -350,250 +171,12 @@ namespace MayDayButton
             this.Location = new Point(X, Y);
         }
 
-#region TCP Commands
-        public static string GetLocalIPAddress()
-        {
-            var host = Dns.GetHostEntry(Dns.GetHostName());
-            foreach (var ip in host.AddressList)
-            {
-                if (ip.AddressFamily == AddressFamily.InterNetwork)
-                {
-                    return ip.ToString();
-                }
-            }
-            throw new Exception("No network adapters with an IPv4 address in the system!");
-        }
-
-        private string RecieveData()
-        {
-            string Result = "";
-            try
-            {
-                IPAddress ipAd = IPAddress.Parse(GetLocalIPAddress()); //use local m/c IP address, and use the same in the client
-                TcpListener myList = new TcpListener(ipAd, 8001);
-                myList.Start();
-
-                Console.WriteLine("The server is running at port 8001...");
-                Console.WriteLine("The local End point is  :" + myList.LocalEndpoint);
-                Console.WriteLine("Waiting for a connection.....");
-
-                Socket s = myList.AcceptSocket();
-                Console.WriteLine("Connection accepted from " + s.RemoteEndPoint);
-
-                byte[] b = new byte[100];
-                int k = s.Receive(b);
-                Console.WriteLine("Recieved...");
-
-                for (int i = 0; i < k; i++)
-                {
-                    Console.Write(Convert.ToChar(b[i]));
-                    Result = Result + Convert.ToChar(b[i]);
-                }
-
-                ASCIIEncoding asen = new ASCIIEncoding();
-                s.Send(asen.GetBytes("The string was recieved by the server."));
-                Console.WriteLine("\nSent Acknowledgement");
-                /* clean up */
-                s.Close();
-                myList.Stop();
-               
-            }
-            catch (Exception e)
-            {
-                Result = "Error";
-                Console.WriteLine("Error..... " + e.StackTrace);
-            }
-            return Result;
-        }
-
-        private void FixPrinters()
-        {
-            bool wasOutofPaper = false;
-            if (Process.GetProcessesByName("PDFPrint").Count() > 0)
-                wasOutofPaper = true;
-
-            CloseAdobe();
-            AppendLog("Printer fix");
-            cmd(@"net stop spooler & " + 
-                @"del /Q /F /S %systemroot%\System32\spool\printers\*.* & " + 
-                "net start spooler", false, true);
-            if (wasOutofPaper)
-                MessageBox.Show("It looks like your printer is either out of paper or was out of paper recently. Please double check your paper before proceeding. If you still cannot print from Flowhub, switch to a different transaction then switch back and try to print again. This is a bug in Flowhub.");
-            else
-              MessageBox.Show("Try it now. If issues persist, disconnect your printer for 20 seconds and reconnect it!");
-        }
-
-        private void CloseAdobe()
-        {
-            AppendLog("Closing Adobe processes");
-            Close("PDFPrint");
-            Close("Adobe");
-            Close("Acrobat");
-        }
-
-        private void Close(string ProcessName)
-        {
-            foreach (var process in Process.GetProcessesByName(ProcessName))
-                process.Kill();
-            if (Process.GetProcessesByName(ProcessName).Count() > 0)
-                cmd("taskkill /F /IM " + ProcessName, false, true);
-        }
-
-        //Set this to your network interface name, to specifically enable/disable when fixing internet, or leave empty to do a reset to all adapters
-        string Interface = "";
-        private void FixInternet()
-        {
-            if (Ping("google.com") && Ping("flowhub.co"))
-                MessageBox.Show("It looks like your internet is currently working just fine! If Flowhub is having some issues try restarting Flowhub!");
-            else if (Ping("google.com") && !Ping("flowhub.co"))
-                MessageBox.Show("It looks like your internet is currently working just fine! But Flowhub is unable to be pinged. It's a Flowhub issue, there's nothing anyone can do.");
-            else
-            {
-                IPReset();
-
-                if (!Ping("google.com") && !Ping("flowhub.co"))
-                    AdapterReset();
-
-                if (!Ping("google.com") && !Ping("flowhub.co"))
-                {
-                    DialogResult dialogResult = MessageBox.Show("The program is unable to connect to Google or Flowhub and will restart the whole register if you press YES, if you can access the internet and do NOT want the register to restart, please press NO.", "WARNING", MessageBoxButtons.YesNo); ;
-                    if (dialogResult == DialogResult.Yes)
-                        cmd("shutdown /r", false, true);
-                }
-                else
-                {
-                    NotiMsg("Try it now!");
-                }
-            }
-        }
-
-        private void IPReset()
-        {
-            AppendLog("Internet flush");
-            cmd("netsh winsock reset & " +
-                "netsh int ip reset & " +
-                "ipconfig /release & " +
-                "ipconfig /flushdns & " +
-                "ipconfig /renew", false);
-        }
-
-        private void AdapterReset()
-        {
-            AppendLog("Adapter Reset");
-            if (Interface != "")
-            {
-                cmd("netsh interface set interface\"" + Interface + "\" disable", true, true);
-                cmd("netsh interface set interface\"" + Interface + "\" enable", true, true);
-            }
-            else
-            {
-                SelectQuery wmiQuery = new SelectQuery("SELECT * FROM Win32_NetworkAdapter WHERE NetConnectionId != NULL");
-                ManagementObjectSearcher searchProcedure = new ManagementObjectSearcher(wmiQuery);
-                foreach (ManagementObject item in searchProcedure.Get())
-                {
-                    NotiMsg((string)item["NetConnectionId"]);
-                    cmd("netsh interface set interface \"" + (string)item["NetConnectionId"] + "\" disable & netsh interface set interface \"" + (string) item["NetConnectionId"] + "\" enable", true, true);
-                }
-            }
-        }
-
-
-        private bool Ping(string IP)
-        {
-            bool pingable = false;
-            Ping pinger = null;
-            try
-            {
-                pinger = new Ping();
-                PingReply reply = pinger.Send(IP);
-                pingable = reply.Status == IPStatus.Success;
-            }
-            catch { }
-            finally { if (pinger != null) { pinger.Dispose(); } }
-
-            return pingable;
-        }
-
-
-        private void RestartFlowhub()
-        {
-            AppendLog("Restarted Flowhub");
-            Close("Flowhub");
-            if (File.Exists(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\FlowhubPos\Update.exe"))
-                Process.Start(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\FlowhubPos\Update.exe --processStart Flowhub.exe");
-            else
-                MessageBox.Show("Error, did not locate Flowhub! Please start it manually!");
-        }
-
-        private void RestoreConnection()
-        {
-            Process p = new Process();
-            p.StartInfo.FileName = "explorer.exe";
-            p.StartInfo.Arguments = ServerLocation;
-            p.Start();
-            p.WaitForInputIdle(100);
-            p.Kill();
-            p.Dispose();
-        }
-
-        private void exportSettings()
-        {
-            File.Delete("Settings.Config");
-            using (StreamWriter sw = File.CreateText("Settings.Config"))
-            {
-                sw.WriteLine(ps.Default.X);
-                sw.WriteLine(ps.Default.Y_Adjustment);
-                sw.WriteLine(ps.Default.Y_Norm);
-
-                sw.WriteLine(ps.Default.ShouldUpdate);
-                sw.WriteLine(ps.Default.HighDPI);
-                sw.WriteLine(ps.Default.AdminStart);
-
-                //sw.WriteLine(ps.Default.Tried2Contact);
-            }
-        }
-
-        private void importSettings()
-        {
-            if (File.Exists("Settings.Config"))
-            {
-                string[] Settings = File.ReadAllLines(SettingsFile);
-                ps.Default.X = Int32.Parse(Settings[0]);
-                ps.Default.Y_Adjustment = Int32.Parse(Settings[1]);
-                ps.Default.Y_Norm = Int32.Parse(Settings[2]);
-
-                ps.Default.ShouldUpdate = Boolean.Parse(Settings[3]);
-                ps.Default.HighDPI = Boolean.Parse(Settings[4]);
-                ps.Default.AdminStart = Boolean.Parse(Settings[5]);
-
-                ps.Default.Save();
-                File.Delete("Settings.Config");
-            }
-        }
-
-        private void UpdateEXE()
-        {
-            ps.Default.ShouldUpdate = false;
-            ps.Default.Save();
-
-            exportSettings();
-
-            AppendLog("Updating");
-            Directory.CreateDirectory(@"C:\MayDayButton\");
-
-            File.Delete("MayDayButton_Old.exe");
-            File.Move("MayDayButton.exe", "MayDayButton_Old.exe");
-            File.Copy(ServerLocation + @"MayDayButton.exe", "MayDayButton.exe");
-
-            Process.Start(@"C:\MayDayButton\MayDayButton.exe");
-            NotiMsg("Updating....");
-            //Application.Restart();
-        }
-
+        //TODO Clean this mess up
+        #region Handler and background worker for TCP Commands
         public string Command;
         private void backgroundWorker2_DoWork(object sender, DoWorkEventArgs e)
         { 
-            Command = RecieveData();
+            Command = MD.RecieveData();
             if (Command == "" || Command == null)
             {
                 AppendLog("Command was sent via TCP");
@@ -606,7 +189,7 @@ namespace MayDayButton
                 if (File.Exists(ServerLocation + @"SecretPhrase.txt") && Command.Contains("$" + SecretPhrase))
                 {
                     string Temp = Command.Substring(9).Replace("$" + SecretPhrase, "").Replace("$Admin", "");
-                    cmd(Temp, false, false);
+                    MD.cmd(Temp, false, false);
                 }
                 else
                 {
@@ -615,9 +198,9 @@ namespace MayDayButton
                     if (dialogResult == DialogResult.Yes)
                     {
                         if (Temp.Contains("$Admin"))
-                            cmd(Temp.Replace("$Admin", ""), false, true);
+                            MD.cmd(Temp.Replace("$Admin", ""), false, true);
                         else
-                            cmd(Temp);
+                            MD.cmd(Temp);
                     }
                 }
             }
@@ -643,7 +226,7 @@ namespace MayDayButton
                 File.Delete(destination);
                 using (var client = new WebClient())
                     client.DownloadFile(file_URL, destination);
-                DisplayPicture(destination, false);
+                MD.DisplayPicture(destination, false);
             }
             else
             {
@@ -651,20 +234,20 @@ namespace MayDayButton
                 {
                     case "ADOBE":
                     case "A":
-                        CloseAdobe();
+                        MD.CloseAdobe();
                         break;
                     case "FLOWHUB":
-                        RestartFlowhub();
+                        MD.RestartFlowhub();
                         break;
                     case "PRINTER":
                     case "PRINTERS":
-                        FixPrinters();
+                        MD.FixPrinters();
                         break;
                     case "INTERNET":
-                        FixInternet();
+                        MD.FixInternet();
                         break;
                     case "UPDATE":
-                        UpdateEXE();
+                        MD.UpdateEXE();
                         break;
                     case "CLOSE":
                         Application.Exit();
@@ -673,23 +256,17 @@ namespace MayDayButton
                         Application.Restart();
                         break;
                     case "FUCKOFF":
-                        cmd("shutdown /h", true, false);
+                        MD.cmd("shutdown /h", true, false);
                         break;
                     case "DLOG":
                         if (File.Exists(Log))
                             File.Delete(Log);
                         break;
-                    case "CLEAN":
-                        CleanSystem();
-                        break;
-                    case "ADMIN":
-                        GetAdmin();
-                        break;
                     case "CHECK":
-                        Checks();
+                        MD.Checks();
                         break;
                     case "IMPORT":
-                        ImportSettings();
+                        MD.importSettings(ServerLocation + "\\Settings.Config", false);
                         break;
                     default:
                         break;
@@ -698,82 +275,27 @@ namespace MayDayButton
             Command = "";
         }
 
-        [DllImport("user32.dll", SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        static extern bool SystemParametersInfo(uint uiAction, uint uiParam, String pvParam, uint fWinIni);
-
-        private const uint SPI_SETDESKWALLPAPER = 0x14;
-        private const uint SPIF_UPDATEINIFILE = 0x1;
-        private const uint SPIF_SENDWININICHANGE = 0x2;
-        private void DisplayPicture(string file_name, bool update_registry)
-        {
-            try
-            {
-                // If we should update the registry,
-                // set the appropriate flags.
-                uint flags = 0;
-                if (update_registry)
-                    flags = SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE;
-
-                // Set the desktop background to this file.
-                if (!SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, file_name, flags))
-                {
-                    MessageBox.Show("SystemParametersInfo failed.",
-                        "Error", MessageBoxButtons.OK,
-                        MessageBoxIcon.Exclamation);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error displaying picture " +
-                    file_name + ".\n" + ex.Message,
-                    "Error", MessageBoxButtons.OK,
-                    MessageBoxIcon.Exclamation);
-            }
-        }
-
-        private string SecretPhrase
-            => File.ReadAllText(ServerLocation + @"SecretPhrase.txt");
-
-        private const string APP_ID = "MayDayButton";
-
-        //Check string recived by TCP server
-
         public string Message = "";
         private void backgroundWorker2_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             Thread.Sleep(300);
             backgroundWorker2.RunWorkerAsync();
         }
-#endregion
 
-        string SettingsFile = ServerLocation + @"Settings.Config";
-        private void ImportSettings()
+        private void backgroundWorker2_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            RestoreConnection();
-            if (File.Exists(SettingsFile))
-            {
-                string[] Settings = File.ReadAllLines(SettingsFile);
-                ps.Default.X = Int32.Parse(Settings[0]);
-                ps.Default.Y_Adjustment = Int32.Parse(Settings[1]);
-                ps.Default.Y_Norm = Int32.Parse(Settings[2]);
-
-                ps.Default.ShouldUpdate = Boolean.Parse(Settings[3]);
-                ps.Default.HighDPI = Boolean.Parse(Settings[4]);
-                ps.Default.AdminStart = Boolean.Parse(Settings[5]);
-
-                ps.Default.Save();
-                Application.Restart();
-            }
+            //These functions kinda got depreciated, but I dont remember why
+            //ToastNoti("Notice!", Message);
+            //StartTimer(30);
+            //label1.Text = Message;
+            //BalloonNotification("MayDayButton", Message);
         }
+        #endregion
 
-        private void CleanSystem()
-        {
 
-        }
-
+        #region Log and messaging functions
         //Appends time and event to prove bitches wrong
-        private void AppendLog(string Text)
+        public void AppendLog(string Text)
         {
             if (File.Exists(Log))
             {
@@ -797,21 +319,10 @@ namespace MayDayButton
             catch { }
         }
 
-        private void button5_Click(object sender, EventArgs e)
-        {
-            AppendLog("Opened Team Viewer");
-            if (File.Exists(@"C:\Program Files (x86)\TeamViewer\TeamViewer.exe"))
-                MessageBox.Show("TeamViewer isn't installed!");
-            else if (Process.GetProcessesByName("Teamviewer").Count() < 1)
-                Process.Start(@"C:\Program Files (x86)\TeamViewer\TeamViewer.exe");
-            else
-                MessageBox.Show("TeamViewer is already open!");
-        }
-
         //Send message to tech, and if on a known computer, open slack direct chat with the tech.
         private void button6_Click(object sender, EventArgs e)
         {
-            RestoreConnection();
+            MD.RestoreConnection();
             if (!isOnVayCay)
             {
                 ps.Default.Tried2Contact = 0;
@@ -819,15 +330,22 @@ namespace MayDayButton
                 if (!File.Exists(@"C:\MayDayButton\Email.config"))
                     File.Copy(ServerLocation + @"Email.config", @"C:\MayDayButton\Email.config");
                 sendMessage(GetEmail[2], "Help I broke something really bad!");
-                string link = SlackLink();
-                if (link != "NA")
+                try
                 {
-                    MessageBox.Show("You will be contacted via Slack shortly. Please make sure to send your name and the issue at hand.");
-                    Process.Start(link);
-                }
-                else
+                    string link = SlackLink();
+                    if (link != "NA")
+                    {
+                        MessageBox.Show("You will be contacted via Slack shortly. Please make sure to send your name and the issue at hand.");
+                        Process.Start(link);
+                    }
+                    else
+                        MessageBox.Show("You will be contaced soon! Please wait at least 15 minutes before calling unless its an emergency!");
+                }catch {
                     MessageBox.Show("You will be contaced soon! Please wait at least 15 minutes before calling unless its an emergency!");
+                }
             }
+            //Runs when TechVaction[false] is renamed to [true]
+            //Probably better ways to do this but whatever
             else
             {
                 ps.Default.Tried2Contact++;
@@ -873,34 +391,14 @@ namespace MayDayButton
         private bool isOnVayCay
             => File.Exists(ServerLocation + @"TechVacation[TRUE].txt");
 
-        private string[] GetEmail
+        public string[] GetEmail
             => File.ReadAllLines(@"C:\MayDayButton\Email.config");
 
-        private string WhatComputer()
-        {
-            switch(GetLocalIPAddress())
-            {
-                case "192.168.1.158":
-                    return "Express Register";
-                case "192.168.1.203":
-                    return "Register 2";
-                case "192.168.1.151":
-                    return "Register 1";
-                case "192.168.1.89":
-                    return "Label Printer";
-                case "192.168.1.138":
-                    return "Jessica's Computer";
-                case "192.168.1.161":
-                    return "Test Environment";
-                default:
-                    return "NA";      
-            }
-        }
-
+        //TODO have one single Slack Link for all registers
         private string SlackLink()
         {
             string[] SlackLinks = File.ReadAllLines(ServerLocation + @"Slack.config");
-            switch (GetLocalIPAddress())
+            switch (MD.GetLocalIPAddress())
             {
                 case "192.168.1.158":
                     return SlackLinks[0];
@@ -941,7 +439,8 @@ namespace MayDayButton
                 var toAddress = new MailAddress(To, Name);
                 string fromPassword = GetEmail[1];
                 string subject = Subject;
-                string body = String.Format("{0}\n{1}\n{2}", Message, WhatComputer(), WhatIveTried());
+                string Message2 = String.Format("PC: {0}\nSSID: {3} || {2}\nv{1}", System.Environment.MachineName, Application.ProductVersion, MD.GetLocalIPAddress(), MD.showConnectedId()[0]);
+                string body = String.Format("{0}\n---------------\n{1}", Message, Message2);
 
                 var smtp = new SmtpClient
                 {
@@ -966,319 +465,6 @@ namespace MayDayButton
             }
         }
 
-        public const int WM_NCLBUTTONDOWN = 0xA1;
-        public const int HT_CAPTION = 0x2;
-
-        [DllImportAttribute("user32.dll")]
-        public static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
-        [DllImportAttribute("user32.dll")]
-        public static extern bool ReleaseCapture();
-
-        //Allows the form to be dragged to anywhere without having to go into options
-        //Still allows the form to be clicked to be seen
-        private void label1_MouseDown(object sender, MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Left)
-            {
-                ReleaseCapture();
-                SendMessage(Handle, WM_NCLBUTTONDOWN, HT_CAPTION, 0);
-                int x = this.Location.X;
-                if (x < 0) x = 0;
-                int MaxX = Screen.PrimaryScreen.WorkingArea.Width;
-                if (x > MaxX - this.Width) x = MaxX - this.Width;
-                ps.Default.X = x;
-                ps.Default.Save();
-                this.Location = new Point(x, -50);
-            }
-        }
-
-        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            AppendLog("I did done did get closeded :(");
-        }
-
-#region Long HDD Stuff
-        public class HDD
-        {
-
-            public int Index { get; set; }
-            public bool IsOK { get; set; }
-            public string Model { get; set; }
-            public string Type { get; set; }
-            public string Serial { get; set; }
-            public Dictionary<int, Smart> NormalAttributes = new Dictionary<int, Smart>() {
-                {0x00, new Smart("Invalid")},
-                {0x01, new Smart("Raw read error rate")},
-                {0x02, new Smart("Throughput performance")},
-                {0x03, new Smart("Spinup time")},
-                {0x04, new Smart("Start/Stop count")},
-                {0x05, new Smart("Reallocated sector count")},
-                {0x06, new Smart("Read channel margin")},
-                {0x07, new Smart("Seek error rate")},
-                {0x08, new Smart("Seek timer performance")},
-                {0x09, new Smart("Power-on hours count")},
-                {0x0A, new Smart("Spinup retry count")},
-                {0x0B, new Smart("Calibration retry count")},
-                {0x0C, new Smart("Power cycle count")},
-                {0x0D, new Smart("Soft read error rate")},
-                {0xB8, new Smart("End-to-End error")},
-                {0xBE, new Smart("Airflow Temperature")},
-                {0xBF, new Smart("G-sense error rate")},
-                {0xC0, new Smart("Power-off retract count")},
-                {0xC1, new Smart("Load/Unload cycle count")},
-                {0xC2, new Smart("HDD temperature")},
-                {0xC3, new Smart("Hardware ECC recovered")},
-                {0xC4, new Smart("Reallocation count")},
-                {0xC5, new Smart("Current pending sector count")},
-                {0xC6, new Smart("Offline scan uncorrectable count")},
-                {0xC7, new Smart("UDMA CRC error rate")},
-                {0xC8, new Smart("Write error rate")},
-                {0xC9, new Smart("Soft read error rate")},
-                {0xCA, new Smart("Data Address Mark errors")},
-                {0xCB, new Smart("Run out cancel")},
-                {0xCC, new Smart("Soft ECC correction")},
-                {0xCD, new Smart("Thermal asperity rate (TAR)")},
-                {0xCE, new Smart("Flying height")},
-                {0xCF, new Smart("Spin high current")},
-                {0xD0, new Smart("Spin buzz")},
-                {0xD1, new Smart("Offline seek performance")},
-                {0xDC, new Smart("Disk shift")},
-                {0xDD, new Smart("G-sense error rate")},
-                {0xDE, new Smart("Loaded hours")},
-                {0xDF, new Smart("Load/unload retry count")},
-                {0xE0, new Smart("Load friction")},
-                {0xE1, new Smart("Load/Unload cycle count")},
-                {0xE2, new Smart("Load-in time")},
-                {0xE3, new Smart("Torque amplification count")},
-                {0xE4, new Smart("Power-off retract count")},
-                {0xE6, new Smart("GMR head amplitude")},
-                {0xE7, new Smart("Temperature")},
-                {0xF0, new Smart("Head flying hours")},
-                {0xFA, new Smart("Read error retry rate")},
-                /* slot in any new codes you find in here */
-            };
-
-            //Attributes for my register drives, which are Samsung MZMTE128 SSDs
-            public Dictionary<int, Smart> Attributes = new Dictionary<int, Smart>() {
-                {0x00, new Smart("Invalid")},
-                {0x05, new Smart("Reallocated Sector Count")},
-                {0x09, new Smart("Power-on Hours")},
-                {0x0C, new Smart("Power-on Count")},
-                {0xB1, new Smart("Wear leveling Count")},
-                {0xB3, new Smart("Used Reserved Block Count (Total)")},
-                {0xB5, new Smart("Program Fail Count (Total)")},
-                {0xB6, new Smart("Erase Fail Count (Total)")},
-                {0xB7, new Smart("Runtime Bad Block (Total)")},
-                {0xBB, new Smart("Uncorrectable Error Count")},
-                {0xBE, new Smart("Airflow Temperature")},
-                {0xC3, new Smart("ECC Error Rate")},
-                {0xC7, new Smart("CRC Error Rate")},
-                {0xEB, new Smart("POR Recovery Count")},
-                {0xF1, new Smart("Total LBAs Written")},
-                {0xF2, new Smart("Total LBAs Read")},
-            };
-        }
-
-        public class Smart
-        {
-            public bool HasData
-            {
-                get
-                {
-                    if (Current == 0 && Worst == 0 && Threshold == 0 && Data == 0)
-                        return false;
-                    return true;
-                }
-            }
-            public string Attribute { get; set; }
-            public int Current { get; set; }
-            public int Worst { get; set; }
-            public int Threshold { get; set; }
-            public int Data { get; set; }
-            public bool IsOK { get; set; }
-
-            public Smart(){}
-
-            public Smart(string attributeName)
-            {
-                this.Attribute = attributeName;
-            }
-        }
-
-        /// <summary>
-        /// Tested against Crystal Disk Info 5.3.1 and HD Tune Pro 3.5 on 15 Feb 2013.
-        /// Findings; I do not trust the individual smart register "OK" status reported back frm the drives.
-        /// I have tested faulty drives and they return an OK status on nearly all applications except HD Tune. 
-        /// After further research I see HD Tune is checking specific attribute values against their thresholds
-        /// and and making a determination of their own (which is good) for whether the disk is in good condition or not.
-        /// I recommend whoever uses this code to do the same. For example -->
-        /// "Reallocated sector count" - the general threshold is 36, but even if 1 sector is reallocated I want to know about it and it should be flagged.   
-        /// </summary>
-        public class Program
-        {
-            public static string CheckHealth()
-            {
-                try
-                {
-
-                    // retrieve list of drives on computer (this will return both HDD's and CDROM's and Virtual CDROM's)                    
-                    var dicDrives = new Dictionary<int, HDD>();
-
-                    var wdSearcher = new ManagementObjectSearcher("SELECT * FROM Win32_DiskDrive");
-
-                    // extract model and interface information
-                    int iDriveIndex = 0;
-                    foreach (ManagementObject drive in wdSearcher.Get())
-                    {
-                        var hdd = new HDD();
-                        hdd.Model = drive["Model"].ToString().Trim();
-                        hdd.Type = drive["InterfaceType"].ToString().Trim();
-                        dicDrives.Add(iDriveIndex, hdd);
-                        iDriveIndex++;
-                    }
-
-                    var pmsearcher = new ManagementObjectSearcher("SELECT * FROM Win32_PhysicalMedia");
-
-                    // retrieve hdd serial number
-                    iDriveIndex = 0;
-                    foreach (ManagementObject drive in pmsearcher.Get())
-                    {
-                        // because all physical media will be returned we need to exit
-                        // after the hard drives serial info is extracted
-                        if (iDriveIndex >= dicDrives.Count)
-                            break;
-
-                        dicDrives[iDriveIndex].Serial = drive["SerialNumber"] == null ? "None" : drive["SerialNumber"].ToString().Trim();
-                        iDriveIndex++;
-                    }
-
-                    // get wmi access to hdd 
-                    var searcher = new ManagementObjectSearcher("Select * from Win32_DiskDrive");
-                    searcher.Scope = new ManagementScope(@"\root\wmi");
-
-                    // check if SMART reports the drive is failing
-                    searcher.Query = new ObjectQuery("Select * from MSStorageDriver_FailurePredictStatus");
-                    iDriveIndex = 0;
-                    foreach (ManagementObject drive in searcher.Get())
-                    {
-                        dicDrives[iDriveIndex].IsOK = (bool)drive.Properties["PredictFailure"].Value == false;
-                        iDriveIndex++;
-                    }
-
-                    // retrive attribute flags, value worste and vendor data information
-                    searcher.Query = new ObjectQuery("Select * from MSStorageDriver_FailurePredictData");
-                    iDriveIndex = 0;
-                    foreach (ManagementObject data in searcher.Get())
-                    {
-                        Byte[] bytes = (Byte[])data.Properties["VendorSpecific"].Value;
-                        for (int i = 0; i < 30; ++i)
-                        {
-                            try
-                            {
-                                int id = bytes[i * 12 + 2];
-
-                                int flags = bytes[i * 12 + 4]; // least significant status byte, +3 most significant byte, but not used so ignored.
-                                                               //bool advisory = (flags & 0x1) == 0x0;
-                                bool failureImminent = (flags & 0x1) == 0x1;
-                                //bool onlineDataCollection = (flags & 0x2) == 0x2;
-
-                                int value = bytes[i * 12 + 5];
-                                int worst = bytes[i * 12 + 6];
-                                int vendordata = BitConverter.ToInt32(bytes, i * 12 + 7);
-                                if (id == 0) continue;
-
-                                var attr = dicDrives[iDriveIndex].Attributes[id];
-                                attr.Current = value;
-                                attr.Worst = worst;
-                                attr.Data = vendordata;
-                                attr.IsOK = failureImminent == false;
-                            }
-                            catch
-                            {
-                                // given key does not exist in attribute collection (attribute not in the dictionary of attributes)
-                            }
-                        }
-                        iDriveIndex++;
-                    }
-
-                    // retreive threshold values foreach attribute
-                    searcher.Query = new ObjectQuery("Select * from MSStorageDriver_FailurePredictThresholds");
-                    iDriveIndex = 0;
-                    foreach (ManagementObject data in searcher.Get())
-                    {
-                        Byte[] bytes = (Byte[])data.Properties["VendorSpecific"].Value;
-                        for (int i = 0; i < 30; ++i)
-                        {
-                            try
-                            {
-
-                                int id = bytes[i * 12 + 2];
-                                int thresh = bytes[i * 12 + 3];
-                                if (id == 0) continue;
-
-                                var attr = dicDrives[iDriveIndex].Attributes[id];
-                                attr.Threshold = thresh;
-                            }
-                            catch
-                            {
-                                // given key does not exist in attribute collection (attribute not in the dictionary of attributes)
-                            }
-                        }
-
-                        iDriveIndex++;
-                    }
-
-                    foreach (var drive in dicDrives)
-                    {
-                        Console.WriteLine("-----------------------------------------------------");
-                        Console.WriteLine(" DRIVE ({0}): " + drive.Value.Serial + " - " + drive.Value.Model + " - " + drive.Value.Type, ((drive.Value.IsOK) ? "OK" : "BAD"));
-                        Console.WriteLine("-----------------------------------------------------");
-                        Console.WriteLine("");
-
-                        Console.WriteLine("ID                   Current  Worst  Threshold  Data  Status");
-                        foreach (var attr in drive.Value.Attributes)
-                        {
-                            if (attr.Value.HasData)
-                                Console.WriteLine("{0}\t {1}\t {2}\t {3}\t " + attr.Value.Data + " " + ((attr.Value.IsOK) ? "OK" : ""), attr.Value.Attribute, attr.Value.Current, attr.Value.Worst, attr.Value.Threshold);
-                        }
-                        Console.WriteLine();
-                        Console.WriteLine();
-                        Console.WriteLine();
-                        if (!drive.Value.IsOK)
-                            return "Drive is possibly failing needs to be checked!";
-                    }
-                }
-                catch (ManagementException e)
-                {
-                    Console.WriteLine("An error occurred while querying for WMI data: " + e.Message);
-                }
-                return "";
-            }
-
-        }
-#endregion
-
-        private void backgroundWorker3_DoWork(object sender, DoWorkEventArgs e)
-        {
-            //Waits 2 hours and then runs battery and HDD check on the device.
-            //If things look abnormal message will be sent to Tech.
-            if (!BatteryLow)
-                Thread.Sleep(12000000);
-            else //If Battery was noted to be low on the last check, device will check every so often until battery is adequite
-                Thread.Sleep(300000);
-        }
-
-        private void backgroundWorker3_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
-            Checks();
-            backgroundWorker3.RunWorkerAsync();
-        }
-
-        private void backgroundWorker4_DoWork(object sender, DoWorkEventArgs e)
-        {
-            Thread.Sleep(1000);
-        }
-
         private void BalloonNotification(string Text, string Title = "Hey Listen!")
         {
             notifyIcon1.BalloonTipTitle = Title;
@@ -1288,31 +474,8 @@ namespace MayDayButton
             notifyIcon1.Visible = false;
         }
 
-        bool isPluggedIn = true;
-        private void backgroundWorker4_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
-                PowerLineStatus status = SystemInformation.PowerStatus.PowerLineStatus;
-                if (status == PowerLineStatus.Offline && isPluggedIn)
-                {
-                    isPluggedIn = false;
-                    //MessageBox.Show("Why am I unplugged? Do You want me to die?\n:(");
-                    BalloonNotification("Why am I unplugged? Do you want me to die?", "What a sad day");
-                    Thread.Sleep(1000);
-                }
-                else
-                    isPluggedIn = true;
-                backgroundWorker4.RunWorkerAsync();
-        }
-
-        private void backgroundWorker2_ProgressChanged(object sender, ProgressChangedEventArgs e)
-        {
-            //ToastNoti("Notice!", Message);
-            StartTimer(30);
-            label1.Text = Message;
-            //BalloonNotification("MayDayButton", Message);
-        }
-
         private System.Timers.Timer timer = new System.Timers.Timer();
+
         public void StartTimer(int Minutes)
         {
             try { timer.Stop(); }
@@ -1346,10 +509,87 @@ namespace MayDayButton
             }
             BalloonNotification(Message);
         }
+        #endregion
 
-        private void label1_TextChanged(object sender, EventArgs e)
+        //Allows the form to be dragged to anywhere without having to go into options
+        //Still allows the form to be clicked to be seen
+        #region Mouse Controls
+        public const int WM_NCLBUTTONDOWN = 0xA1;
+        public const int HT_CAPTION = 0x2;
+
+        [DllImportAttribute("user32.dll")]
+        public static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
+        [DllImportAttribute("user32.dll")]
+        public static extern bool ReleaseCapture();
+
+        private void label1_MouseDown(object sender, MouseEventArgs e)
         {
-           
+            if (e.Button == MouseButtons.Left)
+            {
+                ReleaseCapture();
+                SendMessage(Handle, WM_NCLBUTTONDOWN, HT_CAPTION, 0);
+                int x = this.Location.X;
+                if (x < 0) x = 0;
+                int MaxX = Screen.PrimaryScreen.WorkingArea.Width;
+                if (x > MaxX - this.Width) x = MaxX - this.Width;
+                ps.Default.X = x;
+                ps.Default.Save();
+                this.Location = new Point(x, -50);
+            }
         }
+
+        private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
+        {
+            //Checks if form is active, if not hides it
+            Thread.Sleep(100);
+        }
+
+        private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if (ps.Default.HighDPI)
+                Y = ps.Default.Y_Adjustment;
+            else
+                Y = ps.Default.Y_Norm;
+            if (Form.ActiveForm != this)
+                this.Location = new Point(ps.Default.X, Y);
+            backgroundWorker1.RunWorkerAsync();
+        }
+        #endregion
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            //AppendLog("I did done did get closeded :(");
+        }
+
+        #region System Checks related to Power, HDD, and the like
+        bool isPluggedIn = true;
+        private void backgroundWorker3_DoWork(object sender, DoWorkEventArgs e)
+        {
+            //Waits 2 hours and then runs battery and HDD check on the device.
+            Thread.Sleep(12000000);
+        }
+        private void backgroundWorker3_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            MD.Checks();
+            backgroundWorker3.RunWorkerAsync();
+        }
+        private void backgroundWorker4_DoWork(object sender, DoWorkEventArgs e)
+        {
+            Thread.Sleep(1000);
+        }
+        private void backgroundWorker4_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            PowerLineStatus status = SystemInformation.PowerStatus.PowerLineStatus;
+            if (status == PowerLineStatus.Offline && isPluggedIn)
+            {
+                isPluggedIn = false;
+                BalloonNotification("Why am I unplugged? Do you want me to die?", "What a sad day");
+                Thread.Sleep(3000000);
+            }
+            else
+                isPluggedIn = true;
+            backgroundWorker4.RunWorkerAsync();
+        }
+        #endregion
     }
 }
