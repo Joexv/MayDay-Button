@@ -32,6 +32,8 @@ namespace MayDayButton
         public int nY = ps.Default.Y_Adjustment;
         public int X = ps.Default.X;
 
+        public int Label_Height { get; set; }
+
         //Used to allow admin commands from TCP, must be manually setup
         private string SecretPhrase
           => File.ReadAllText(ServerLocation + @"SecretPhrase.txt");
@@ -46,63 +48,115 @@ namespace MayDayButton
         {
             AppendLog((e.ExceptionObject as Exception).Message);
         }
+        
+        //Checks if MayDayButton is being used by a valid computer with a valid license.
+        //For those of you getting it from Github simply remove this and ignore it.
+        //I couldn't really care less.
+        private void selfDestructPreGame() {
+            DateTime thisDate = DateTime.Today;
+            bool shouldDestruct = false;
+            string licenseFile = ServerLocation + "License.Config";
+            string license = (File.Exists(licenseFile) ? File.ReadAllText(licenseFile) : "WaitThisAintNoLicense");
+            shouldDestruct = (license != "HeyThisShouldBeAndADvancedLicenseCheckButTheDevIsALazyPOSWhoDoesntCareBacuseThisCompanyIsAJoke");
+
+            string licenseFile2 = ServerLocation + "\\LicenseCheck.Config";
+            if (!File.Exists(licenseFile2))
+            {
+                File.WriteAllText(licenseFile2, thisDate.ToString());
+                shouldDestruct = false;
+            }
+            else if(File.Exists(licenseFile2))
+            {
+                DateTime oldDate = DateTime.Parse(File.ReadAllText(licenseFile2));
+                if (DateTime.Compare(oldDate.AddDays(7), thisDate) <= 0)
+                    shouldDestruct = true;
+                else
+                    shouldDestruct = false;
+            }
+
+            if (shouldDestruct)
+                selfDestruct();
+        }
+
+        private void selfDestruct()
+        {
+            if (ServerLocation == @"\\192.168.1.210\server\MayDayButton\")
+            {
+                MessageBox.Show("This software has been unlicensed for seven days and will now disable itself. Please contact the creator to purchase a license. If you have questions about the licensing agreement please refer to the Admin Panel for the complete terms.");
+#if !DEBUG
+            MD.setVayCay();
+            button1.Enabled = false;
+            button2.Enabled = false;
+            button3.Enabled = false;
+            button6.Enabled = false;
+            label3.Visible = false;
+            label1.Text = "Unlicensed Software";
+#endif
+            }
+        }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            Application.ThreadException += new ThreadExceptionEventHandler(Application_ThreadException);
-            AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
-
-            Process CurrentProcess = Process.GetCurrentProcess();
-            foreach (Process p in Process.GetProcesses().Where(n => n.Id != CurrentProcess.Id))
-                if (p.ProcessName == "MayDayButton")
-                    p.Kill();
-
-            //This is done to make sure that upon running on boot, the location doesn't get jumped to 
-            //C:\System32 or whatever bullshit Windows likes to do.
-            if (Directory.GetCurrentDirectory() == ServerLocation)
-                Process.Start(@"C:\MayDayButton\MayDayButton.exe");
-            else
-                Directory.SetCurrentDirectory(@"C:\MayDayButton\");
-
-            MD.RestoreConnection();
-
-            if (!MD.IsAdministrator && ps.Default.AdminStart)
-                MD.GetAdmin();
-
-            MD.SetStartup();
-
-            if (ps.Default.HighDPI)
-                Y = nY;
-
-            this.AutoScaleDimensions = new Size(96, 96);
-            this.Location = new Point(X, Y);
-
-            //Manual Update or checks for needed updates from your server
-            if (ps.Default.ShouldUpdate)
-                MD.UpdateEXE();
-            else
+            try
             {
-                try
+                selfDestructPreGame();
+                Application.ThreadException += new ThreadExceptionEventHandler(Application_ThreadException);
+                AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
+
+                Process CurrentProcess = Process.GetCurrentProcess();
+                foreach (Process p in Process.GetProcesses().Where(n => n.Id != CurrentProcess.Id))
+                    if (p.ProcessName == "MayDayButton")
+                        p.Kill();
+#if DEBUG
+                //This is done to make sure that upon running on boot, the location doesn't get jumped to 
+                //C:\System32 or whatever bullshit Windows likes to do.
+                if (Directory.GetCurrentDirectory() == ServerLocation)
+                    Process.Start(@"C:\MayDayButton\MayDayButton.exe");
+                else
+                    Directory.SetCurrentDirectory(@"C:\MayDayButton\");
+#endif
+                MD.RestoreConnection();
+                if (!MD.IsAdministrator && ps.Default.AdminStart)
+                    MD.GetAdmin();
+
+                MD.SetStartup();
+                MD.AddShortcut();
+
+                //Manual Update or checks for needed updates from your server
+
+                if (ps.Default.ShouldUpdate)
+                    MD.UpdateEXE();
+                else
                 {
-                    var versionInfo = FileVersionInfo.GetVersionInfo(ServerLocation + "MayDayButton.exe");
-                    string version = versionInfo.ProductVersion.Replace(".", "");
-                    if (Int32.Parse(version) > Int32.Parse(Application.ProductVersion.Replace(".", "")))
-                        MD.UpdateEXE();
+                    try
+                    {
+                        var versionInfo = FileVersionInfo.GetVersionInfo(ServerLocation + "MayDayButton.exe");
+                        string version = versionInfo.ProductVersion.Replace(".", "");
+                        if (Int32.Parse(version) > Int32.Parse(Application.ProductVersion.Replace(".", "")))
+                            MD.UpdateEXE();
+                    }
+                    catch { }
                 }
-                catch(Exception ex) { MessageBox.Show(ex.ToString()); }
+
+                //Starts background processes, for monitoring battery, checking for commands, and the like
+                backgroundWorker1.RunWorkerAsync();
+                backgroundWorker2.RunWorkerAsync();
+                backgroundWorker3.RunWorkerAsync();
+                backgroundWorker4.RunWorkerAsync();
+
+                if (!File.Exists(@"C:\MayDayButton\toast.png"))
+                    File.Copy(ServerLocation + @"toast.png", @"C:\MayDayButton\toast.png");
+
+                MD.importSettings("Settings.Config", true);
+                populateInfo();
+
+                if (ps.Default.HighDPI)
+                    Y = nY;
+
+                this.AutoScaleDimensions = new Size(96, 96);
+                this.Location = new Point(X, Y);
             }
-
-            //Starts background processes, for monitoring battery, checking for commands, and the like
-            backgroundWorker1.RunWorkerAsync();
-            backgroundWorker2.RunWorkerAsync();
-            backgroundWorker3.RunWorkerAsync();
-            backgroundWorker4.RunWorkerAsync();
-
-            if (!File.Exists(@"C:\MayDayButton\toast.png"))
-                File.Copy(ServerLocation + @"toast.png", @"C:\MayDayButton\toast.png");
-
-            MD.importSettings();
-            populateInfo();
+            catch(Exception ex) { MessageBox.Show(ex.ToString()); }
         }
 
         //Populates Computer info such as Name, IP Address and connected network and displays it on the main form
@@ -145,34 +199,30 @@ namespace MayDayButton
         //Flowhub Button
         private void button3_Click(object sender, EventArgs e)
         {
+            MD.Close("Flowhub");
+            MD.cleanInternetTemp();
             MD.RestartFlowhub();
+            if (!MD.Ping("flowhub.co"))
+                MessageBox.Show("MayDayButton is unable to communicate with 'Flowhub.co'. This could mean either you aren't connected to the internet or Flowhub is currently experiancing issues. Please Run the internet fix and try again.");
         }
 
         //Show Options Screen (Form2)
         private void button4_Click(object sender, EventArgs e)
         { 
             Form2 frm = new Form2();
+            frm.Label_Height = label1.Height;
             frm.FormClosing += new FormClosingEventHandler(onClose);
             frm.Show();
         }
 
-        //Upon closing Form 2, should update the location that MayDayButton is on your screen
         private void onClose(object sender, FormClosingEventArgs e)
         {
-            if(ps.Default.ShouldUpdate)
-                 MD.UpdateEXE();
-
-            if (ps.Default.HighDPI)
-                Y = nY;
-
-            X = ps.Default.X;
-
-            this.AutoScaleDimensions = new Size(96, 96);
-            this.Location = new Point(X, Y);
+            //this.AutoScaleDimensions = new Size(96, 96);
+            //this.Location = new Point(X, Y);
         }
 
         //TODO Clean this mess up
-        #region Handler and background worker for TCP Commands
+#region Handler and background worker for TCP Commands
         public string Command;
         private void backgroundWorker2_DoWork(object sender, DoWorkEventArgs e)
         { 
@@ -290,10 +340,10 @@ namespace MayDayButton
             //label1.Text = Message;
             //BalloonNotification("MayDayButton", Message);
         }
-        #endregion
+#endregion
 
 
-        #region Log and messaging functions
+#region Log and messaging functions
         //Appends time and event to prove bitches wrong
         public void AppendLog(string Text)
         {
@@ -509,11 +559,11 @@ namespace MayDayButton
             }
             BalloonNotification(Message);
         }
-        #endregion
+#endregion
 
         //Allows the form to be dragged to anywhere without having to go into options
         //Still allows the form to be clicked to be seen
-        #region Mouse Controls
+#region Mouse Controls
         public const int WM_NCLBUTTONDOWN = 0xA1;
         public const int HT_CAPTION = 0x2;
 
@@ -554,14 +604,14 @@ namespace MayDayButton
                 this.Location = new Point(ps.Default.X, Y);
             backgroundWorker1.RunWorkerAsync();
         }
-        #endregion
+#endregion
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             //AppendLog("I did done did get closeded :(");
         }
 
-        #region System Checks related to Power, HDD, and the like
+#region System Checks related to Power, HDD, and the like
         bool isPluggedIn = true;
         private void backgroundWorker3_DoWork(object sender, DoWorkEventArgs e)
         {
@@ -573,23 +623,38 @@ namespace MayDayButton
             MD.Checks();
             backgroundWorker3.RunWorkerAsync();
         }
+
         private void backgroundWorker4_DoWork(object sender, DoWorkEventArgs e)
         {
-            Thread.Sleep(1000);
+            Thread.Sleep(30000);
         }
         private void backgroundWorker4_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             PowerLineStatus status = SystemInformation.PowerStatus.PowerLineStatus;
-            if (status == PowerLineStatus.Offline && isPluggedIn)
+            if (status == PowerLineStatus.Offline)
             {
-                isPluggedIn = false;
                 BalloonNotification("Why am I unplugged? Do you want me to die?", "What a sad day");
-                Thread.Sleep(3000000);
             }
-            else
-                isPluggedIn = true;
             backgroundWorker4.RunWorkerAsync();
         }
         #endregion
+
+        private void Form1_Shown(object sender, EventArgs e)
+        {
+            if (!ps.Default.HighDPI)
+            {
+                Label_Height = label1.Height;
+                Console.WriteLine(Label_Height);
+                int Y = ps.Default.HighDPI ? ps.Default.Y_Adjustment : ps.Default.Y_Norm;
+                int MinY = (this.Height * -1) + Label_Height;
+                Console.WriteLine(MinY);
+                if (Y <= MinY)
+                {
+                    ps.Default.Y_Norm = MinY;
+                }
+                ps.Default.Save();
+                Console.WriteLine(ps.Default.Y_Norm);
+            }
+        }
     }
 }

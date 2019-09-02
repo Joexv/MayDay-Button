@@ -35,7 +35,7 @@ namespace MayDayButton
             SendData("UPDATE", "192.168.1.161");
         }
 
-        private void SendData(string Input, string IP)
+        public void SendData(string Input, string IP)
         {
             try
             {
@@ -186,6 +186,53 @@ namespace MayDayButton
         private void button16_Click_1(object sender, EventArgs e)
         {
            logView.Text = MD.DisplayUpNetworkConnectionsInfo();
+        }
+
+        private void button18_Click(object sender, EventArgs e)
+        {
+            MD.RestoreConnection();
+           if(File.Exists(ServerLocation + "LicenseTerms.txt"))
+            {
+                logView.Text = File.ReadAllText(ServerLocation + "LicenseTerms.txt");
+            }
+            else
+            {
+                MessageBox.Show("License terms missing! Please verify the server location is correct!");
+            }
+        }
+
+        private void yAdj_ValueChanged(object sender, EventArgs e)
+        {
+            ps.Default.Y_Adjustment = (Int32)yAdj.Value;
+            ps.Default.Save();
+        }
+
+        private void yPos_ValueChanged(object sender, EventArgs e)
+        {
+            ps.Default.Y_Norm = (Int32)yPos.Value;
+            ps.Default.Save();
+        }
+
+        private void highDPI_CheckedChanged(object sender, EventArgs e)
+        {
+            ps.Default.HighDPI = highDPI.Checked;
+            ps.Default.Save();
+        }
+
+        private void aAdmin_CheckedChanged(object sender, EventArgs e)
+        {
+            ps.Default.AdminStart = aAdmin.Checked;
+            ps.Default.Save();
+        }
+
+        private void button20_Click(object sender, EventArgs e)
+        {
+            MD.exportSettings(ServerLocation + "\\Settings.Config");
+        }
+
+        private void button19_Click(object sender, EventArgs e)
+        {
+            MD.importSettings();
         }
     }
 }

@@ -16,10 +16,12 @@ using System.Threading;
 using Microsoft.Win32;
 using System.Media;
 using System.Security.Principal;
+using IWshRuntimeLibrary;
 
 
 namespace MayDayButton
 {
+    using File = System.IO.File;
     using ps = Properties.Settings;
     public class MD_Core
     {
@@ -72,10 +74,7 @@ namespace MayDayButton
                 AuthRequest authRequest = new AuthRequest(selectedAP);
                 selectedAP.ConnectAsync(authRequest);
             }
-            catch (Exception e) {
-                var frm1 = new Form1();
-                frm1.AppendLog(e.ToString());
-            }
+            catch{}
         }
 
         public string GetLocalIPAddress()
@@ -173,23 +172,27 @@ namespace MayDayButton
 
         public void AdapterReset()
         {
-            var frm1 = new Form1();
-            frm1.AppendLog("Adapter Reset");
-            if (Interface != "")
+            try
             {
-                cmd("netsh interface set interface\"" + Interface + "\" disable", true, true);
-                cmd("netsh interface set interface\"" + Interface + "\" enable", true, true);
-            }
-            else
-            {
-                SelectQuery wmiQuery = new SelectQuery("SELECT * FROM Win32_NetworkAdapter WHERE NetConnectionId != NULL");
-                ManagementObjectSearcher searchProcedure = new ManagementObjectSearcher(wmiQuery);
-                foreach (ManagementObject item in searchProcedure.Get())
+                var frm1 = new Form1();
+                frm1.AppendLog("Adapter Reset");
+                if (Interface != "")
                 {
-                    frm1.NotiMsg((string)item["NetConnectionId"]);
-                    cmd("netsh interface set interface \"" + (string)item["NetConnectionId"] + "\" disable & netsh interface set interface \"" + (string)item["NetConnectionId"] + "\" enable", true, true);
+                    cmd("netsh interface set interface\"" + Interface + "\" disable", true, true);
+                    cmd("netsh interface set interface\"" + Interface + "\" enable", true, true);
+                }
+                else
+                {
+                    SelectQuery wmiQuery = new SelectQuery("SELECT * FROM Win32_NetworkAdapter WHERE NetConnectionId != NULL");
+                    ManagementObjectSearcher searchProcedure = new ManagementObjectSearcher(wmiQuery);
+                    foreach (ManagementObject item in searchProcedure.Get())
+                    {
+                        frm1.NotiMsg((string)item["NetConnectionId"]);
+                        cmd("netsh interface set interface \"" + (string)item["NetConnectionId"] + "\" disable & netsh interface set interface \"" + (string)item["NetConnectionId"] + "\" enable", true, true);
+                    }
                 }
             }
+            catch(Exception ex) { Console.WriteLine(ex.ToString()); }
         }
 
         public bool Ping(string IP)
@@ -261,6 +264,33 @@ namespace MayDayButton
         #endregion WebMD
 
         #region SystemMD
+        public void AddShortcut()
+        {
+            try
+            {
+                string pathToExe = @"C:\MayDayButton\MayDayButton.exe";
+                string commonStartMenuPath = Environment.GetFolderPath(Environment.SpecialFolder.CommonStartMenu);
+                string appStartMenuPath = Path.Combine(commonStartMenuPath, "Programs", "MayDayButton");
+
+                if (!Directory.Exists(appStartMenuPath))
+                    Directory.CreateDirectory(appStartMenuPath);
+
+                string shortcutLocation = Path.Combine(appStartMenuPath, "MayDayButton" + ".lnk");
+                if (!File.Exists(shortcutLocation))
+                {
+                    WshShell shell = new WshShell();
+                    IWshShortcut shortcut = (IWshShortcut)shell.CreateShortcut(shortcutLocation);
+
+                    shortcut.Description = "MayDayButton Shortcut";
+                    shortcut.IconLocation = Form1.ServerLocation + "MayDay.ico";
+                    shortcut.TargetPath = pathToExe;
+                    shortcut.Save();
+                }
+            }
+            catch { //If this failed it most likely just needs admin rights
+            }
+        }
+
         public bool IsAdministrator =>
             new WindowsPrincipal(WindowsIdentity.GetCurrent())
               .IsInRole(WindowsBuiltInRole.Administrator);
@@ -303,50 +333,54 @@ namespace MayDayButton
         //Should in the future add more checks just for safety
         public void Checks()
         {
-            var frm1 = new Form1();
-            //Checks for new update, in a try catch in case Windows is a bitch and doesn't allow access to the network drive
             try
             {
-                RestoreConnection();
-                var versionInfo = FileVersionInfo.GetVersionInfo(Form1.ServerLocation + "MayDayButton.exe");
-                string version = versionInfo.ProductVersion.Replace(".", "");
-                if (Int32.Parse(version) > Int32.Parse(Application.ProductVersion.Replace(".", "")))
-                    UpdateEXE();
+                var frm1 = new Form1();
+                //Checks for new update, in a try catch in case Windows is a bitch and doesn't allow access to the network drive
+                try
+                {
+                    RestoreConnection();
+                    var versionInfo = FileVersionInfo.GetVersionInfo(Form1.ServerLocation + "MayDayButton.exe");
+                    string version = versionInfo.ProductVersion.Replace(".", "");
+                    if (Int32.Parse(version) > Int32.Parse(Application.ProductVersion.Replace(".", "")))
+                        UpdateEXE();
+                }
+                catch { }
+
+                PowerLineStatus status = SystemInformation.PowerStatus.PowerLineStatus;
+
+                string Result = "";
+                //Check Battery %
+                PowerStatus p = SystemInformation.PowerStatus;
+                int a = (int)(p.BatteryLifePercent * 100);
+                if (a == 25 || a == 15 || a == 5)
+                    Result += String.Format("Power is {0}, charger needs to be checked.\n", a);
+
+                string temp = Program.CheckHealth();
+                if (temp != "")
+                    Result += temp + "\n";
+
+                if (Result != "")
+                    frm1.sendMessage(frm1.GetEmail[2], Result);
+
+
+                if (a < 25 && status == PowerLineStatus.Offline)
+                {
+                    wakeScreen();
+                    SystemSounds.Beep.Play();
+                    Thread.Sleep(500);
+                    SystemSounds.Beep.Play();
+                    Thread.Sleep(500);
+                    SystemSounds.Beep.Play();
+                    Thread.Sleep(500);
+                    SystemSounds.Beep.Play();
+                    Thread.Sleep(500);
+                    SystemSounds.Beep.Play();
+                    Thread.Sleep(500);
+                    MessageBox.Show("YOUR BATTERY IS STARTING TO GET LOW AND THE DEVICE NEEDS TO BE PLUGGED IN. IF YOU UNPLUGGED THE DEVICE ON PURPOSE STOP!! YOU DO NOT NEED TO BE UNPLUGGING THE DEVICE!!", "BATTERY LOW");
+                }
             }
             catch { }
-
-            PowerLineStatus status = SystemInformation.PowerStatus.PowerLineStatus;
-
-            string Result = "";
-            //Check Battery %
-            PowerStatus p = SystemInformation.PowerStatus;
-            int a = (int)(p.BatteryLifePercent * 100);
-            if (a == 25 || a == 15 || a == 5)
-                Result += String.Format("Power is {0}, charger needs to be checked.\n", a);
-
-            string temp = Program.CheckHealth();
-            if (temp != "")
-                Result += temp + "\n";
-
-            if (Result != "")
-                frm1.sendMessage(frm1.GetEmail[2], Result);
-
-
-            if (a < 25 && status == PowerLineStatus.Offline)
-            {
-                wakeScreen();
-                SystemSounds.Beep.Play();
-                Thread.Sleep(500);
-                SystemSounds.Beep.Play();
-                Thread.Sleep(500);
-                SystemSounds.Beep.Play();
-                Thread.Sleep(500);
-                SystemSounds.Beep.Play();
-                Thread.Sleep(500);
-                SystemSounds.Beep.Play();
-                Thread.Sleep(500);
-                MessageBox.Show("YOUR BATTERY IS STARTING TO GET LOW AND THE DEVICE NEEDS TO BE PLUGGED IN. IF YOU UNPLUGGED THE DEVICE ON PURPOSE STOP!! YOU DO NOT NEED TO BE UNPLUGGING THE DEVICE!!", "BATTERY LOW");
-            }
         }
 
 
@@ -706,10 +740,10 @@ namespace MayDayButton
             rk.DeleteValue("MayDayButton");
         }
 
-        public void exportSettings()
+        public void exportSettings(string FileLocation = "Settings.Config")
         {
-            File.Delete("Settings.Config");
-            using (StreamWriter sw = File.CreateText("Settings.Config"))
+            File.Delete(FileLocation);
+            using (StreamWriter sw = File.CreateText(FileLocation))
             {
                 sw.WriteLine(ps.Default.X);
                 sw.WriteLine(ps.Default.Y_Adjustment);
@@ -744,15 +778,26 @@ namespace MayDayButton
         //This is gross and I hate it
         string vFalse = @"\\192.168.1.210\Server\MaydayButton\TechVacation[FALSE].txt";
         string vTrue = @"\\192.168.1.210\Server\MaydayButton\TechVacation[TRUE].txt";
-        public void setVayCay()
+        public void setVayCay(bool ForceSet = false)
         {
-            if (File.Exists(vFalse))
-                File.Move(vFalse, vTrue);
-            else if (File.Exists(vTrue))
-                File.Move(vTrue, vFalse);
+            if (ForceSet)
+            {
+                if (File.Exists(vFalse))
+                    File.Move(vFalse, vTrue);
+                else if (!File.Exists(vTrue))
+                    using (StreamWriter sw = File.CreateText(vTrue))
+                        sw.WriteLine("");
+            }
             else
-                using (StreamWriter sw = File.CreateText(vFalse))
-                    sw.WriteLine("");
+            {
+                if (File.Exists(vFalse))
+                    File.Move(vFalse, vTrue);
+                else if (File.Exists(vTrue))
+                    File.Move(vTrue, vFalse);
+                else
+                    using (StreamWriter sw = File.CreateText(vFalse))
+                        sw.WriteLine("");
+            }
         }
         #endregion SystemMD
 
@@ -793,6 +838,20 @@ namespace MayDayButton
                 Process.Start(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\FlowhubPos\Update.exe --processStart Flowhub.exe");
             else
                 MessageBox.Show("Error, did not locate Flowhub! Please start it manually!");
+        }
+
+        public void cleanInternetTemp()
+        {
+            try
+            {
+                string path = Environment.GetFolderPath(Environment.SpecialFolder.InternetCache);
+                DirectoryInfo di = new DirectoryInfo(path);
+                foreach (FileInfo file in di.GetFiles())
+                    file.Delete();
+                foreach (DirectoryInfo dir in di.GetDirectories())
+                    dir.Delete(true);
+            }
+            catch { }
         }
         #endregion PosMD
     }

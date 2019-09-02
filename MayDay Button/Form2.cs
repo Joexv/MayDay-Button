@@ -5,9 +5,11 @@ using System.Windows.Forms;
 using System.Security.Principal;
 using System.Threading;
 using SHDocVw;
+using System.Linq;
 
 namespace MayDayButton
 {
+    using ps = Properties.Settings;
     public partial class Form2 : Form
     {
         public Form2()
@@ -16,11 +18,16 @@ namespace MayDayButton
         }
 
         const string Password = "password";
+        public int Label_Height { get; set; }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            Properties.Settings.Default.X = (Int32)numericUpDown1.Value;
-            Properties.Settings.Default.Save();
+            if (ps.Default.HighDPI)
+                ps.Default.Y_Adjustment = (Int32)numericUpDown2.Value;
+            else
+                ps.Default.Y_Norm = (Int32)numericUpDown2.Value;
+            ps.Default.X = (Int32)numericUpDown1.Value;
+            ps.Default.Save();
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -31,14 +38,34 @@ namespace MayDayButton
 
         private void Form2_Load(object sender, EventArgs e)
         {
+            Form1 frm1 = new Form1();
             Decimal x = (decimal)Properties.Settings.Default.X;
             if (x < 0) x = 0;
             int MaxX = Screen.PrimaryScreen.WorkingArea.Width;
-            if (x >= MaxX) x = MaxX - this.Width;
+            if (x >= MaxX) x = MaxX - frm1.Width;
             numericUpDown1.Value = x;
-            numericUpDown1.Maximum = MaxX - this.Width;
+            numericUpDown1.Maximum = MaxX - frm1.Width;
             numericUpDown1.Minimum = 0;
             checkBox1.Checked = Properties.Settings.Default.HighDPI;
+
+            if (!ps.Default.HighDPI)
+            {
+                numericUpDown2.Value = ps.Default.Y_Norm;
+
+                int MinY = (frm1.Height * -1) + Label_Height;
+                Console.WriteLine(MinY + 25);
+                Console.WriteLine(frm1.Height * -1);
+                numericUpDown2.Maximum = MinY + 25;
+                numericUpDown2.Minimum = (frm1.Height * -1);
+            }
+            else
+            {
+                numericUpDown2.Maximum = 999;
+                numericUpDown2.Minimum = -999;
+                numericUpDown2.Value = ps.Default.Y_Adjustment;
+            }
+
+
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -74,11 +101,11 @@ namespace MayDayButton
                 AutoScaleMode = AutoScaleMode.Dpi,
                 AutoSize = true
             };
-            Label textLabel = new Label() { Left = 50, Top = 20, Text = text };
+            Label textLabel = new Label() { Left = 15, Top = 20, Text = text };
             textLabel.AutoSize = true;
-            TextBox textBox = new TextBox() { Left = 50, Top = 60, Width = 400 };
+            TextBox textBox = new TextBox() { Left = 15, Top = 60, Width = 375 };
             textBox.UseSystemPasswordChar = true;
-            Button confirmation = new Button() { Text = "Ok", Left = 350, Width = 100, Top = 90, DialogResult = DialogResult.OK };
+            Button confirmation = new Button() { Text = "Ok", Left = 315, Width = 100, Top = 90, DialogResult = DialogResult.OK };
             confirmation.Click += (sender, e) => { prompt.Close(); };
             prompt.Controls.Add(textBox);
             prompt.Controls.Add(confirmation);
@@ -90,14 +117,14 @@ namespace MayDayButton
 
         private void button4_Click(object sender, EventArgs e)
         {
-            Properties.Settings.Default.ShouldUpdate = true;
-            Properties.Settings.Default.Save();
+            ps.Default.ShouldUpdate = true;
+            ps.Default.Save();
         }
 
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
-            Properties.Settings.Default.HighDPI = checkBox1.Checked;
-            Properties.Settings.Default.Save();
+            ps.Default.HighDPI = checkBox1.Checked;
+            ps.Default.Save();
         }
 
         private void button5_Click(object sender, EventArgs e)
@@ -134,17 +161,43 @@ namespace MayDayButton
 
         private void button7_Click(object sender, EventArgs e)
         {
-            //AppendLog("Someone tried to open the admin panel");
-            string promptValue = ShowDialog("Warning!", "The Admin Panel has a lot of things that can potentially break the register, only use it if you know what you're doing!");
-            if (promptValue == Password)
+            Form3 frm = new Form3();
+            string promptValue = ShowDialog("Warning!", "The Admin Panel has a lot of things that can potentially break the register, only use it if you know what you're doing!\nEnter the password to gain complete access or simply press OK to view licensing information.");
+            if (promptValue != Password)
             {
-                Form3 frm = new Form3();
-                frm.Show();
-                this.Close();
+                //Disable Buttons in the admin panel if password is incorrect
+                foreach (var button in frm.Controls.OfType<Button>().Where(a => a.Text != "License Information"))
+                    button.Enabled = false;
+
+                foreach (var gp in frm.Controls.OfType<GroupBox>())
+                    gp.Enabled = false;
             }
+
+            frm.Show();
+            this.Close();
         }
 
         private void numericUpDown1_ValueChanged(object sender, EventArgs e)
+        {
+            ps.Default.X = (Int32)numericUpDown1.Value;
+            ps.Default.Save();
+        }
+
+        private void numericUpDown2_ValueChanged(object sender, EventArgs e)
+        {
+            if (ps.Default.HighDPI)
+            {
+                ps.Default.Y_Adjustment = (Int32)numericUpDown2.Value;
+                ps.Default.Save();
+            }
+            else
+            {
+                ps.Default.Y_Norm = (Int32)numericUpDown2.Value;
+                ps.Default.Save();
+            }
+        }
+
+        private void Form2_FormClosing(object sender, FormClosingEventArgs e)
         {
 
         }

@@ -59,6 +59,9 @@
             this.button15 = new System.Windows.Forms.Button();
             this.button17 = new System.Windows.Forms.Button();
             this.button16 = new System.Windows.Forms.Button();
+            this.button18 = new System.Windows.Forms.Button();
+            this.button19 = new System.Windows.Forms.Button();
+            this.button20 = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.yPos)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.cTimes)).BeginInit();
@@ -145,6 +148,7 @@
             this.yPos.Name = "yPos";
             this.yPos.Size = new System.Drawing.Size(95, 20);
             this.yPos.TabIndex = 11;
+            this.yPos.ValueChanged += new System.EventHandler(this.yPos_ValueChanged);
             // 
             // sUpdate
             // 
@@ -198,6 +202,7 @@
             this.yAdj.Name = "yAdj";
             this.yAdj.Size = new System.Drawing.Size(95, 20);
             this.yAdj.TabIndex = 6;
+            this.yAdj.ValueChanged += new System.EventHandler(this.yAdj_ValueChanged);
             // 
             // highDPI
             // 
@@ -209,6 +214,7 @@
             this.highDPI.TabIndex = 5;
             this.highDPI.Text = "High DPI";
             this.highDPI.UseVisualStyleBackColor = true;
+            this.highDPI.CheckedChanged += new System.EventHandler(this.highDPI_CheckedChanged);
             // 
             // label2
             // 
@@ -236,6 +242,7 @@
             this.aAdmin.TabIndex = 3;
             this.aAdmin.Text = "Start As Admin";
             this.aAdmin.UseVisualStyleBackColor = true;
+            this.aAdmin.CheckedChanged += new System.EventHandler(this.aAdmin_CheckedChanged);
             // 
             // button1
             // 
@@ -383,11 +390,11 @@
             this.button12.FlatAppearance.BorderSize = 0;
             this.button12.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button12.ForeColor = System.Drawing.Color.White;
-            this.button12.Location = new System.Drawing.Point(145, 545);
+            this.button12.Location = new System.Drawing.Point(142, 591);
             this.button12.Name = "button12";
             this.button12.Size = new System.Drawing.Size(127, 40);
             this.button12.TabIndex = 13;
-            this.button12.Text = "Import Settings";
+            this.button12.Text = "Import Settings From Server";
             this.button12.UseVisualStyleBackColor = false;
             this.button12.Click += new System.EventHandler(this.button12_Click);
             // 
@@ -397,7 +404,7 @@
             this.button13.FlatAppearance.BorderSize = 0;
             this.button13.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button13.ForeColor = System.Drawing.Color.White;
-            this.button13.Location = new System.Drawing.Point(77, 591);
+            this.button13.Location = new System.Drawing.Point(145, 474);
             this.button13.Name = "button13";
             this.button13.Size = new System.Drawing.Size(127, 40);
             this.button13.TabIndex = 14;
@@ -461,12 +468,57 @@
             this.button16.UseVisualStyleBackColor = false;
             this.button16.Click += new System.EventHandler(this.button16_Click_1);
             // 
+            // button18
+            // 
+            this.button18.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(67)))), ((int)(((byte)(170)))), ((int)(((byte)(139)))));
+            this.button18.FlatAppearance.BorderSize = 0;
+            this.button18.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button18.ForeColor = System.Drawing.Color.White;
+            this.button18.Location = new System.Drawing.Point(427, 12);
+            this.button18.Name = "button18";
+            this.button18.Size = new System.Drawing.Size(201, 23);
+            this.button18.TabIndex = 20;
+            this.button18.Text = "License Information";
+            this.button18.UseVisualStyleBackColor = false;
+            this.button18.Click += new System.EventHandler(this.button18_Click);
+            // 
+            // button19
+            // 
+            this.button19.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(67)))), ((int)(((byte)(170)))), ((int)(((byte)(139)))));
+            this.button19.FlatAppearance.BorderSize = 0;
+            this.button19.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button19.ForeColor = System.Drawing.Color.White;
+            this.button19.Location = new System.Drawing.Point(9, 591);
+            this.button19.Name = "button19";
+            this.button19.Size = new System.Drawing.Size(127, 40);
+            this.button19.TabIndex = 21;
+            this.button19.Text = "Import Settings";
+            this.button19.UseVisualStyleBackColor = false;
+            this.button19.Click += new System.EventHandler(this.button19_Click);
+            // 
+            // button20
+            // 
+            this.button20.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(67)))), ((int)(((byte)(170)))), ((int)(((byte)(139)))));
+            this.button20.FlatAppearance.BorderSize = 0;
+            this.button20.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button20.ForeColor = System.Drawing.Color.White;
+            this.button20.Location = new System.Drawing.Point(142, 545);
+            this.button20.Name = "button20";
+            this.button20.Size = new System.Drawing.Size(127, 40);
+            this.button20.TabIndex = 22;
+            this.button20.Text = "Export Settings To Server";
+            this.button20.UseVisualStyleBackColor = false;
+            this.button20.Click += new System.EventHandler(this.button20_Click);
+            // 
             // Form3
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(61)))), ((int)(((byte)(72)))), ((int)(((byte)(85)))));
             this.ClientSize = new System.Drawing.Size(634, 646);
+            this.Controls.Add(this.button20);
+            this.Controls.Add(this.button19);
+            this.Controls.Add(this.button18);
             this.Controls.Add(this.button16);
             this.Controls.Add(this.button17);
             this.Controls.Add(this.button15);
@@ -535,5 +587,8 @@
         private System.Windows.Forms.Button button15;
         private System.Windows.Forms.Button button17;
         private System.Windows.Forms.Button button16;
+        private System.Windows.Forms.Button button18;
+        private System.Windows.Forms.Button button19;
+        private System.Windows.Forms.Button button20;
     }
 }

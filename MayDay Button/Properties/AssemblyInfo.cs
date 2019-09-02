@@ -8,10 +8,10 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("MayDayButton")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Alt Apps Unlimited")]
 [assembly: AssemblyProduct("MayDayButton")]
-[assembly: AssemblyCopyright("Copyright ©  2019")]
-[assembly: AssemblyTrademark("")]
+[assembly: AssemblyCopyright("Copyright © 2019 Joseph Oliveira")]
+[assembly: AssemblyTrademark("Joseph Oliveira")]
 [assembly: AssemblyCulture("")]
 
 // Setting ComVisible to false makes the types in this assembly not visible
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.5.0.3")]
-[assembly: AssemblyFileVersion("1.5.0.3")]
+[assembly: AssemblyVersion("1.5.4.1")]
+[assembly: AssemblyFileVersion("1.5.4.1")]

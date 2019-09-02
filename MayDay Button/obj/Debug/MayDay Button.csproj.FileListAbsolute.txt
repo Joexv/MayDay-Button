@@ -12,21 +12,24 @@ C:\Users\Joe\source\repos\MayDay Button\MayDay Button\obj\Debug\MayDayButton.pdb
 C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\bin\Debug\MayDayButton.exe.config
 C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\bin\Debug\MayDayButton.exe
 C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\bin\Debug\MayDayButton.pdb
-C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Debug\MayDayButton.Form1.resources
-C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Debug\MayDayButton.Form2.resources
-C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Debug\MayDayButton.Properties.Resources.resources
-C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Debug\MayDay Button.csproj.GenerateResource.cache
-C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Debug\MayDay Button.csproj.CoreCompileInputs.cache
-C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Debug\MayDayButton.exe
-C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Debug\MayDayButton.pdb
-C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Debug\MayDay Button.csprojAssemblyReference.cache
-C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Debug\Interop.SHDocVw.dll
-C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Debug\MayDay Button.csproj.ResolveComReference.cache
-C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Debug\MayDayButton.Form3.resources
 C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\bin\Debug\Windows.WinMD
 C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\bin\Debug\Microsoft.WindowsAPICodePack.xml
-C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Debug\MayDay Button.csproj.Fody.CopyLocal.cache
-C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Debug\MayDay Button.csproj.CopyComplete
 C:\MayDayButton\MayDayButton.exe.config
 C:\MayDayButton\MayDayButton.exe
 C:\MayDayButton\MayDayButton.pdb
+C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Debug\Interop.IWshRuntimeLibrary.dll
+C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Debug\Interop.SHDocVw.dll
+C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Debug\MayDay Button.csproj.ResolveComReference.cache
+C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Debug\MayDayButton.Form1.resources
+C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Debug\MayDayButton.Form2.resources
+C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Debug\MayDayButton.Form3.resources
+C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Debug\MayDayButton.Properties.Resources.resources
+C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Debug\MayDay Button.csproj.GenerateResource.cache
+C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Debug\MayDay Button.csproj.CoreCompileInputs.cache
+Z:\MaydayButton\MayDayButton.exe.config
+Z:\MaydayButton\MayDayButton.exe
+Z:\MaydayButton\MayDayButton.pdb
+C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Debug\MayDay Button.csproj.Fody.CopyLocal.cache
+C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Debug\MayDay Button.csproj.CopyComplete
+C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Debug\MayDayButton.exe
+C:\Users\Joe\source\repos\MayDay Button\MayDay-Button\MayDay Button\obj\Debug\MayDayButton.pdb
