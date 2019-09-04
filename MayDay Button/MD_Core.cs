@@ -1,23 +1,27 @@
-﻿using System;
+﻿using IWshRuntimeLibrary;
+using Microsoft.Win32;
+using SimpleWifi;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
-using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
-using System.Windows.Forms;
-using System.Management;
-using System.Net.NetworkInformation;
-using SimpleWifi;
+using System.Drawing.Printing;
 using System.IO;
-using System.Runtime.InteropServices;
-using System.Threading;
-using Microsoft.Win32;
+using System.Linq;
+using System.Management;
 using System.Media;
+using System.Net;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
+using System.Printing;
+using System.Runtime.InteropServices;
 using System.Security.Principal;
-using IWshRuntimeLibrary;
-
+using System.Text;
+using System.Threading;
+using System.Windows.Forms;
+using Zebra.Sdk.Comm;
+using Zebra.Sdk.Printer.Discovery;
+using Zebra.Sdk.Printer;
 
 namespace MayDayButton
 {
@@ -178,11 +182,12 @@ namespace MayDayButton
                 frm1.AppendLog("Adapter Reset");
                 if (Interface != "")
                 {
-                    cmd("netsh interface set interface\"" + Interface + "\" disable", true, true);
-                    cmd("netsh interface set interface\"" + Interface + "\" enable", true, true);
+                    //Disable and disable specified adapter
+                    cmd("netsh interface set interface\"" + Interface + "\" disable & netsh interface set interface\"" + Interface + "\" enable", true, true);
                 }
                 else
                 {
+                    //Disable and enable all network adapters found through Win32_NetworkAdapter
                     SelectQuery wmiQuery = new SelectQuery("SELECT * FROM Win32_NetworkAdapter WHERE NetConnectionId != NULL");
                     ManagementObjectSearcher searchProcedure = new ManagementObjectSearcher(wmiQuery);
                     foreach (ManagementObject item in searchProcedure.Get())
@@ -205,7 +210,7 @@ namespace MayDayButton
                 PingReply reply = pinger.Send(IP);
                 pingable = reply.Status == IPStatus.Success;
             }
-            catch { }
+            catch { Console.WriteLine("Encountered an error while trying to ping your site"); }
             finally { if (pinger != null) { pinger.Dispose(); } }
 
             return pingable;
@@ -287,7 +292,8 @@ namespace MayDayButton
                     shortcut.Save();
                 }
             }
-            catch { //If this failed it most likely just needs admin rights
+            catch {
+                Console.WriteLine("Failed to create StartMenu shortcut. Most likely just needs admin rights.");
             }
         }
 
@@ -802,7 +808,7 @@ namespace MayDayButton
         #endregion SystemMD
 
         #region POSMD
-        public void FixPrinters()
+        public bool FixPrinters()
         {
             var frm1 = new Form1();
             bool wasOutofPaper = false;
@@ -814,10 +820,8 @@ namespace MayDayButton
             cmd(@"net stop spooler & " +
                 @"del /Q /F /S %systemroot%\System32\spool\printers\*.* & " +
                 "net start spooler", false, true);
-            if (wasOutofPaper)
-                MessageBox.Show("It looks like your printer is either out of paper or was out of paper recently. Please double check your paper before proceeding. If you still cannot print from Flowhub, switch to a different transaction then switch back and try to print again. This is a bug in Flowhub.");
-            else
-                MessageBox.Show("Try it now. If issues persist, disconnect your printer for 20 seconds and reconnect it!");
+
+            return wasOutofPaper;
         }
 
         public void CloseAdobe()
@@ -853,6 +857,250 @@ namespace MayDayButton
             }
             catch { }
         }
+
+
+        //Trying out various Printer query methods, seeing which work best for our usecase.
+        public string listPrintQueues()
+        {
+            string results = "";
+            // Specify that the list will contain only the print queues that are installed as local and are shared
+            EnumeratedPrintQueueTypes[] enumerationFlags = {EnumeratedPrintQueueTypes.Local,
+                                                EnumeratedPrintQueueTypes.Shared};
+
+            LocalPrintServer printServer = new LocalPrintServer();
+
+            //Use the enumerationFlags to filter out unwanted print queues
+            PrintQueueCollection printQueuesOnLocalServer = printServer.GetPrintQueues(enumerationFlags);
+
+            Console.WriteLine("These are your shared, local print queues:\n\n");
+
+            foreach (PrintQueue printer in printQueuesOnLocalServer)
+            {
+                results += "\tThe shared printer " + printer.Name + " is located at " + printer.Location + "\n";
+            }
+            return results;
+        }
+
+        public void deletePrinters()
+        {
+            var printerQuery = new ManagementObjectSearcher("SELECT * from Win32_Printer");
+            foreach (var printer in printerQuery.Get())
+            {
+                var name = printer.GetPropertyValue("Name");
+                cmd("printui.exe /q /dl /n " + name, true, true);
+            }
+        }
+
+        public string listPrinters()
+        {
+            string results = "";
+            var printerQuery = new ManagementObjectSearcher("SELECT * from Win32_Printer");
+            foreach (var printer in printerQuery.Get())
+            {
+                var name = printer.GetPropertyValue("Name");
+                var status = printer.GetPropertyValue("Status");
+                var isDefault = printer.GetPropertyValue("Default");
+                var isNetworkPrinter = printer.GetPropertyValue("Network");
+                var availability = printer.GetPropertyValue("Availability");
+                var extStatus = printer.GetPropertyValue("ExtendedPrinterStatus");
+                var errorState = printerError(printer);
+                results += String.Format("{0} (Status: {1}, Default: {2}, ErrorState: {3})\n------------------------------\n",
+                            name, status, isDefault, errorState);
+            }
+            return results;
+        }
+
+        public string zebraStatuses()
+        {
+            string results = "";
+            foreach (DiscoveredUsbPrinter p in UsbDiscoverer.GetZebraUsbPrinters())
+            {
+                Connection connection = new UsbConnection(p.ToString());
+                connection.Open();
+                ZebraPrinter printer = ZebraPrinterFactory.GetInstance(connection);
+                PrinterStatus printerStatus = printer.GetCurrentStatus();
+                if (!printerStatus.isReadyToPrint)
+                {
+                    if (printerStatus.isPaused)
+                    {
+                        results += "Cannot print, printer is paused.";
+                    }
+                    else if (printerStatus.isHeadOpen)
+                    {
+                        results += "Cannot print, printer head is open. Make sure the top lid of the printer is fully secured. If it is make sure that the light is a solid green. If it's flashing green please press the arrow button next to the light.";
+                    }
+                    else if (printerStatus.isPaperOut)
+                    {
+                        results += "Cannot print, no paper. Please refill the paper roll.";
+                    }
+                    else
+                    {
+                        results += "Cannot print, unknown error. Contact your technician for more help.";
+                    }
+                    results += "\n------------------------\n";
+                }
+                Console.WriteLine(results);
+                //MessageBox.Show("Errors found for the Zebra Printers!\n\n" + results);
+            }
+            return results;
+        }
+
+        public string printerError(ManagementBaseObject printer)
+        {
+            switch (printer.GetPropertyValue("DetectedErrorState")){
+                default:
+                    return "Unkown";
+                case 1:
+                    return "Other";
+                case 2:
+                    return "No Error";
+                case 3:
+                    return "Low Paper";
+                case 4:
+                    return "No Paper";
+                case 5:
+                    return "Low Toner";
+                case 6:
+                    return "No Toner";
+                case 7:
+                    return "Door Open";
+                case 8:
+                    return "Jammed";
+                case 9:
+                    return "Offline";
+                case 10:
+                    return "Service Requested";
+                case 11:
+                    return "Output Bin Full";
+            }
+        }
+
+        public void testPrinter()
+        {
+            string s = "^XA^LH30,30\n^FO20,10^ADN,90,50^AD^FDTesting!^FS\n^XZ";
+            PrintDialog pd = new PrintDialog();
+            pd.PrinterSettings = new PrinterSettings();
+            if (DialogResult.OK == pd.ShowDialog())
+            {
+                RawPrinterHelper.SendStringToPrinter(pd.PrinterSettings.PrinterName, s);
+            }
+        }
         #endregion PosMD
+    }
+
+    //Found on StackOverflow, no links cause i was stupid and didnt bookmark it.
+    //Main usecase is to print properly formatted Zebra instructions to my label printers.
+    //Also seems to work for other printers so that's a plus.
+    public static class RawPrinterHelper
+    {
+        // Structure and API declarions:
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
+        public class DOCINFOA
+        {
+            [MarshalAs(UnmanagedType.LPStr)] public string pDocName;
+            [MarshalAs(UnmanagedType.LPStr)] public string pOutputFile;
+            [MarshalAs(UnmanagedType.LPStr)] public string pDataType;
+        }
+        [DllImport("winspool.Drv", EntryPoint = "OpenPrinterA", SetLastError = true, CharSet = CharSet.Ansi, ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
+        public static extern bool OpenPrinter([MarshalAs(UnmanagedType.LPStr)] string szPrinter, out IntPtr hPrinter, IntPtr pd);
+
+        [DllImport("winspool.Drv", EntryPoint = "ClosePrinter", SetLastError = true, ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
+        public static extern bool ClosePrinter(IntPtr hPrinter);
+
+        [DllImport("winspool.Drv", EntryPoint = "StartDocPrinterA", SetLastError = true, CharSet = CharSet.Ansi, ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
+        public static extern bool StartDocPrinter(IntPtr hPrinter, Int32 level, [In, MarshalAs(UnmanagedType.LPStruct)] DOCINFOA di);
+
+        [DllImport("winspool.Drv", EntryPoint = "EndDocPrinter", SetLastError = true, ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
+        public static extern bool EndDocPrinter(IntPtr hPrinter);
+
+        [DllImport("winspool.Drv", EntryPoint = "StartPagePrinter", SetLastError = true, ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
+        public static extern bool StartPagePrinter(IntPtr hPrinter);
+
+        [DllImport("winspool.Drv", EntryPoint = "EndPagePrinter", SetLastError = true, ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
+        public static extern bool EndPagePrinter(IntPtr hPrinter);
+
+        [DllImport("winspool.Drv", EntryPoint = "WritePrinter", SetLastError = true, ExactSpelling = true, CallingConvention = CallingConvention.StdCall)]
+        public static extern bool WritePrinter(IntPtr hPrinter, IntPtr pBytes, Int32 dwCount, out Int32 dwWritten);
+
+        // SendBytesToPrinter()
+        // When the function is given a printer name and an unmanaged array
+        // of bytes, the function sends those bytes to the print queue.
+        // Returns true on success, false on failure.
+        public static bool SendBytesToPrinter(string szPrinterName, IntPtr pBytes, Int32 dwCount)
+        {
+            Int32 dwError = 0, dwWritten = 0;
+            IntPtr hPrinter = new IntPtr(0);
+            DOCINFOA di = new DOCINFOA();
+            bool bSuccess = false; // Assume failure unless you specifically succeed.
+
+            di.pDocName = "My C#.NET RAW Document";
+            di.pDataType = "RAW";
+
+            // Open the printer.
+            if (OpenPrinter(szPrinterName.Normalize(), out hPrinter, IntPtr.Zero))
+            {
+                // Start a document.
+                if (StartDocPrinter(hPrinter, 1, di))
+                {
+                    // Start a page.
+                    if (StartPagePrinter(hPrinter))
+                    {
+                        // Write your bytes.
+                        bSuccess = WritePrinter(hPrinter, pBytes, dwCount, out dwWritten);
+                        EndPagePrinter(hPrinter);
+                    }
+                    EndDocPrinter(hPrinter);
+                }
+                ClosePrinter(hPrinter);
+            }
+            // If you did not succeed, GetLastError may give more information
+            // about why not.
+            if (bSuccess == false)
+            {
+                dwError = Marshal.GetLastWin32Error();
+            }
+            return bSuccess;
+        }
+
+        public static bool SendFileToPrinter(string szPrinterName, string szFileName)
+        {
+            // Open the file.
+            FileStream fs = new FileStream(szFileName, FileMode.Open);
+            // Create a BinaryReader on the file.
+            BinaryReader br = new BinaryReader(fs);
+            // Dim an array of bytes big enough to hold the file's contents.
+            Byte[] bytes = new Byte[fs.Length];
+            bool bSuccess = false;
+            // Your unmanaged pointer.
+            IntPtr pUnmanagedBytes = new IntPtr(0);
+            int nLength;
+
+            nLength = Convert.ToInt32(fs.Length);
+            // Read the contents of the file into the array.
+            bytes = br.ReadBytes(nLength);
+            // Allocate some unmanaged memory for those bytes.
+            pUnmanagedBytes = Marshal.AllocCoTaskMem(nLength);
+            // Copy the managed byte array into the unmanaged array.
+            Marshal.Copy(bytes, 0, pUnmanagedBytes, nLength);
+            // Send the unmanaged bytes to the printer.
+            bSuccess = SendBytesToPrinter(szPrinterName, pUnmanagedBytes, nLength);
+            // Free the unmanaged memory that you allocated earlier.
+            Marshal.FreeCoTaskMem(pUnmanagedBytes);
+            return bSuccess;
+        }
+        public static bool SendStringToPrinter(string szPrinterName, string szString)
+        {
+            IntPtr pBytes;
+            Int32 dwCount;
+            // How many characters are in the string?
+            dwCount = szString.Length;
+            // Assume that the printer is expecting ANSI text, and then convert
+            // the string to ANSI text.
+            pBytes = Marshal.StringToCoTaskMemAnsi(szString);
+            // Send the converted ANSI string to the printer.
+            SendBytesToPrinter(szPrinterName, pBytes, dwCount);
+            Marshal.FreeCoTaskMem(pBytes);
+            return true;
+        }
     }
 }

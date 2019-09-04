@@ -60,10 +60,10 @@
             this.label1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(219)))), ((int)(((byte)(80)))), ((int)(((byte)(74)))));
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Underline))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.ForeColor = System.Drawing.Color.White;
-            this.label1.Location = new System.Drawing.Point(-5, 366);
+            this.label1.Location = new System.Drawing.Point(-5, 361);
             this.label1.Name = "label1";
             this.label1.Padding = new System.Windows.Forms.Padding(0, 0, 0, 5);
-            this.label1.Size = new System.Drawing.Size(235, 25);
+            this.label1.Size = new System.Drawing.Size(235, 31);
             this.label1.TabIndex = 0;
             this.label1.Text = "MAYDAY!";
             this.label1.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
@@ -151,7 +151,7 @@
             this.button4.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button4.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button4.ForeColor = System.Drawing.Color.White;
-            this.button4.Location = new System.Drawing.Point(153, 259);
+            this.button4.Location = new System.Drawing.Point(154, 259);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(66, 37);
             this.button4.TabIndex = 7;
@@ -258,7 +258,7 @@
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(61)))), ((int)(((byte)(72)))), ((int)(((byte)(85)))));
-            this.ClientSize = new System.Drawing.Size(224, 389);
+            this.ClientSize = new System.Drawing.Size(224, 390);
             this.Controls.Add(this.pictureBox4);
             this.Controls.Add(this.pictureBox3);
             this.Controls.Add(this.pictureBox2);

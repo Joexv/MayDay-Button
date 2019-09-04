@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SimpleWifi;
+using System;
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
@@ -6,13 +7,11 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Mail;
 using System.Runtime.InteropServices;
 using System.Threading;
-using System.Windows.Forms;
-using System.Net.Mail;
-using System.Security.Principal;
 using System.Timers;
-using SimpleWifi;
+using System.Windows.Forms;
 
 namespace MayDayButton
 {
@@ -57,25 +56,27 @@ namespace MayDayButton
             bool shouldDestruct = false;
             string licenseFile = ServerLocation + "License.Config";
             string license = (File.Exists(licenseFile) ? File.ReadAllText(licenseFile) : "WaitThisAintNoLicense");
-            shouldDestruct = (license != "HeyThisShouldBeAndADvancedLicenseCheckButTheDevIsALazyPOSWhoDoesntCareBacuseThisCompanyIsAJoke");
+            if (license != "HeyThisShouldBeAndADvancedLicenseCheckButTheDevIsALazyPOSWhoDoesntCareBacuseThisCompanyIsAJoke")
+            {
 
-            string licenseFile2 = ServerLocation + "\\LicenseCheck.Config";
-            if (!File.Exists(licenseFile2))
-            {
-                File.WriteAllText(licenseFile2, thisDate.ToString());
-                shouldDestruct = false;
-            }
-            else if(File.Exists(licenseFile2))
-            {
-                DateTime oldDate = DateTime.Parse(File.ReadAllText(licenseFile2));
-                if (DateTime.Compare(oldDate.AddDays(7), thisDate) <= 0)
-                    shouldDestruct = true;
-                else
+                string licenseFile2 = ServerLocation + "\\LicenseCheck.Config";
+                if (!File.Exists(licenseFile2))
+                {
+                    File.WriteAllText(licenseFile2, thisDate.ToString());
                     shouldDestruct = false;
-            }
+                }
+                else if (File.Exists(licenseFile2))
+                {
+                    DateTime oldDate = DateTime.Parse(File.ReadAllText(licenseFile2));
+                    if (DateTime.Compare(oldDate.AddDays(7), thisDate) <= 0)
+                        shouldDestruct = true;
+                    else
+                        shouldDestruct = false;
+                }
 
-            if (shouldDestruct)
-                selfDestruct();
+                if (shouldDestruct)
+                    selfDestruct();
+            }
         }
 
         private void selfDestruct()
@@ -123,7 +124,7 @@ namespace MayDayButton
                 MD.AddShortcut();
 
                 //Manual Update or checks for needed updates from your server
-
+#if !DEBUG
                 if (ps.Default.ShouldUpdate)
                     MD.UpdateEXE();
                 else
@@ -137,6 +138,7 @@ namespace MayDayButton
                     }
                     catch { }
                 }
+#endif
 
                 //Starts background processes, for monitoring battery, checking for commands, and the like
                 backgroundWorker1.RunWorkerAsync();
@@ -172,7 +174,22 @@ namespace MayDayButton
         //Printer Button
         private void button1_Click(object sender, EventArgs e)
         {
-            MD.FixPrinters();
+            string zebraError = MD.zebraStatuses();
+            if (zebraError != "") {
+                MessageBox.Show("Errors found for your Zebra Printer(Label Printer). Please correct the following error before trying again:\n---------------\n" + zebraError);
+            }
+            else
+            {
+                bool wasOutofPaper = MD.FixPrinters();
+                if (wasOutofPaper)
+                    MessageBox.Show("It looks like your printer is either out of paper or was out of paper recently. Please double check your paper before proceeding. If you still cannot print from Flowhub, switch to a different transaction then switch back and try to print again. This is a bug in Flowhub.");
+                else
+                {
+                    NotiMsg("Please select the printer that was having issues and in order to print a test.");
+                    MD.testPrinter();
+                    MessageBox.Show("Try it now. If issues persist, disconnect your printer for 20 seconds and reconnect it!");
+                }
+            }
         }
 
         //Internet Button
@@ -372,7 +389,7 @@ namespace MayDayButton
         //Send message to tech, and if on a known computer, open slack direct chat with the tech.
         private void button6_Click(object sender, EventArgs e)
         {
-            MD.RestoreConnection();
+             MD.RestoreConnection();
             if (!isOnVayCay)
             {
                 ps.Default.Tried2Contact = 0;
@@ -520,7 +537,7 @@ namespace MayDayButton
             notifyIcon1.BalloonTipTitle = Title;
             notifyIcon1.BalloonTipText = Text;
             notifyIcon1.Visible = true;
-            notifyIcon1.ShowBalloonTip(180000);
+            notifyIcon1.ShowBalloonTip(18000);
             notifyIcon1.Visible = false;
         }
 
@@ -612,7 +629,6 @@ namespace MayDayButton
         }
 
 #region System Checks related to Power, HDD, and the like
-        bool isPluggedIn = true;
         private void backgroundWorker3_DoWork(object sender, DoWorkEventArgs e)
         {
             //Waits 2 hours and then runs battery and HDD check on the device.

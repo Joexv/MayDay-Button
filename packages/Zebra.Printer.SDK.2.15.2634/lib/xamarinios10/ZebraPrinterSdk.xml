@@ -1,0 +1,385 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ZebraPrinterSdk</name>
+    </assembly>
+    <members>
+        <member name="T:Zebra.Sdk.Graphics.Shared.IZebraImageFactory">
+            <summary>
+            A factory interface used to acquire a cross platform instance of ZebraImageI.
+            </summary>
+        </member>
+        <member name="M:Zebra.Sdk.Graphics.Shared.IZebraImageFactory.GetImage(System.String)">
+            <summary>
+            Creates an instance of <see cref="T:Zebra.Sdk.Graphics.ZebraImageI"/> from the image specified in <c>fullPath</c>.
+            </summary>
+            <param name="fullPath">The full path of the image.</param>
+            <returns>An image formatted for Zebra Printers</returns>
+            <exception cref="T:System.IO.IOException">If the file could not be found, open, or is an unsupported graphic.</exception>
+            <exception cref="T:System.ArgumentException">If <c>fullPath</c> is null.</exception>
+        </member>
+        <member name="M:Zebra.Sdk.Graphics.Shared.IZebraImageFactory.GetImage(System.Byte[])">
+            <summary>
+            Creates an instance of <see cref="T:Zebra.Sdk.Graphics.ZebraImageI"/> from the image data specified in <c>imageData</c>.
+            </summary>
+            <param name="imageData">A byte[] containing the image data.</param>
+            <returns>An image formatted for Zebra Printers.</returns>
+            <exception cref="T:System.IO.IOException">If the file could not be found, open, or is an unsupported graphic.</exception>
+            <exception cref="T:System.ArgumentException">If <c>imageData</c> is null.</exception>
+        </member>
+        <member name="M:Zebra.Sdk.Graphics.Shared.IZebraImageFactory.GetImage(System.IO.Stream)">
+            <summary>
+            Creates an instance of <see cref="T:Zebra.Sdk.Graphics.ZebraImageI"/> from the image data specified in <c>imageData</c>.
+            </summary>
+            <param name="imageData">A stream containing the image data.</param>
+            <returns>An image formatted for Zebra Printers.</returns>
+            <exception cref="T:System.IO.IOException">If the file could not be found, open, or is an unsupported graphic.</exception>
+            <exception cref="T:System.ArgumentException">If <c>imageData</c> is null.</exception>
+        </member>
+        <member name="T:Zebra.Sdk.Graphics.Shared.ZebraImageFactory">
+            <summary>
+            A factory used to acquire an instance of ZebraImageI.
+            </summary>
+        </member>
+        <member name="P:Zebra.Sdk.Graphics.Shared.ZebraImageFactory.Current">
+            <summary>
+            Current IZebraPrinterFactory to use
+            </summary>
+        </member>
+        <member name="M:Zebra.Sdk.Graphics.Internal.PngToGrfConverter.PngToGrf(System.IO.Stream)">
+            <summary>
+            </summary>
+            <param name="pngData"></param>
+            <returns></returns>
+            <exception cref="T:System.IO.IOException"></exception>
+        </member>
+        <member name="M:Zebra.Sdk.Graphics.Internal.ZebraImage.#ctor(System.Drawing.Image)">
+            <summary>
+            For internal use of the Zebra Printer API only.
+            </summary>
+            <param name="image"></param>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="M:Zebra.Sdk.Graphics.Internal.ZebraImage.#ctor(System.String)">
+            <summary>
+            For internal use of the Zebra Printer API only.
+            </summary>
+            <param name="imageFilePath"></param>
+            <exception cref="T:System.ArgumentException"></exception>
+            <exception cref="T:System.IO.IOException"></exception>
+        </member>
+        <member name="M:Zebra.Sdk.Graphics.Internal.ZebraImage.#ctor(System.IO.Stream)">
+            <summary>
+            For internal use of the Zebra Printer API only.
+            </summary>
+            <param name="imageStream"></param>
+            <exception cref="T:System.ArgumentException"></exception>
+            <exception cref="T:System.IO.IOException"></exception>
+        </member>
+        <member name="T:Zebra.Sdk.Graphics.ZebraImageFactory">
+            <summary>
+            A factory used to acquire an instance of a ZebraImageI.
+            </summary>
+        </member>
+        <member name="M:Zebra.Sdk.Graphics.ZebraImageFactory.GetImage(System.Drawing.Image)">
+            <summary>
+            Creates an instance of <see cref="T:Zebra.Sdk.Graphics.ZebraImageI"/> from the image specified in <c>image</c>.
+            </summary>
+            <param name="image">The image</param>
+            <returns>An image formatted for Zebra Printers</returns>
+            <exception cref="T:System.IO.IOException">If the file could not be found, open, or is an unsupported graphic.</exception>
+            <exception cref="T:System.ArgumentException">If <c>image</c> is null</exception>
+        </member>
+        <member name="M:Zebra.Sdk.Graphics.ZebraImageFactory.GetImage(System.String)">
+            <summary>
+            Creates an instance of <see cref="T:Zebra.Sdk.Graphics.ZebraImageI"/> from the image specified in <c>fullPath</c>.
+            </summary>
+            <param name="fullPath">The full path of the image.</param>
+            <returns>An image formatted for Zebra Printers</returns>
+            <exception cref="T:System.IO.IOException">If the file could not be found, open, or is an unsupported graphic.</exception>
+            <exception cref="T:System.ArgumentException">If <c>fullPath</c> is null</exception>
+        </member>
+        <member name="M:Zebra.Sdk.Graphics.ZebraImageFactory.GetImage(System.IO.Stream)">
+            <summary>
+            Creates an instance of <see cref="T:Zebra.Sdk.Graphics.ZebraImageI"/> from the image data specified in <c>imageData</c>
+            </summary>
+            <param name="imageData">A stream containing the image data.</param>
+            <returns>An image formatted for Zebra Printers.</returns>
+            <exception cref="T:System.IO.IOException">If the file could not be found, open, or is an unsupported graphic.</exception>
+            <exception cref="T:System.ArgumentException">If <c>imageData</c> is null</exception>
+        </member>
+        <member name="M:Zebra.Sdk.Comm.Internal.BluetoothHelper.ConvertMacAddressToUlong(System.String)">
+            <summary>
+            </summary>
+            <param name="macAddress"></param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="M:Zebra.Sdk.Comm.Internal.BluetoothConnectionReestablisher.ReestablishConnection(Zebra.Sdk.Printer.PrinterReconnectionHandler)">
+            <see cref="M:Zebra.Sdk.Comm.ConnectionReestablisher.ReestablishConnection(Zebra.Sdk.Printer.PrinterReconnectionHandler)"/> 
+        </member>
+        <member name="M:Zebra.Sdk.Comm.Internal.ZebraBluetoothSocket.OutputStream.Write(System.Byte[])">
+            <exception cref="T:System.IO.IOException"></exception>
+        </member>
+        <member name="T:Zebra.Sdk.Comm.BluetoothConnection">
+            <summary>
+            Establishes a Bluetooth&#174; connection to a printer
+            </summary>
+            <remarks>
+            In order to connect to a device with Bluetooth&#174;, the device must be discoverable, authentication must be enabled,
+            and the authentication pin must be set (1-16 alphanumeric characters).<br/>
+            The encryption type and whether or not it is used is determined by the device initiating the connection and not
+            device being connected to.
+            </remarks>
+            <example>Desktop<code source="../SdkApi_Test/Test/Zebra/Sdk/Comm/Examples/BluetoothConnectionExample.cs"/></example>
+            <example>Android&#8482;<code source="../XamarinSdk/XamarinTest/XamarinTest.Android/Test/Zebra/Sdk/Comm/Examples/BluetoothConnectionExample.cs"/></example>
+            <example>iOS<code source="../XamarinSdk/XamarinTest/XamarinTest.iOS/Test/Zebra/Sdk/Comm/Examples/BluetoothConnectionExample.cs"/></example>
+        </member>
+        <member name="F:Zebra.Sdk.Comm.BluetoothConnection.friendlyName">
+            <summary>
+            For internal use of the Zebra Printer API only.
+            </summary>
+        </member>
+        <member name="F:Zebra.Sdk.Comm.BluetoothConnection.macAddress">
+            <summary>
+            For internal use of the Zebra Printer API only.
+            </summary>
+        </member>
+        <member name="P:Zebra.Sdk.Comm.BluetoothConnection.TimeToWaitBeforeClose">
+            <summary>
+            Gets/sets the time to wait before closing the connection (milliseconds).
+            </summary>
+        </member>
+        <member name="M:Zebra.Sdk.Comm.BluetoothConnection.#ctor">
+            <summary>
+            For internal use of the Zebra Printer API only.
+            </summary>
+        </member>
+        <member name="M:Zebra.Sdk.Comm.BluetoothConnection.#ctor(Zebra.Sdk.Comm.Internal.ConnectionInfo)">
+            <summary>
+            For internal use of the Zebra Printer API only.
+            </summary>
+            <param name="connectionInfo"></param>
+            <exception cref="T:Zebra.Sdk.Comm.Internal.NotMyConnectionDataException">For internal use of the Zebra Printer API only.</exception>
+        </member>
+        <member name="M:Zebra.Sdk.Comm.BluetoothConnection.#ctor(System.String)">
+            <summary>
+            Constructs a new Bluetooth&#174; connection with the given <c>macAddress</c>.
+            </summary>
+            <remarks>
+            The MAC address is a hexadecimal string with or without separators between the octets. (e.g. 00:11:BB:DD:55:FF or 0011BBDD55FF). 
+            This constructor will use the default timeouts for <see cref="M:Zebra.Sdk.Comm.Connection.Read"/>. The default timeout is a maximum of 10
+            seconds for any data to be received. If no more data is available after 500 milliseconds the read operation is
+            assumed to be complete.<br/>
+            To specify timeouts other than the defaults, use:<br/>
+            <see cref="M:Zebra.Sdk.Comm.BluetoothConnection.#ctor(System.String,System.Int32,System.Int32)"/>
+            </remarks>
+            <param name="macAddress">the device's MAC address.</param>
+        </member>
+        <member name="M:Zebra.Sdk.Comm.BluetoothConnection.#ctor(System.String,System.Int32,System.Int32)">
+            <summary>
+            Constructs a new Bluetooth&#174; connection with the given<c>macAddress</c> and timeout values.
+            </summary>
+            <remarks>
+            The MAC address is a hexadecimal string with or without separators between the octets. (e.g. 00:11:BB:DD:55:FF or
+            0011BBDD55FF). This constructor will use the specified timeouts for <see cref = "M:Zebra.Sdk.Comm.Connection.Read" />.The timeout is a
+            maximum of<c> maxTimeoutForRead</c> milliseconds for any data to be received.If no more data is available
+            after <c>timeToWaitForMoreData</c> milliseconds the read operation is assumed to be complete.
+            </remarks>
+            <param name="macAddress">the device's MAC address.</param>
+            <param name="maxTimeoutForRead">the maximum time, in milliseconds, to wait for any data to be received.</param>
+            <param name="timeToWaitForMoreData">the maximum time, in milliseconds, to wait in-between reads after the initial read.</param>
+        </member>
+        <member name="M:Zebra.Sdk.Comm.BluetoothConnection.#ctor(Zebra.Sdk.Comm.Internal.ZebraConnector,System.String,System.Int32,System.Int32)">
+            <summary>
+            Exposed this protected constructor for testing. We can pass in a mock Connector rather than the BT specific one.
+            The MAC address is a hexadecimal string with no separators between the octets. (e.g. 0011BBDD55FF).
+            </summary>
+            <param name="zebraConnector"></param>
+            <param name="macAddress"></param>
+            <param name="maxTimeoutForRead"></param>
+            <param name="timeToWaitForMoreData"></param>
+        </member>
+        <member name="M:Zebra.Sdk.Comm.BluetoothConnection.Close">
+            <summary>
+            Closes the Bluetooth&#174; connection.
+            </summary>
+            <see cref="M:Zebra.Sdk.Comm.Connection.Close"/> 
+        </member>
+        <member name="M:Zebra.Sdk.Comm.BluetoothConnection.ToString">
+            <summary>
+            The friendly name is obtained from the device when this connection is opened. If the friendly name changes on the
+            device, it will not be refreshed until the connection is closed and reopened.
+            </summary>
+            <returns><c>Bluetooth</c>:[MAC Address]:[Friendly Name].</returns>
+            <see cref="M:Zebra.Sdk.Comm.Connection.ToString"/>
+        </member>
+        <member name="P:Zebra.Sdk.Comm.BluetoothConnection.SimpleConnectionName">
+            <summary>
+            Gets the MAC address and the friendly name as the description.
+            </summary>
+            <returns>[MAC Address]:[Friendly Name]</returns>
+            <see cref="P:Zebra.Sdk.Comm.Connection.SimpleConnectionName"/> 
+        </member>
+        <member name="P:Zebra.Sdk.Comm.BluetoothConnection.MACAddress">
+            <summary>
+            Gets the MAC address which was passed into the constructor. The MAC address is a hexadecimal string with
+            separators between the octets. (e.g. 00:11:BB:DD:55:FF).
+            </summary>
+        </member>
+        <member name="P:Zebra.Sdk.Comm.BluetoothConnection.FriendlyName">
+            <summary>
+            Gets the friendly name of the Bluetooth&#174; connection. The friendly name is obtained from the device when
+            this connection is opened.If the friendly name changes on the device, it will not be refreshed until the
+            connection is closed and reopened.
+            </summary>
+        </member>
+        <member name="M:Zebra.Sdk.Comm.BluetoothConnection.GetConnectionReestablisher(System.Int64)">
+            <inheritdoc cref="M:Zebra.Sdk.Comm.Connection.GetConnectionReestablisher(System.Int64)"/> 
+        </member>
+        <member name="M:Zebra.Sdk.Comm.BluetoothConnection.ReadChar">
+            <inheritdoc/>
+        </member>
+        <member name="M:Zebra.Sdk.Comm.BluetoothConnection.BytesAvailable">
+            <inheritdoc cref="M:Zebra.Sdk.Comm.Connection.BytesAvailable"/> 
+        </member>
+        <member name="T:Zebra.Sdk.Comm.ConnectionBuilder">
+            <summary>
+      Builds a Connection from a description string. The description string is used to specify a connection to a specific
+      device over TCP or Bluetooth®.
+    </summary><remarks>
+      <para>
+        The description string may be of the explicit forms:<br /><br />
+        "TCP:192.168.1.4:6101" -- creates a TCP connection to the device with IP address 192.168.1.4 on port 6101.<br />
+        "TCP:192.168.1.4" -- creates a TCP connection to the device with IP address 192.168.1.4 on default port 9100.<br />
+        "TCP:dnsName:6101" -- creates a TCP connection to the device with 'dnsName' on port 6101.<br />
+        "TCP:dnsName" -- creates a TCP connection to the device with 'dnsName' on default port 9100.<br />
+        "TCP_MULTI:192.168.1.4" -- creates a Multichannel TCP connection to the device with '192.168.1.4' using the default ports for both the printing channel(9100) and the status channel(9200).<br />
+        "TCP_MULTI:192.168.1.4:1234" -- creates a Multichannel TCP connection to the device with '192.168.1.4' using the given port for the printing channel(1234) and the default port for the status channel(9200).<br />
+        "TCP_MULTI:192.168.1.4:1234:5678" -- creates a Multichannel TCP connection to the device with '192.168.1.4' using the given ports for the printing channel(1234) and the status channel(5678).<br />
+        "TCP_MULTI:dnsName:1234:5678" -- creates a Multichannel TCP connection to the device with 'dnsName' using the given ports for the printing channel(1234) and the status channel(5678).<br />
+        "TCP_STATUS:192.168.1.4:1234" -- creates a TCP status only connection to the device with IP address 192.168.1.4 on port 1234.<br />
+        "TCP_STATUS:192.168.1.4" -- creates a TCP status only connection to the device with IP address 192.168.1.4 on the default status port 9200.<br />
+        "BT:11:22:33:44:55:66" -- creates a Bluetooth® connection to the device using '11:22:33:44:55:66' as the MAC address.<br />
+      </para>
+      Generic text may also be used to attempt to specify a device. For example a description string of "genericText" will
+      attempt to connect to a device using the following priority:
+      <list type="bullet">
+        <item>
+          <description>TCP_MULTI</description>
+        </item>
+        <item>
+          <description>TCP</description>
+        </item>
+        <item>
+          <description>TCP_STATUS</description>
+        </item>
+        <item>
+          <description>BT</description>
+        </item>
+      </list>
+
+      If you supply the string '1FE533AA7B90'. This could be interpreted to be either a DNS name or a Bluetooth® MAC
+      address. ConnectionBuilder will attempt to connect to this string given the above priority order. If you supply a
+      more specific string, such as '192.168.2.3', ConnectionBuilder will more efficiently interpret this string as being
+      an IP address and, therefore, only attempt the TCP connections.<br />
+      The Bluetooth® Connection Building process will first attempt an insecure connection (no pairing required). This
+      requires the printer's 'bluetooth.minimum_security_mode' must be set to 1. If an insecure connection could not be
+      esablished, it will attempt to pair and connect securely. This will trigger the Android pairing request prompt.<br />
+      Note: Colon (':') characters are not supported in dnsName, friendlyName, uniqueId, deviceName, or genericText fields.<br /><br />
+      The following is an example of building a connection from a string.
+    </remarks><example>
+      Desktop
+      <code source="../SdkApi_Test/Test/Zebra/Sdk/Comm/Examples/ConnectionBuilderExample.cs" />
+    </example><example>
+      Android™
+      <code source="../XamarinSdk/XamarinTest/XamarinTest.Android/Test/Zebra/Sdk/Comm/Examples/ConnectionBuilderExample.cs" />
+    </example><example>
+      iOS
+      <code source="../XamarinSdk/XamarinTest/XamarinTest.iOS/Test/Zebra/Sdk/Comm/Examples/ConnectionBuilderExample.cs" />
+    </example>
+        </member>
+        <member name="M:Zebra.Sdk.Comm.ConnectionBuilder.#ctor">
+            <summary>
+            For internal use of the Zebra Printer API only.
+            </summary>
+        </member>
+        <member name="M:Zebra.Sdk.Comm.ConnectionBuilder.InitializeClasses">
+            <summary>
+            For internal use of the Zebra Printer API only.
+            </summary>
+        </member>
+        <member name="M:Zebra.Sdk.Comm.ConnectionBuilder.AddConnectionType(System.Object)">
+            <summary>
+            Add a connection type to the ConnectionBuilder.
+            </summary>
+            <param name="c">Connection class.</param>
+        </member>
+        <member name="M:Zebra.Sdk.Comm.ConnectionBuilder.Build(System.String)">
+            <summary>
+      Creates a Connection type based on the contents of <c>descriptionString</c>.
+    </summary><example>"TCP:192.168.1.2:9100"</example><param name="descriptionString">
+      The format of the input string is: [prefix:] address [: port_number(s)].<br /><br />
+      <ul>
+        <li>
+          Prefix is either TCP_MULTI, TCP, TCP_STATUS, BT_MULTI, BT, or BT_STATUS.
+        </li>
+        <li>
+          The format of address depends on the prefix
+          <ul>
+            <li>TCP : address is either a DNS name or an IPv4 address.</li>
+            <li>BT : address is the MAC address.</li>
+          </ul>
+        </li>
+        <li>port_number(s) is optional, and only applicable for TCP connections.</li>
+        <li>
+          Examples:
+          <ul>
+            <li>TCP:ZBR3054027:9100</li>
+            <li>TCP_MULTI:ZBR3054027:9100:9200</li>
+            <li>BT:11:22:33:44:55:66</li>
+            <li>10.1.2.3</li>
+          </ul>
+        </li>
+      </ul>
+    </param><returns>Connection derived from the contents of descriptionString.</returns><exception cref="T:Zebra.Sdk.Comm.ConnectionException">If a connection could not be established for the given descriptionString.</exception>
+        </member>
+        <member name="T:Zebra.Sdk.Printer.Discovery.BluetoothDiscoverer">
+            <summary>
+            A class that discovers Bluetooth&#174; devices.
+            </summary>
+            <example>Desktop<code source="../SdkApi_Test/Test/Zebra/Sdk/Discovery/Examples/BluetoothDiscovererExample.cs"/></example>
+            <example>Android<code source="../XamarinSdk/XamarinTest/XamarinTest.Android/Test/Zebra/Sdk/Discovery/Examples/BluetoothDiscovererExample.cs"/></example>
+            <example>iOS<code source="../XamarinSdk/XamarinTest/XamarinTest.iOS/Test/Zebra/Sdk/Discovery/Examples/BluetoothDiscovererExample.cs"/></example>
+        </member>
+        <member name="M:Zebra.Sdk.Printer.Discovery.BluetoothDiscoverer.FindPrinters(Zebra.Sdk.Printer.Discovery.DiscoveryHandler)">
+            <summary>
+            Find Bluetooth&#174; devices that are discoverable.
+            </summary>
+            <remarks>This method will return all devices found, not just Zebra printers.<br/>
+            This method should not be called from the application main thread.<br/>
+            Android 6 and higher (API 23+) requires user permission ACCESS_COARSE_LOCATION or ACCESS_FINE_LOCATION in your application manifest.</remarks>
+            <param name="discoveryHandler">A <see cref="T:Zebra.Sdk.Printer.Discovery.DiscoveryHandler"/> instance that is used to handle discovery events (e.g. found a printer, errors, discovery finished).</param>
+        </member>
+        <member name="T:Zebra.Sdk.Printer.Discovery.DiscoveredPrinterBluetooth">
+            <summary>
+            Instance of DiscoveredPrinter that is returned when performing a Bluetooth&#174; discovery.
+            </summary>
+        </member>
+        <member name="M:Zebra.Sdk.Printer.Discovery.DiscoveredPrinterBluetooth.#ctor(System.String,System.String)">
+            <summary>
+            Returns an instance of a DiscoveredPrinterBluetooth with <c>macAddress</c>.
+            </summary>
+            <param name="macAddress">MAC address of the printer.</param>
+            <param name="friendlyName">Friendly name of the printer.</param>
+        </member>
+        <member name="P:Zebra.Sdk.Printer.Discovery.DiscoveredPrinterBluetooth.FriendlyName">
+            <summary>
+            The friendly name of the Bluetooth&#174; device.
+            </summary>
+        </member>
+        <member name="M:Zebra.Sdk.Printer.Discovery.DiscoveredPrinterBluetooth.GetConnection">
+            <see cref="M:Zebra.Sdk.Printer.Discovery.DiscoveredPrinter.GetConnection"/> 
+        </member>
+    </members>
+</doc>

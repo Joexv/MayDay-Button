@@ -19,15 +19,21 @@ namespace MayDayButton
 
         const string Password = "password";
         public int Label_Height { get; set; }
+        MD_Core MD = new MD_Core();
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if (ps.Default.HighDPI)
-                ps.Default.Y_Adjustment = (Int32)numericUpDown2.Value;
+            //MessageBox.Show(MD.listPrinters());
+            //MessageBox.Show(MD.listPrintQueues());
+            string zebraError = MD.zebraStatuses();
+            if (zebraError != "")
+            {
+                MessageBox.Show("Errors found for your Zebra Printer(Label Printer). Please correct the following error before trying again:\n---------------\n" + zebraError);
+            }
             else
-                ps.Default.Y_Norm = (Int32)numericUpDown2.Value;
-            ps.Default.X = (Int32)numericUpDown1.Value;
-            ps.Default.Save();
+            {
+                MD.testPrinter();
+            }
         }
 
         private void button2_Click(object sender, EventArgs e)

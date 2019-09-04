@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ZebraPrinterSdk</name>
+    </assembly>
+    <members>
+        <member name="T:Zebra.Sdk.Graphics.Shared.IZebraImageFactory">
+            <summary>
+            A factory interface used to acquire a cross platform instance of ZebraImageI.
+            </summary>
+        </member>
+        <member name="M:Zebra.Sdk.Graphics.Shared.IZebraImageFactory.GetImage(System.String)">
+            <summary>
+            Creates an instance of <see cref="T:Zebra.Sdk.Graphics.ZebraImageI"/> from the image specified in <c>fullPath</c>.
+            </summary>
+            <param name="fullPath">The full path of the image.</param>
+            <returns>An image formatted for Zebra Printers</returns>
+            <exception cref="T:System.IO.IOException">If the file could not be found, open, or is an unsupported graphic.</exception>
+            <exception cref="T:System.ArgumentException">If <c>fullPath</c> is null.</exception>
+        </member>
+        <member name="M:Zebra.Sdk.Graphics.Shared.IZebraImageFactory.GetImage(System.Byte[])">
+            <summary>
+            Creates an instance of <see cref="T:Zebra.Sdk.Graphics.ZebraImageI"/> from the image data specified in <c>imageData</c>.
+            </summary>
+            <param name="imageData">A byte[] containing the image data.</param>
+            <returns>An image formatted for Zebra Printers.</returns>
+            <exception cref="T:System.IO.IOException">If the file could not be found, open, or is an unsupported graphic.</exception>
+            <exception cref="T:System.ArgumentException">If <c>imageData</c> is null.</exception>
+        </member>
+        <member name="M:Zebra.Sdk.Graphics.Shared.IZebraImageFactory.GetImage(System.IO.Stream)">
+            <summary>
+            Creates an instance of <see cref="T:Zebra.Sdk.Graphics.ZebraImageI"/> from the image data specified in <c>imageData</c>.
+            </summary>
+            <param name="imageData">A stream containing the image data.</param>
+            <returns>An image formatted for Zebra Printers.</returns>
+            <exception cref="T:System.IO.IOException">If the file could not be found, open, or is an unsupported graphic.</exception>
+            <exception cref="T:System.ArgumentException">If <c>imageData</c> is null.</exception>
+        </member>
+        <member name="T:Zebra.Sdk.Graphics.Shared.ZebraImageFactory">
+            <summary>
+            A factory used to acquire an instance of ZebraImageI.
+            </summary>
+        </member>
+        <member name="P:Zebra.Sdk.Graphics.Shared.ZebraImageFactory.Current">
+            <summary>
+            Current IZebraPrinterFactory to use
+            </summary>
+        </member>
+        <member name="M:Zebra.Sdk.Comm.Internal.BluetoothHelper.ConvertMacAddressToUlong(System.String)">
+            <summary>
+            </summary>
+            <param name="macAddress"></param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+    </members>
+</doc>

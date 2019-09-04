@@ -234,5 +234,10 @@ namespace MayDayButton
         {
             MD.importSettings();
         }
+
+        private void button21_Click(object sender, EventArgs e)
+        {
+            MD.deletePrinters();
+        }
     }
 }

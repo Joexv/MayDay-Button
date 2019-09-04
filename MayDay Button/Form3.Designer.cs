@@ -62,6 +62,7 @@
             this.button18 = new System.Windows.Forms.Button();
             this.button19 = new System.Windows.Forms.Button();
             this.button20 = new System.Windows.Forms.Button();
+            this.button21 = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.yPos)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.cTimes)).BeginInit();
@@ -73,7 +74,7 @@
             // 
             this.logView.Location = new System.Drawing.Point(280, 38);
             this.logView.Name = "logView";
-            this.logView.Size = new System.Drawing.Size(348, 596);
+            this.logView.Size = new System.Drawing.Size(348, 632);
             this.logView.TabIndex = 0;
             this.logView.Text = "";
             // 
@@ -376,7 +377,7 @@
             this.button11.FlatAppearance.BorderSize = 0;
             this.button11.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button11.ForeColor = System.Drawing.Color.White;
-            this.button11.Location = new System.Drawing.Point(9, 545);
+            this.button11.Location = new System.Drawing.Point(12, 584);
             this.button11.Name = "button11";
             this.button11.Size = new System.Drawing.Size(127, 40);
             this.button11.TabIndex = 12;
@@ -390,7 +391,7 @@
             this.button12.FlatAppearance.BorderSize = 0;
             this.button12.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button12.ForeColor = System.Drawing.Color.White;
-            this.button12.Location = new System.Drawing.Point(142, 591);
+            this.button12.Location = new System.Drawing.Point(145, 630);
             this.button12.Name = "button12";
             this.button12.Size = new System.Drawing.Size(127, 40);
             this.button12.TabIndex = 13;
@@ -488,7 +489,7 @@
             this.button19.FlatAppearance.BorderSize = 0;
             this.button19.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button19.ForeColor = System.Drawing.Color.White;
-            this.button19.Location = new System.Drawing.Point(9, 591);
+            this.button19.Location = new System.Drawing.Point(12, 630);
             this.button19.Name = "button19";
             this.button19.Size = new System.Drawing.Size(127, 40);
             this.button19.TabIndex = 21;
@@ -502,7 +503,7 @@
             this.button20.FlatAppearance.BorderSize = 0;
             this.button20.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button20.ForeColor = System.Drawing.Color.White;
-            this.button20.Location = new System.Drawing.Point(142, 545);
+            this.button20.Location = new System.Drawing.Point(145, 584);
             this.button20.Name = "button20";
             this.button20.Size = new System.Drawing.Size(127, 40);
             this.button20.TabIndex = 22;
@@ -510,12 +511,27 @@
             this.button20.UseVisualStyleBackColor = false;
             this.button20.Click += new System.EventHandler(this.button20_Click);
             // 
+            // button21
+            // 
+            this.button21.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(67)))), ((int)(((byte)(170)))), ((int)(((byte)(139)))));
+            this.button21.FlatAppearance.BorderSize = 0;
+            this.button21.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button21.ForeColor = System.Drawing.Color.White;
+            this.button21.Location = new System.Drawing.Point(12, 520);
+            this.button21.Name = "button21";
+            this.button21.Size = new System.Drawing.Size(127, 40);
+            this.button21.TabIndex = 23;
+            this.button21.Text = "Remove All Printers";
+            this.button21.UseVisualStyleBackColor = false;
+            this.button21.Click += new System.EventHandler(this.button21_Click);
+            // 
             // Form3
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(61)))), ((int)(((byte)(72)))), ((int)(((byte)(85)))));
-            this.ClientSize = new System.Drawing.Size(634, 646);
+            this.ClientSize = new System.Drawing.Size(634, 682);
+            this.Controls.Add(this.button21);
             this.Controls.Add(this.button20);
             this.Controls.Add(this.button19);
             this.Controls.Add(this.button18);
@@ -590,5 +606,6 @@
         private System.Windows.Forms.Button button18;
         private System.Windows.Forms.Button button19;
         private System.Windows.Forms.Button button20;
+        private System.Windows.Forms.Button button21;
     }
 }
