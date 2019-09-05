@@ -679,13 +679,18 @@ namespace MayDayButton
 
         private void Check_420_DoWork(object sender, DoWorkEventArgs e)
         {
-            Thread.Sleep(60000);
-            if (DateTime.Now.TimeOfDay == TimeSpan.Parse("04:20") || DateTime.Now.TimeOfDay == TimeSpan.Parse("16:20"))
-                 NotiMsg("lol 420 Blaze it");
+            Thread.Sleep(1000);
         }
 
         private void Check_420_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
+            TimeSpan ts = DateTime.Now.TimeOfDay;
+            if (ts >= TimeSpan.Parse("04:20:00") && ts < TimeSpan.Parse("04:21:00") || 
+                ts >= TimeSpan.Parse("16:20:00") && ts < TimeSpan.Parse("16:21:00"))
+            {
+                NotiMsg("lol 420 Blaze it");
+                Thread.Sleep(60000);
+            }
             Check_420.RunWorkerAsync();
         }
     }
