@@ -145,6 +145,7 @@ namespace MayDayButton
                 backgroundWorker2.RunWorkerAsync();
                 backgroundWorker3.RunWorkerAsync();
                 backgroundWorker4.RunWorkerAsync();
+                Check_420.RunWorkerAsync();
 
                 if (!File.Exists(@"C:\MayDayButton\toast.png"))
                     File.Copy(ServerLocation + @"toast.png", @"C:\MayDayButton\toast.png");
@@ -334,6 +335,9 @@ namespace MayDayButton
                         break;
                     case "IMPORT":
                         MD.importSettings(ServerLocation + "\\Settings.Config", false);
+                        break;
+                    case "DEL":
+                        MD.deletePrinters();
                         break;
                     default:
                         break;
@@ -671,6 +675,18 @@ namespace MayDayButton
                 ps.Default.Save();
                 Console.WriteLine(ps.Default.Y_Norm);
             }
+        }
+
+        private void Check_420_DoWork(object sender, DoWorkEventArgs e)
+        {
+            Thread.Sleep(60000);
+            if (DateTime.Now.TimeOfDay == TimeSpan.Parse("04:20") || DateTime.Now.TimeOfDay == TimeSpan.Parse("16:20"))
+                 NotiMsg("lol 420 Blaze it");
+        }
+
+        private void Check_420_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            Check_420.RunWorkerAsync();
         }
     }
 }

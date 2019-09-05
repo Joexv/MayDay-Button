@@ -42,17 +42,18 @@ namespace MayDayButton
             Application.Restart();
         }
 
+        //TODO add proper checks for making sure high DPI devices dont get hidden on accident
         private void Form2_Load(object sender, EventArgs e)
         {
             Form1 frm1 = new Form1();
-            Decimal x = (decimal)Properties.Settings.Default.X;
+            Decimal x = (decimal)ps.Default.X;
             if (x < 0) x = 0;
             int MaxX = Screen.PrimaryScreen.WorkingArea.Width;
             if (x >= MaxX) x = MaxX - frm1.Width;
             numericUpDown1.Value = x;
             numericUpDown1.Maximum = MaxX - frm1.Width;
             numericUpDown1.Minimum = 0;
-            checkBox1.Checked = Properties.Settings.Default.HighDPI;
+            checkBox1.Checked = ps.Default.HighDPI;
 
             if (!ps.Default.HighDPI)
             {
@@ -172,11 +173,18 @@ namespace MayDayButton
             if (promptValue != Password)
             {
                 //Disable Buttons in the admin panel if password is incorrect
-                foreach (var button in frm.Controls.OfType<Button>().Where(a => a.Text != "License Information"))
+                //foreach (var button in frm.Controls.OfType<Button>().Where(a => a.Text != "License Information"))
+                foreach (var button in frm.Controls.OfType<Button>())
+                {
                     button.Enabled = false;
+                    button.Visible = false;
+                }
 
                 foreach (var gp in frm.Controls.OfType<GroupBox>())
+                {
                     gp.Enabled = false;
+                    gp.Visible = false;
+                }
             }
 
             frm.Show();

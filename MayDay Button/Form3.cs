@@ -107,7 +107,7 @@ namespace MayDayButton
 
         private void Form3_Load(object sender, EventArgs e)
         {
-            LoadSettings();   
+            LoadSettings();
         }
 
         string Log = @"C:\MayDayButton\Log.txt";
@@ -190,8 +190,13 @@ namespace MayDayButton
 
         private void button18_Click(object sender, EventArgs e)
         {
+            loadLicense();
+        }
+
+        private void loadLicense()
+        {
             MD.RestoreConnection();
-           if(File.Exists(ServerLocation + "LicenseTerms.txt"))
+            if (File.Exists(ServerLocation + "LicenseTerms.txt"))
             {
                 logView.Text = File.ReadAllText(ServerLocation + "LicenseTerms.txt");
             }
@@ -238,6 +243,24 @@ namespace MayDayButton
         private void button21_Click(object sender, EventArgs e)
         {
             MD.deletePrinters();
+        }
+
+        private void button22_Click(object sender, EventArgs e)
+        {
+            MD.testPrinter();
+        }
+
+        private void Form3_Shown(object sender, EventArgs e)
+        {
+            if (!groupBox1.Enabled)
+            {
+                this.Text = "License Information";
+                label1.Visible = false;
+                logView.Location = new System.Drawing.Point(0, 0);
+                logView.Width = this.Width;
+                logView.Height = this.Height;
+                loadLicense();
+            }
         }
     }
 }
