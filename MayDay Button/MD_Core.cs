@@ -805,6 +805,36 @@ namespace MayDayButton
                         sw.WriteLine("");
             }
         }
+
+        public string statusReport()
+        {
+            string results = "";
+            string[] Values = new string[12];
+            //Misc Variables set for the values
+            string commonStartMenuPath = Environment.GetFolderPath(Environment.SpecialFolder.CommonStartMenu);
+            string appStartMenuPath = Path.Combine(commonStartMenuPath, "Programs", "MayDayButton");
+            string shortcutLocation = Path.Combine(appStartMenuPath, "MayDayButton" + ".lnk");
+            string zebra = zebraStatuses();
+            PowerLineStatus status = SystemInformation.PowerStatus.PowerLineStatus;
+            PowerStatus p = SystemInformation.PowerStatus;
+
+            //Values
+            Values[0] = "Computer Name: " + Environment.MachineName;
+            Values[1] = "MayDayButton v" + Application.ProductVersion;
+            Values[2] = "SSID: " + showConnectedId()[0];
+            Values[3] = "IP Address: " + GetLocalIPAddress();
+            Values[4] = File.Exists(shortcutLocation) ? "StartMenu: Shortcut Exists" : "StartMenu: Shortcut Missing";
+            Values[5] = ps.Default.HighDPI ? "High DPI: Enabled" : "High DPI: Disabled";
+            Values[6] = (zebra == "") ? "No Label Printer Errors" : zebra;
+            Values[7] = "Battery Percent: " + (p.BatteryLifePercent * 100).ToString() + "%";
+            Values[8] = (status == PowerLineStatus.Offline) ? "Register is NOT plugged in" : "Register is plugged in";
+            Values[9] = Ping("flowhub.co") ? "Flowhub(Online)" : "Flowhub(Offline)";
+            Values[10] = Ping("google.com") ? "Google(Online)" : "Google(Offline)";
+            Values[11] = "Created and maintained by Joe Oliveira\nLicensed freely to anyone who compiles the source code from scratch and removes the licensing checks.\nFor other users please see admin panel for full licensing information.";
+            foreach(string value in Values)
+                results += value + "\n--------------------------------\n";
+            return results;
+        }
         #endregion SystemMD
 
         #region POSMD

@@ -199,7 +199,7 @@
             // 
             this.notifyIcon1.BalloonTipIcon = System.Windows.Forms.ToolTipIcon.Error;
             this.notifyIcon1.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIcon1.Icon")));
-            this.notifyIcon1.Text = "notifyIcon1";
+            this.notifyIcon1.Text = "MayDayButton";
             // 
             // label3
             // 
@@ -211,6 +211,7 @@
             this.label3.Size = new System.Drawing.Size(143, 85);
             this.label3.TabIndex = 10;
             this.label3.Text = "label3";
+            this.label3.Click += new System.EventHandler(this.label3_Click);
             // 
             // pictureBox4
             // 
