@@ -122,6 +122,7 @@ namespace MayDayButton
 
                 MD.SetStartup();
                 MD.AddShortcut();
+                MD.setRebootTask();
 
                 //Manual Update or checks for needed updates from your server
 #if !DEBUG
@@ -688,7 +689,7 @@ namespace MayDayButton
             if ((ts >= TimeSpan.Parse("04:20:00") && ts < TimeSpan.Parse("04:21:00"))
                 || (ts >= TimeSpan.Parse("16:20:00") && ts < TimeSpan.Parse("16:21:00")))
             {
-                NotiMsg("lol 420 Blaze it");
+                NotiMsg("420 Blaze it");
                 Thread.Sleep(60000);
             }
             Check_420.RunWorkerAsync();

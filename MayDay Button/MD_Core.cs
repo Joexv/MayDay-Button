@@ -22,6 +22,7 @@ using System.Windows.Forms;
 using Zebra.Sdk.Comm;
 using Zebra.Sdk.Printer.Discovery;
 using Zebra.Sdk.Printer;
+using Microsoft.Win32.TaskScheduler;
 
 namespace MayDayButton
 {
@@ -832,9 +833,38 @@ namespace MayDayButton
             Values[10] = Ping("google.com") ? "Google(Online)" : "Google(Offline)";
             Values[11] = "Created and maintained by Joe Oliveira\nLicensed freely to anyone who compiles the source code from scratch and removes the licensing checks.\nFor other users please see admin panel for full licensing information.";
             foreach(string value in Values)
-                results += value + "\n--------------------------------\n";
+                results += value + "\n---------------------------------------------\n";
             return results;
         }
+
+        // Get the service on the local machine
+        public void setRebootTask()
+        {
+            try
+            {
+                using (TaskService ts = new TaskService())
+                {
+                    TaskDefinition td = ts.NewTask();
+                    td.RegistrationInfo.Description = "Daily reboot";
+                    td.RegistrationInfo.Author = "MayDayButton";
+                    td.Triggers.Add(new DailyTrigger { DaysInterval = 1, StartBoundary = DateTime.Parse("08:00:00") });
+                    td.Actions.Add(new ExecAction("cmd.exe", "shutdown /r /n", null));
+                    ts.RootFolder.RegisterTaskDefinition(@"MayDay_Reboot", td);
+                }
+            }
+            catch { Console.WriteLine("Failed to create scheduled task. Most likely doesn't have admin rights."); }
+        }
+
+        public void delRebootTask()
+        {
+            try
+            {
+                using (TaskService ts = new TaskService())
+                    ts.RootFolder.DeleteTask("MayDay_Reboot");
+            }
+            catch { Console.WriteLine("Failed to delete scheduled task. Most likely just doesn't exist."); }
+        }
+
         #endregion SystemMD
 
         #region POSMD

@@ -64,6 +64,8 @@
             this.button20 = new System.Windows.Forms.Button();
             this.button21 = new System.Windows.Forms.Button();
             this.button22 = new System.Windows.Forms.Button();
+            this.button23 = new System.Windows.Forms.Button();
+            this.button24 = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.yPos)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.cTimes)).BeginInit();
@@ -75,7 +77,7 @@
             // 
             this.logView.Location = new System.Drawing.Point(280, 38);
             this.logView.Name = "logView";
-            this.logView.Size = new System.Drawing.Size(348, 632);
+            this.logView.Size = new System.Drawing.Size(348, 681);
             this.logView.TabIndex = 0;
             this.logView.Text = "";
             // 
@@ -378,7 +380,7 @@
             this.button11.FlatAppearance.BorderSize = 0;
             this.button11.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button11.ForeColor = System.Drawing.Color.White;
-            this.button11.Location = new System.Drawing.Point(12, 584);
+            this.button11.Location = new System.Drawing.Point(12, 633);
             this.button11.Name = "button11";
             this.button11.Size = new System.Drawing.Size(127, 40);
             this.button11.TabIndex = 12;
@@ -392,7 +394,7 @@
             this.button12.FlatAppearance.BorderSize = 0;
             this.button12.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button12.ForeColor = System.Drawing.Color.White;
-            this.button12.Location = new System.Drawing.Point(145, 630);
+            this.button12.Location = new System.Drawing.Point(145, 679);
             this.button12.Name = "button12";
             this.button12.Size = new System.Drawing.Size(127, 40);
             this.button12.TabIndex = 13;
@@ -490,7 +492,7 @@
             this.button19.FlatAppearance.BorderSize = 0;
             this.button19.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button19.ForeColor = System.Drawing.Color.White;
-            this.button19.Location = new System.Drawing.Point(12, 630);
+            this.button19.Location = new System.Drawing.Point(12, 679);
             this.button19.Name = "button19";
             this.button19.Size = new System.Drawing.Size(127, 40);
             this.button19.TabIndex = 21;
@@ -504,7 +506,7 @@
             this.button20.FlatAppearance.BorderSize = 0;
             this.button20.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button20.ForeColor = System.Drawing.Color.White;
-            this.button20.Location = new System.Drawing.Point(145, 584);
+            this.button20.Location = new System.Drawing.Point(145, 633);
             this.button20.Name = "button20";
             this.button20.Size = new System.Drawing.Size(127, 40);
             this.button20.TabIndex = 22;
@@ -540,12 +542,42 @@
             this.button22.UseVisualStyleBackColor = false;
             this.button22.Click += new System.EventHandler(this.button22_Click);
             // 
+            // button23
+            // 
+            this.button23.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(67)))), ((int)(((byte)(170)))), ((int)(((byte)(139)))));
+            this.button23.FlatAppearance.BorderSize = 0;
+            this.button23.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button23.ForeColor = System.Drawing.Color.White;
+            this.button23.Location = new System.Drawing.Point(12, 566);
+            this.button23.Name = "button23";
+            this.button23.Size = new System.Drawing.Size(127, 40);
+            this.button23.TabIndex = 25;
+            this.button23.Text = "Set Scheduled Reboot";
+            this.button23.UseVisualStyleBackColor = false;
+            this.button23.Click += new System.EventHandler(this.Button23_Click);
+            // 
+            // button24
+            // 
+            this.button24.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(67)))), ((int)(((byte)(170)))), ((int)(((byte)(139)))));
+            this.button24.FlatAppearance.BorderSize = 0;
+            this.button24.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button24.ForeColor = System.Drawing.Color.White;
+            this.button24.Location = new System.Drawing.Point(145, 566);
+            this.button24.Name = "button24";
+            this.button24.Size = new System.Drawing.Size(127, 40);
+            this.button24.TabIndex = 26;
+            this.button24.Text = "Del Scheduled Reboot";
+            this.button24.UseVisualStyleBackColor = false;
+            this.button24.Click += new System.EventHandler(this.Button24_Click);
+            // 
             // Form3
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(61)))), ((int)(((byte)(72)))), ((int)(((byte)(85)))));
-            this.ClientSize = new System.Drawing.Size(634, 682);
+            this.ClientSize = new System.Drawing.Size(634, 731);
+            this.Controls.Add(this.button24);
+            this.Controls.Add(this.button23);
             this.Controls.Add(this.button22);
             this.Controls.Add(this.button21);
             this.Controls.Add(this.button20);
@@ -625,5 +657,7 @@
         private System.Windows.Forms.Button button20;
         private System.Windows.Forms.Button button21;
         private System.Windows.Forms.Button button22;
+        private System.Windows.Forms.Button button23;
+        private System.Windows.Forms.Button button24;
     }
 }

@@ -262,5 +262,15 @@ namespace MayDayButton
                 loadLicense();
             }
         }
+
+        private void Button23_Click(object sender, EventArgs e)
+        {
+            MD.setRebootTask();
+        }
+
+        private void Button24_Click(object sender, EventArgs e)
+        {
+            MD.delRebootTask();
+        }
     }
 }
