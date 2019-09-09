@@ -108,6 +108,7 @@ namespace MayDayButton
                 foreach (Process p in Process.GetProcesses().Where(n => n.Id != CurrentProcess.Id))
                     if (p.ProcessName == "MayDayButton")
                         p.Kill();
+
 #if DEBUG
                 //This is done to make sure that upon running on boot, the location doesn't get jumped to 
                 //C:\System32 or whatever bullshit Windows likes to do.
@@ -116,6 +117,7 @@ namespace MayDayButton
                 else
                     Directory.SetCurrentDirectory(@"C:\MayDayButton\");
 #endif
+
                 MD.RestoreConnection();
                 if (!MD.IsAdministrator && ps.Default.AdminStart)
                     MD.GetAdmin();
@@ -353,7 +355,7 @@ namespace MayDayButton
             Thread.Sleep(300);
             backgroundWorker2.RunWorkerAsync();
         }
-
+         
         private void backgroundWorker2_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             //These functions kinda got depreciated, but I dont remember why
